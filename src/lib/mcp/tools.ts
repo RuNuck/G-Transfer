@@ -7,7 +7,7 @@ import { collisionName, folderHint, meshName, textureSet } from "@/lib/assets/na
 import type { McpPrompt, McpResource, McpTool } from "./protocol";
 import { readForgeJob } from "@/lib/jobs";
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 export const TOOLS: McpTool[] = [
@@ -190,6 +190,21 @@ export const TOOLS: McpTool[] = [
       },
     },
   },
+
+  {
+    name: "forge_validate",
+    description:
+      "Run godot_prod artifact gates on a GLB path or folder (fail closed). Prefer this over forge_qc_checklist for forged files. Optional out path writes a ValidationReport JSON.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        path: { type: "string", description: "GLB file or directory under the project (alias: file)." },
+        file: { type: "string", description: "Alias for path." },
+        profile: { type: "string", description: "Validation profile. Default godot_prod." },
+        out: { type: "string", description: "Optional path to write ValidationReport JSON." },
+      },
+    },
+  },
   {
     name: "forge_job_status",
     description:
@@ -234,6 +249,25 @@ export const RESOURCES: McpResource[] = [
     name: "Blender add-on install",
     description: "How to install the Anvil TCP add-on and pair it with Claude Code.",
     mimeType: "text/markdown",
+  },
+
+  {
+    uri: "anvil://guide/agent",
+    name: "Agent guide",
+    description: "How Claude Code/Cowork should Plan vs Run Anvil: tools, Godot gates, scene = kits.",
+    mimeType: "text/markdown",
+  },
+  {
+    uri: "anvil://schemas/weapon-graph",
+    name: "WeaponGraph schema",
+    description: "JSON Schema for modular M4-class WeaponGraph (Phase 2).",
+    mimeType: "application/schema+json",
+  },
+  {
+    uri: "anvil://schemas/scene-spec",
+    name: "SceneSpec schema",
+    description: "JSON Schema for SceneSpec composition (Phase 4). Kits only — no mega-mesh.",
+    mimeType: "application/schema+json",
   },
 ];
 
@@ -647,6 +681,53 @@ export function callTool(name: string, args: Record<string, unknown>) {
         ...(failed ? { isError: true } : {}),
       };
     }
+
+    case "forge_validate": {
+      const pathRaw = args.path ?? args.file;
+      if (typeof pathRaw !== "string" || !pathRaw.trim()) {
+        throw new InvalidParams("path or file is required");
+      }
+      const root = findAnvilRoot();
+      const runner = resolve(root, "tools/validate/run.mjs");
+      if (!existsSync(runner)) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({ ok: false, error: "validate runner missing", runner }, null, 2),
+            },
+          ],
+          isError: true,
+        };
+      }
+      const profile = typeof args.profile === "string" && args.profile.trim() ? args.profile.trim() : "godot_prod";
+      const argv = [runner, pathRaw.trim(), "--profile", profile, "--json"];
+      if (typeof args.out === "string" && args.out.trim()) {
+        argv.push("--out", args.out.trim());
+      }
+      const r = spawnSync(process.execPath, argv, {
+        cwd: root,
+        encoding: "utf8",
+        maxBuffer: 8 * 1024 * 1024,
+      });
+      const out = (r.stdout || "").trim() || (r.stderr || "").trim() || `exit ${r.status}`;
+      let payload: unknown = out;
+      try {
+        payload = JSON.parse(out);
+      } catch {
+        // keep string
+      }
+      const failed = (r.status ?? 1) !== 0;
+      return {
+        content: [
+          {
+            type: "text",
+            text: typeof payload === "string" ? payload : JSON.stringify(payload, null, 2),
+          },
+        ],
+        ...(failed ? { isError: true } : {}),
+      };
+    }
     case "forge_list_prototypes":
       return text(
         JSON.stringify(
@@ -666,21 +747,50 @@ export function callTool(name: string, args: Record<string, unknown>) {
   }
 }
 
-export function resourceBody(uri: string): string | null {
+export type ResourceBody = { text: string; mimeType: string };
+
+function readProjectText(relPath: string): string | null {
+  const root = findAnvilRoot();
+  const abs = resolve(root, relPath);
+  if (!existsSync(abs)) return null;
+  try {
+    return readFileSync(abs, "utf8");
+  } catch {
+    return null;
+  }
+}
+
+export function resourceBody(uri: string): ResourceBody | null {
   if (uri === "anvil://pipeline/unreal") {
-    return `# Unreal 5 — Anvil\n\n- Prefixes: SM_ mesh, T_ textures, MI_ instances, UBX_/USP_/UCP_/UCX_ collision by shape.\n- ORM: R AO, G Roughness, B Metallic. sRGB off on N and ORM.\n- Nanite: architecture and unique hero props. Weapons and small props keep LODs.\n- Lightmap UV on UV1, 2 px pad. Generate if missing.\n- Collision: UBX_/USP_/UCP_/UCX_ prefixed meshes exported beside the render mesh (FBX, or glTF on UE 5.4+), or Auto Convex 8 hulls max.\n`;
+    return { mimeType: "text/markdown", text: `# Unreal 5 — Anvil\n\n- Prefixes: SM_ mesh, T_ textures, MI_ instances, UBX_/USP_/UCP_/UCX_ collision by shape.\n- ORM: R AO, G Roughness, B Metallic. sRGB off on N and ORM.\n- Nanite: architecture and unique hero props. Weapons and small props keep LODs.\n- Lightmap UV on UV1, 2 px pad. Generate if missing.\n- Collision: UBX_/USP_/UCP_/UCX_ prefixed meshes exported beside the render mesh (FBX, or glTF on UE 5.4+), or Auto Convex 8 hulls max.\n` };
   }
   if (uri === "anvil://pipeline/unity") {
-    return `# Unity — Anvil\n\n- Scale factor 1. Mesh compression Off for hero.\n- URP Lit or HDRP Lit. Normal OpenGL (flip G if it caves in).\n- HDRP Mask: R Metallic, G AO, B Detail, A Smoothness.\n- LOD Group 100 / 40 / 12, cull 4.\n- Convex MeshCollider on a child named COL_.\n`;
+    return { mimeType: "text/markdown", text: `# Unity — Anvil\n\n- Scale factor 1. Mesh compression Off for hero.\n- URP Lit or HDRP Lit. Normal OpenGL (flip G if it caves in).\n- HDRP Mask: R Metallic, G AO, B Detail, A Smoothness.\n- LOD Group 100 / 40 / 12, cull 4.\n- Convex MeshCollider on a child named COL_.\n` };
   }
   if (uri === "anvil://pipeline/godot") {
-    return `# Godot 4 — Anvil\n\n- Import GLB, ensure tangents.\n- StandardMaterial3D + ORM.\n- A node named <mesh>_col-convcolonly imports as a StaticBody3D named <mesh>_col with a convex CollisionShape3D.\n- VisibilityRange or importer LOD.\n`;
+    return { mimeType: "text/markdown", text: `# Godot 4 — Anvil\n\n- Import GLB, ensure tangents.\n- StandardMaterial3D + ORM.\n- A node named <mesh>_col-convcolonly imports as a StaticBody3D named <mesh>_col with a convex CollisionShape3D.\n- VisibilityRange or importer LOD.\n` };
   }
   if (uri === "anvil://conventions/naming") {
-    return `# Naming\n\nUnreal: SM_Crate_01, T_Crate_01_D/N/ORM, MI_Crate_01, UBX_SM_Crate_01 (USP_/UCP_/UCX_ by shape)\nUnity: Crate_01, T_Crate_01_Albedo/Normal/Mask, M_Crate_01, COL_Crate_01\nGodot: crate_01.glb, tex_crate_01_albedo, mat_crate_01, crate_01_col-convcolonly\n`;
+    return { mimeType: "text/markdown", text: `# Naming\n\nUnreal: SM_Crate_01, T_Crate_01_D/N/ORM, MI_Crate_01, UBX_SM_Crate_01 (USP_/UCP_/UCX_ by shape)\nUnity: Crate_01, T_Crate_01_Albedo/Normal/Mask, M_Crate_01, COL_Crate_01\nGodot: crate_01.glb, tex_crate_01_albedo, mat_crate_01, crate_01_col-convcolonly\n` };
   }
   if (uri === "anvil://blender/addon") {
-    return `# Anvil Blender bridge\n\nTwo servers: this HTTP server generates scripts; the local "anvil-blender" stdio server executes them in Blender.\n\n1. Download anvil_blender_addon.zip and anvil-mcp-server.mjs from the app's Connect panel. Keep the .mjs somewhere permanent; it needs Node.js 18+.\n2. Blender 4.2+ → Edit → Preferences → Add-ons → Install from Disk → the zip → enable "Anvil: Game Asset MCP" → N-panel → Anvil → Connect. Nothing listens until Connect; it writes the token to ~/.anvil/token, which the local server reads (or set ANVIL_BLENDER_TOKEN). The zip carries the part kit and surfacing recipes that the generated build and bake scripts use when the add-on is installed (remove an older anvil_blender_addon.py first).\n3. claude mcp add anvil-blender -- node "<full path to>/anvil-mcp-server.mjs"\n4. In Claude Code: forge_create_asset, then pass its blenderScript as code to blender_run_python. blender_ping checks the connection.\n`;
+    return { mimeType: "text/markdown", text: `# Anvil Blender bridge\n\nTwo servers: this HTTP server generates scripts; the local "anvil-blender" stdio server executes them in Blender.\n\n1. Download anvil_blender_addon.zip and anvil-mcp-server.mjs from the app's Connect panel. Keep the .mjs somewhere permanent; it needs Node.js 18+.\n2. Blender 4.2+ → Edit → Preferences → Add-ons → Install from Disk → the zip → enable "Anvil: Game Asset MCP" → N-panel → Anvil → Connect. Nothing listens until Connect; it writes the token to ~/.anvil/token, which the local server reads (or set ANVIL_BLENDER_TOKEN). The zip carries the part kit and surfacing recipes that the generated build and bake scripts use when the add-on is installed (remove an older anvil_blender_addon.py first).\n3. claude mcp add anvil-blender -- node "<full path to>/anvil-mcp-server.mjs"\n4. In Claude Code: forge_create_asset, then pass its blenderScript as code to blender_run_python. blender_ping checks the connection.\n` };
+  }
+  if (uri === "anvil://guide/agent") {
+    const text =
+      readProjectText("docs/AGENT-GUIDE.md") ??
+      "# Agent guide missing on disk. See docs/AGENT-GUIDE.md in the Anvil repo.";
+    return { mimeType: "text/markdown", text };
+  }
+  if (uri === "anvil://schemas/weapon-graph") {
+    const text = readProjectText("docs/schemas/weapon-graph.schema.json");
+    if (!text) return null;
+    return { mimeType: "application/schema+json", text };
+  }
+  if (uri === "anvil://schemas/scene-spec") {
+    const text = readProjectText("docs/schemas/scene-spec.schema.json");
+    if (!text) return null;
+    return { mimeType: "application/schema+json", text };
   }
   return null;
 }

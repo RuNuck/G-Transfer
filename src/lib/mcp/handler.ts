@@ -31,7 +31,7 @@ function initializeResult() {
       version: SERVER_VERSION,
     },
     instructions:
-      "Anvil forges production game assets. Prefer forge_run_asset + forge_job_status for existing exports GLBs (Phase 1 jobs). Use forge_scene + forge_job_status for Phase 4 scene scaffold (SceneSpec to exports/scenes/). For new asset specs start with forge_create_asset(brief, engine). blender_execute on this HTTP server never runs code — use blender_run_python on the local anvil-blender stdio server (see anvil://blender/addon). Read anvil://pipeline/{unreal,unity,godot} before exporting.",
+      "Anvil forges production game assets. Read anvil://guide/agent first. Plan = forge_create_asset (spec/script only). Run = forge_run_asset / forge_scene + forge_job_status; never declare success without forge_validate (godot_prod). Scene = compose kits (anvil://schemas/scene-spec), not a mega-mesh. WeaponGraph schema: anvil://schemas/weapon-graph. blender_execute on this HTTP server never runs code — use blender_run_python on local anvil-blender (anvil://blender/addon). Also: anvil://pipeline/godot.",
   };
 }
 
@@ -70,7 +70,7 @@ export function dispatch(message: JsonRpcMessage): JsonRpcMessage | null {
         if (typeof p.uri !== "string" || !p.uri) return reply(fail(id, -32602, "Invalid params: uri is required"));
         const body = resourceBody(p.uri);
         if (!body) return reply(fail(id, -32002, `Unknown resource: ${p.uri}`));
-        return reply(ok(id, { contents: [{ uri: p.uri, mimeType: "text/markdown", text: body }] }));
+        return reply(ok(id, { contents: [{ uri: p.uri, mimeType: body.mimeType, text: body.text }] }));
       }
       case "prompts/list":
         return reply(ok(id, { prompts: PROMPTS }));

@@ -4,7 +4,7 @@ Production game asset MCP. A Three.js studio that turns a text brief into a game
 
 ## Status
 
-See docs/DESIGN-AND-ROADMAP.md (roadmap) and docs/OVERNIGHT-STATUS.md (as-of-now). Validation/index/jobs: tools/validate, tools/forge-index, tools/forge-run; catalog at exports/index.json.
+See docs/DESIGN-AND-ROADMAP.md (roadmap), docs/OVERNIGHT-STATUS.md (as-of-now), and docs/AGENT-GUIDE.md (Claude Code / Cowork: Plan vs Run, job tools, Godot gates). Validation/index/jobs: tools/validate, tools/forge-index, tools/forge-run; catalog at exports/index.json.
 
 
 ## Commands

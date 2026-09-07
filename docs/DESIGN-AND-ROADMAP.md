@@ -305,6 +305,8 @@ Checkboxes are the working tracker. **Exit criteria** are mandatory; demos witho
 
 ### Phase 0 — Production foundation
 
+*Progress as of 2026-09-06: validate CLI + index + fail-closed fixtures landed; Godot import still blocked (no Godot on forge box).*
+
 **Goal:** Make “ready” mean something for single Godot assets.
 
 - [ ] File-level validation on forged GLBs (not spec-only QC); fail closed on pivot/collision/meters.
@@ -315,6 +317,8 @@ Checkboxes are the working tracker. **Exit criteria** are mandatory; demos witho
 **Exit criteria:** 10 catalog kinds batch-forged, index `ready`, `godot-check` green; broken pivot/scale fixtures fail; README points at index + validate.
 
 ### Phase 1 — Reliable agent asset loop (jobs)
+
+*Progress as of 2026-09-06: job store + forge_run_asset / forge_job_status / forge_validate MCP wired; Blender stages simulated without blender binary.*
 
 **Goal:** Claude forges without babysitting scripts.
 
@@ -345,6 +349,8 @@ Checkboxes are the working tracker. **Exit criteria** are mandatory; demos witho
 **Exit criteria:** ≥12 jungle pieces `ready` with consistent TD/materials; snap into a hand-built sample `.tscn` with no scale fixes.
 
 ### Phase 4 — Scene composer
+
+*Progress as of 2026-09-06: SceneSpec schema/types + scene-compose scaffold + forge_scene MCP; jungle example .tscn is placeholder kit composition (not production biome kits).*
 
 **Goal:** “Jungle scene” returns a composition of kits.
 
