@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "anvil": {
+      "type": "http",
+      "url": "https://YOUR-HOST/api/mcp"
+    },
+    "anvil-blender": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["<full path to>/anvil-mcp-server.mjs"]
+    }
+  }
+}

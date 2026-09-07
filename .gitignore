@@ -1,0 +1,25 @@
+node_modules/
+dist/
+.output/
+.nitro/
+.tanstack/
+.vite/
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+.godot/
+
+# forged binaries (regenerable); keep catalog/report JSON
+exports/**/*.glb
+exports/**/*.png
+exports/**/*.jpg
+exports/godot-project/
+exports/godot-test/
+public/downloads/*.zip
+docs/_*.txt
+docs/_*.b64
+docs/_*.md

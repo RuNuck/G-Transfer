@@ -1,0 +1,520 @@
+{
+  "schemaVersion": 1,
+  "profile": "godot_prod",
+  "generatedAt": "2026-09-07T02:25:19.207Z",
+  "limits": "Godot/Blender not required. Gates use GLB JSON + Godot collision naming + rigged-path heuristics. Full import proof: node tools/godot-check/check-import.mjs",
+  "ok": true,
+  "counts": {
+    "assets": 5,
+    "passed": 5,
+    "failed": 0
+  },
+  "results": [
+    {
+      "file": "exports/forge/closed_great_helm.glb",
+      "absPath": "/workspace/project/exports/forge/closed_great_helm.glb",
+      "profile": "godot_prod",
+      "ok": true,
+      "hardFails": [],
+      "gates": [
+        {
+          "id": "file_exists",
+          "severity": "hard",
+          "ok": true,
+          "detail": "exports/forge/closed_great_helm.glb"
+        },
+        {
+          "id": "extension",
+          "severity": "hard",
+          "ok": true,
+          "detail": ".glb"
+        },
+        {
+          "id": "readable_glb",
+          "severity": "hard",
+          "ok": true,
+          "detail": "glTF 2, 7203128 bytes"
+        },
+        {
+          "id": "has_meshes",
+          "severity": "hard",
+          "ok": true,
+          "detail": "2 mesh(es): closed_great_helm_col-convcolonly, closed_great_helm"
+        },
+        {
+          "id": "has_materials",
+          "severity": "hard",
+          "ok": true,
+          "detail": "2 material(s)"
+        },
+        {
+          "id": "has_nodes",
+          "severity": "hard",
+          "ok": true,
+          "detail": "5 node(s)"
+        },
+        {
+          "id": "collision_godot_suffix",
+          "severity": "hard",
+          "ok": true,
+          "detail": "Godot collision node(s): closed_great_helm_col-convcolonly"
+        }
+      ],
+      "soft": [
+        {
+          "id": "rigged_clips",
+          "severity": "soft",
+          "ok": true,
+          "detail": "clips present (not required by path): raise_visor"
+        },
+        {
+          "id": "meters_bounds",
+          "severity": "soft",
+          "ok": true,
+          "detail": "AABB size ≈ 0.330×0.330×0.330 m (from POSITION min/max)"
+        }
+      ],
+      "summary": {
+        "bytes": 7203128,
+        "meshes": [
+          "closed_great_helm_col-convcolonly",
+          "closed_great_helm"
+        ],
+        "materials": [
+          "mat_plate",
+          "mat_leather"
+        ],
+        "animations": [
+          "raise_visor"
+        ],
+        "skins": 1,
+        "godotCollisionNodes": [
+          "closed_great_helm_col-convcolonly"
+        ],
+        "bounds": {
+          "min": [
+            -0.16499999165534973,
+            -0.16499999165534973,
+            -0.16499999165534973
+          ],
+          "max": [
+            0.16499999165534973,
+            0.16499999165534973,
+            0.16499999165534973
+          ],
+          "size": [
+            0.32999998331069946,
+            0.32999998331069946,
+            0.32999998331069946
+          ]
+        },
+        "suggestsRigged": false
+      }
+    },
+    {
+      "file": "exports/forge/iron_banded_oak_loot_chest.glb",
+      "absPath": "/workspace/project/exports/forge/iron_banded_oak_loot_chest.glb",
+      "profile": "godot_prod",
+      "ok": true,
+      "hardFails": [],
+      "gates": [
+        {
+          "id": "file_exists",
+          "severity": "hard",
+          "ok": true,
+          "detail": "exports/forge/iron_banded_oak_loot_chest.glb"
+        },
+        {
+          "id": "extension",
+          "severity": "hard",
+          "ok": true,
+          "detail": ".glb"
+        },
+        {
+          "id": "readable_glb",
+          "severity": "hard",
+          "ok": true,
+          "detail": "glTF 2, 2525460 bytes"
+        },
+        {
+          "id": "has_meshes",
+          "severity": "hard",
+          "ok": true,
+          "detail": "2 mesh(es): iron_banded_oak_loot_chest_col-convcolonly, iron_banded_oak_loot_chest"
+        },
+        {
+          "id": "has_materials",
+          "severity": "hard",
+          "ok": true,
+          "detail": "2 material(s)"
+        },
+        {
+          "id": "has_nodes",
+          "severity": "hard",
+          "ok": true,
+          "detail": "6 node(s)"
+        },
+        {
+          "id": "collision_godot_suffix",
+          "severity": "hard",
+          "ok": true,
+          "detail": "Godot collision node(s): iron_banded_oak_loot_chest_col-convcolonly"
+        }
+      ],
+      "soft": [
+        {
+          "id": "rigged_clips",
+          "severity": "soft",
+          "ok": true,
+          "detail": "clips present (not required by path): open, unhasp"
+        },
+        {
+          "id": "meters_bounds",
+          "severity": "soft",
+          "ok": true,
+          "detail": "AABB size ≈ 1.110×0.710×0.710 m (from POSITION min/max)"
+        }
+      ],
+      "summary": {
+        "bytes": 2525460,
+        "meshes": [
+          "iron_banded_oak_loot_chest_col-convcolonly",
+          "iron_banded_oak_loot_chest"
+        ],
+        "materials": [
+          "mat_wood",
+          "mat_steel_bands"
+        ],
+        "animations": [
+          "open",
+          "unhasp"
+        ],
+        "skins": 1,
+        "godotCollisionNodes": [
+          "iron_banded_oak_loot_chest_col-convcolonly"
+        ],
+        "bounds": {
+          "min": [
+            -0.5550000071525574,
+            -0.004999995231628418,
+            -0.35499998927116394
+          ],
+          "max": [
+            0.5550000071525574,
+            0.7049999833106995,
+            0.35499998927116394
+          ],
+          "size": [
+            1.1100000143051147,
+            0.7099999785423279,
+            0.7099999785423279
+          ]
+        },
+        "suggestsRigged": false
+      }
+    },
+    {
+      "file": "exports/forge/kerosene_lantern.glb",
+      "absPath": "/workspace/project/exports/forge/kerosene_lantern.glb",
+      "profile": "godot_prod",
+      "ok": true,
+      "hardFails": [],
+      "gates": [
+        {
+          "id": "file_exists",
+          "severity": "hard",
+          "ok": true,
+          "detail": "exports/forge/kerosene_lantern.glb"
+        },
+        {
+          "id": "extension",
+          "severity": "hard",
+          "ok": true,
+          "detail": ".glb"
+        },
+        {
+          "id": "readable_glb",
+          "severity": "hard",
+          "ok": true,
+          "detail": "glTF 2, 6285408 bytes"
+        },
+        {
+          "id": "has_meshes",
+          "severity": "hard",
+          "ok": true,
+          "detail": "2 mesh(es): kerosene_lantern, kerosene_lantern_col-convcolonly"
+        },
+        {
+          "id": "has_materials",
+          "severity": "hard",
+          "ok": true,
+          "detail": "3 material(s)"
+        },
+        {
+          "id": "has_nodes",
+          "severity": "hard",
+          "ok": true,
+          "detail": "2 node(s)"
+        },
+        {
+          "id": "collision_godot_suffix",
+          "severity": "hard",
+          "ok": true,
+          "detail": "Godot collision node(s): kerosene_lantern_col-convcolonly"
+        }
+      ],
+      "soft": [
+        {
+          "id": "rigged_clips",
+          "severity": "soft",
+          "ok": true,
+          "detail": "no clips (path does not suggest rigged)"
+        },
+        {
+          "id": "meters_bounds",
+          "severity": "soft",
+          "ok": true,
+          "detail": "AABB size ≈ 0.190×0.370×0.190 m (from POSITION min/max)"
+        }
+      ],
+      "summary": {
+        "bytes": 6285408,
+        "meshes": [
+          "kerosene_lantern",
+          "kerosene_lantern_col-convcolonly"
+        ],
+        "materials": [
+          "mat_brass",
+          "mat_glass",
+          "mat_flame"
+        ],
+        "animations": [],
+        "skins": 0,
+        "godotCollisionNodes": [
+          "kerosene_lantern_col-convcolonly"
+        ],
+        "bounds": {
+          "min": [
+            -0.0950000062584877,
+            -0.004999995231628418,
+            -0.0950000062584877
+          ],
+          "max": [
+            0.0950000062584877,
+            0.36460021138191223,
+            0.0950000062584877
+          ],
+          "size": [
+            0.1900000125169754,
+            0.36960020661354065,
+            0.1900000125169754
+          ]
+        },
+        "suggestsRigged": false
+      }
+    },
+    {
+      "file": "exports/forge/sci_fi_hover_bike.glb",
+      "absPath": "/workspace/project/exports/forge/sci_fi_hover_bike.glb",
+      "profile": "godot_prod",
+      "ok": true,
+      "hardFails": [],
+      "gates": [
+        {
+          "id": "file_exists",
+          "severity": "hard",
+          "ok": true,
+          "detail": "exports/forge/sci_fi_hover_bike.glb"
+        },
+        {
+          "id": "extension",
+          "severity": "hard",
+          "ok": true,
+          "detail": ".glb"
+        },
+        {
+          "id": "readable_glb",
+          "severity": "hard",
+          "ok": true,
+          "detail": "glTF 2, 3424992 bytes"
+        },
+        {
+          "id": "has_meshes",
+          "severity": "hard",
+          "ok": true,
+          "detail": "2 mesh(es): sci_fi_hover_bike, sci_fi_hover_bike_col-convcolonly"
+        },
+        {
+          "id": "has_materials",
+          "severity": "hard",
+          "ok": true,
+          "detail": "3 material(s)"
+        },
+        {
+          "id": "has_nodes",
+          "severity": "hard",
+          "ok": true,
+          "detail": "2 node(s)"
+        },
+        {
+          "id": "collision_godot_suffix",
+          "severity": "hard",
+          "ok": true,
+          "detail": "Godot collision node(s): sci_fi_hover_bike_col-convcolonly"
+        }
+      ],
+      "soft": [
+        {
+          "id": "rigged_clips",
+          "severity": "soft",
+          "ok": true,
+          "detail": "no clips (path does not suggest rigged)"
+        },
+        {
+          "id": "meters_bounds",
+          "severity": "soft",
+          "ok": true,
+          "detail": "AABB size ≈ 2.400×0.900×1.000 m (from POSITION min/max)"
+        }
+      ],
+      "summary": {
+        "bytes": 3424992,
+        "meshes": [
+          "sci_fi_hover_bike",
+          "sci_fi_hover_bike_col-convcolonly"
+        ],
+        "materials": [
+          "mat_hull",
+          "mat_trim",
+          "mat_lamp"
+        ],
+        "animations": [],
+        "skins": 0,
+        "godotCollisionNodes": [
+          "sci_fi_hover_bike_col-convcolonly"
+        ],
+        "bounds": {
+          "min": [
+            -1.2000000476837158,
+            0,
+            -0.4999995827674866
+          ],
+          "max": [
+            1.2000000476837158,
+            0.8999961018562317,
+            0.4999995827674866
+          ],
+          "size": [
+            2.4000000953674316,
+            0.8999961018562317,
+            0.9999991655349731
+          ]
+        },
+        "suggestsRigged": false
+      }
+    },
+    {
+      "file": "exports/forge/us_ammo_can.glb",
+      "absPath": "/workspace/project/exports/forge/us_ammo_can.glb",
+      "profile": "godot_prod",
+      "ok": true,
+      "hardFails": [],
+      "gates": [
+        {
+          "id": "file_exists",
+          "severity": "hard",
+          "ok": true,
+          "detail": "exports/forge/us_ammo_can.glb"
+        },
+        {
+          "id": "extension",
+          "severity": "hard",
+          "ok": true,
+          "detail": ".glb"
+        },
+        {
+          "id": "readable_glb",
+          "severity": "hard",
+          "ok": true,
+          "detail": "glTF 2, 8576228 bytes"
+        },
+        {
+          "id": "has_meshes",
+          "severity": "hard",
+          "ok": true,
+          "detail": "2 mesh(es): us_ammo_can, us_ammo_can_col-convcolonly"
+        },
+        {
+          "id": "has_materials",
+          "severity": "hard",
+          "ok": true,
+          "detail": "2 material(s)"
+        },
+        {
+          "id": "has_nodes",
+          "severity": "hard",
+          "ok": true,
+          "detail": "7 node(s)"
+        },
+        {
+          "id": "collision_godot_suffix",
+          "severity": "hard",
+          "ok": true,
+          "detail": "Godot collision node(s): us_ammo_can_col-convcolonly"
+        }
+      ],
+      "soft": [
+        {
+          "id": "rigged_clips",
+          "severity": "soft",
+          "ok": true,
+          "detail": "clips present (not required by path): open, unlatch, lift"
+        },
+        {
+          "id": "meters_bounds",
+          "severity": "soft",
+          "ok": true,
+          "detail": "AABB size ≈ 0.290×0.210×0.190 m (from POSITION min/max)"
+        }
+      ],
+      "summary": {
+        "bytes": 8576228,
+        "meshes": [
+          "us_ammo_can",
+          "us_ammo_can_col-convcolonly"
+        ],
+        "materials": [
+          "mat_olive_drab",
+          "mat_steel"
+        ],
+        "animations": [
+          "open",
+          "unlatch",
+          "lift"
+        ],
+        "skins": 1,
+        "godotCollisionNodes": [
+          "us_ammo_can_col-convcolonly"
+        ],
+        "bounds": {
+          "min": [
+            -0.14499999582767487,
+            -0.005000002682209015,
+            -0.0950000062584877
+          ],
+          "max": [
+            0.14499999582767487,
+            0.20500001311302185,
+            0.0950000062584877
+          ],
+          "size": [
+            0.28999999165534973,
+            0.21000001579523087,
+            0.1900000125169754
+          ]
+        },
+        "suggestsRigged": false
+      }
+    }
+  ]
+}
