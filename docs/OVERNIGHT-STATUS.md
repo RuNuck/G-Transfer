@@ -28,7 +28,7 @@
 | `forge_job_status` | Poll job id. |
 | `forge_create_asset` | Plan: AssetSpec + Blender script (does not forge a GLB). |
 | `npm run scene:compose` | Direct compose from `docs/schemas/examples/jungle-clearing.scene.json`. |
-| `npm run typecheck` / `npm test` | npm test = stdio MCP protocol (Blander relay). |
+| `npm run typecheck` / `npm test` | npm test = stdio MCP protocol (Blender relay). |
 
 MCP resources (HTTP `/api/mcp`): `anvil://guide/agent`, `anvil://schemas/weapon-graph`, `anvil://schemas/scene-spec`, plus pipeline/naming/addon. See `docs/AGENT-GUIDE.md`.
 
@@ -45,7 +45,7 @@ MCP resources (HTTP `/api/mcp`): `anvil://guide/agent`, `anvil://schemas/weapon-
 | Scene compose jungle example | **Scaffold** — instances .tscn + report; placeholder kit refs, no mega-mesh (good), but not full biome kits |
 | WeaponGraph | Schema + **M4 example** + check:weapon-graph (Phase 2 forge_weapon still not implemented) |
 | Godot headless import check | Not runnable here (no godot binary) |
-| Blander kit/surface forge | Not runnable here (no blender binary) |
+| Blender kit/surface forge | Not runnable here (no blender binary) |
 
 ---
 
@@ -60,7 +60,7 @@ MCP resources (HTTP `/api/mcp`): `anvil://guide/agent`, `anvil://schemas/weapon-
 
 ## Recommended next (when you're back)
 
-1. Install Blander 4.2+ + Anvil add-on on a machine you control; point anvil-blender stdio MCP at it.
+1. Install Blender 4.2+ + Anvil add-on on a machine you control; point anvil-blender stdio MCP at it.
 2. Install Godot 4 there (and/or set `ANVIL_GODOT`); run `node tools/godot-check/check-import.mjs exports/`.
 3. Run one real `forge_run_asset` smoke with Blender present; confirm `forge_validate` + index ready.
 4. Read `docs/AGENT-GUIDE.md` + wire Claude Code to HTTP `/api/mcp` and anvil-blender.
