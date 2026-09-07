@@ -1,16 +1,35 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-07T02:39:00.540Z",
+  "updatedAt": "2026-09-07T11:59:09.108Z",
   "root": "exports",
   "profile": "godot_prod",
   "validated": true,
   "counts": {
-    "assets": 14,
-    "ready": 10,
+    "assets": 15,
+    "ready": 11,
     "failed": 4,
     "unchecked": 0
   },
   "entries": [
+    {
+      "id": "forge-smoke.oil_lantern",
+      "file": "forge-smoke/oil_lantern.glb",
+      "mesh": "oil_lantern",
+      "bytes": 164612,
+      "modified": 1788782348651.498,
+      "modifiedAt": "2026-09-07T11:59:08.651Z",
+      "folder": "forge-smoke",
+      "folderHint": "res://art/forge-smoke/",
+      "hash": "sha256:6c0640b67c8a1fa1c2b1695a70997f5a3ff94007a4cc3ac1c8f5bc6ba1f75167",
+      "engine": "godot",
+      "status": "ready",
+      "validation": {
+        "ok": true,
+        "hardFails": [],
+        "profile": "godot_prod"
+      },
+      "ready": true
+    },
     {
       "id": "forge.us_ammo_can",
       "file": "forge/us_ammo_can.glb",

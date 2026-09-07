@@ -27,7 +27,10 @@
     "forge:run": "node tools/forge-run/run-asset.mjs",
     "forge:list": "node tools/forge-run/list.mjs",
     "scene:compose": "node tools/scene-compose/compose.mjs docs/schemas/examples/jungle-clearing.scene.json",
-    "forge:scene": "node tools/scene-compose/run-scene.mjs"
+    "forge:scene": "node tools/scene-compose/run-scene.mjs",
+    "forge:emit": "node tools/forge-run/emit-script.mjs",
+    "dcc:smoke": "node tools/dcc-smoke.mjs",
+    "dcc:smoke:bake": "node tools/dcc-smoke.mjs --bake"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.0",

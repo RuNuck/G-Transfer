@@ -26,3 +26,6 @@ docs/_*.md
 
 # forge job store (local filesystem worker)
 .anvil/
+
+# blender-check generated scripts (emit-script / fetch-scripts)
+tools/blender-check/out/

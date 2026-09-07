@@ -41,19 +41,18 @@ MCP resources (HTTP `/api/mcp`): `anvil://guide/agent`, `anvil://schemas/weapon-
 | GLB validate (glTF parse + godot_prod heuristics) | Real on this box |
 | Index builder | Real |
 | Job store + run/scene status | Real (sync scaffold worker; not a durable queue) |
-| `forge_run_asset` Blender build/bake | **Simulated** when blender missing — no new kit GLBs |
+| `forge_run_asset` Blender build/bake | **Real** headless part-kit via `--kind` / `dcc:smoke` (file-only mode still skips rebuild) |
 | Scene compose jungle example | **Scaffold** — instances .tscn + report; placeholder kit refs, no mega-mesh (good), but not full biome kits |
 | WeaponGraph | Schema + **M4 example** + check:weapon-graph (Phase 2 forge_weapon still not implemented) |
-| Godot headless import check | Not runnable here (no godot binary) |
-| Blender kit/surface forge | Not runnable here (no blender binary) |
+| Godot headless import check | **Runnable** — Godot 4.7.2 on PATH; `check-import.mjs exports/forge` ok |
+| Blender kit/surface forge | **Real smoke passed** (lantern part kit + optional bake); see section below |
 
 ---
 
 ## Blockers
 
-- **No Blender** on the forge/agent box (`command -v blender` empty). Did not attempt a heavy apt install overnight.
-- **No Godot** on the box. Godot-import gates and showcase open cannot run here.
-- Phase 1 exit ("brief → ready with zero script paste") still needs a real Blender worker host.
+- ~~**No Blender**~~ / ~~**No Godot**~~ — installed on this box Mon Sep 7 morning (see `docs/DCC-SETUP.md`).
+- Phase 1 exit ("brief → ready with zero script paste") can now use local Blender; still needs a real `forge_run_asset` end-to-end smoke with Anvil add-on.
 - Phase 3 jungle biome kit families not authored; scene scaffold references placeholder kits.
 
 ---
@@ -75,3 +74,79 @@ Docs: `docs/DESIGN-AND-ROADMAP.md`, `docs/AGENT-GUIDE.md`, `docs/scenes/JUNGLE-C
 - Forged picker filter by kind / mesh substring.
 - DCC worker still unavailable on this box image (needs host refresh).
 - Kevin machine (when authorized) or future box image needs Blender 4.2+ or 5.x for real forge.
+
+---
+
+## DCC install (Mon Sep 7, 2026 ~7:48am ET)
+
+Official binaries under `/home/box/tools` (not apt). Symlinks in `/home/box/.local/bin`.
+
+| Tool | Version | Absolute path | Symlink |
+|---|---|---|---|
+| Blender | **5.2.1 LTS** | `/home/box/tools/blender-5.2.1-linux-x64/blender` | `~/.local/bin/blender` |
+| Godot | **4.7.2.stable** | `/home/box/tools/godot-4.7.2/Godot_v4.7.2-stable_linux.x86_64` | `~/.local/bin/godot` (+ `godot4`) |
+
+**Env:** `ANVIL_GODOT=/home/box/tools/godot-4.7.2/Godot_v4.7.2-stable_linux.x86_64` (also in `~/.bashrc`). `ANVIL_BLENDER` set similarly.
+
+**Smoke:**
+- `blender --background --python-expr "import bpy; print(bpy.app.version_string)"` → `5.2.1 LTS`
+- `node tools/godot-check/check-import.mjs exports/forge` → `"ok": true`, `"godot": "4.7.2.stable.official.ed1daf0bf"`, `problems: []`
+
+**Disk:** ~1.2 GiB Blender + ~140 MiB Godot. Full detail: `docs/DCC-SETUP.md`.
+
+
+
+---
+
+## Real Blander smoke (Mon Sep 7, 2026 ~8:00am ET)
+
+Wired headless forge on this box (tools/forge-run + dcc:smoke).
+
+### What actually ran in Blender
+
+- Blender **5.2.1 LTS** `--background` + `tools/forge-run/headless-run.py`
+- `ANVIL_KIT_DIR=public/downloads` – part kit loaded (`noil_lantern` built as **part kit**, not blockout)
+- LOD0: 2856 tris (budget 3000); Godot collision `oil_lantern_col-convcolonly`
+- Build-only GLB ~164 KiB; with `--bake`: 2048px surface (~(0s) – albedo/normal/ORM + re-export _6.2 MiB
+
+### Artifact paths
+
+| Path |
+|---|
+---|
+| `exports/forge-smoke/oil_lantern.glb` |
+| `exports/forge-smoke/textures/tex_oil_lantern_{albedo,normal,orm}.png` (when baked) |
+| `exports/forge-smoke/dcc-smoke-report.json` |
+| scripts `emit-script` – `tools/blender-check/out/gen/lantern_godot.{py,bake.py}` (ignored) |
+
+### Validate / Godot
+
+- validate exports/forge-smoke/oil_lantern.glb: ok true, hardFails none
+- `ANVIL_GODOT=... node tools/godot-check/check-import.mjs exports/forge-smoke/oil_lantern.glb` – `ok: true`, problems: []; with bake, all three mats get albedo+normal+ORM textures
+
+### NPM scripts added
+
+- `dcc:smoke` / `dcc:smoke:bake`
+- `forge:emit` – emit build/bake python from catalog kind (jiti → `src/`)
+- `forge:run` now accepts `--kind` / `--script` for real Blender (falls back to simulate on `--file` only when Blender is missing)
+
+### Scaffold vs real (updated)
+
+| Area | Real? |
+| ---|----|
+| GLB validate | Real |
+| Index builder | Real |
+| `forge_run_asset` / `--kind` Blender build/bake | **Real on this box** (headless part kit + optional bake) |
+| Godot headless import | **Real** |
+| Scene compose jungle | Scaffold |
+| WeaponGraph / `forge_weapon` | Schema + example only |
+
+### Remaining gaps to hardened roadmap
+
+1. Wire MCP `forge_run_asset` args for `kind` (not only `existing file`) so agents don't need the CLI.
+2. Run full `check-build.py` catalog regression on 5.2.1.
+3. Phase 2 `forge_weapon` + M4 preset.
+4. Phase 3 jungle kit families before treating scene compose as production.
+5. Durable job queue (today: sync fs job store).
+
+Docs: `docs/DCC-SETUP.md`.
