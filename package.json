@@ -20,6 +20,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "validate": "node tools/validate/run.mjs",
+    "check:weapon-graph": "node tools/validate/check-weapon-graph.mjs",
     "forge:index": "node tools/forge-index/build.mjs",
     "check:fast": "npm run typecheck && node tools/validate/run.mjs exports/forge && npm run validate:fixtures",
     "validate:fixtures": "node tools/validate/fixtures/expect-fail.mjs",

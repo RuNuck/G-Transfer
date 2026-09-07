@@ -330,6 +330,18 @@ function Scene({
   );
 }
 
+
+/** Soft filter for the forged picker: substring query, else prefer current catalog kind. */
+function filterForgedAssets(assets: ForgedAsset[], kind: string, query: string): ForgedAsset[] {
+  const q = query.trim().toLowerCase();
+  if (q) {
+    return assets.filter((a) => a.file.toLowerCase().includes(q) || a.mesh.toLowerCase().includes(q));
+  }
+  const k = kind.toLowerCase();
+  const byKind = assets.filter((a) => a.file.toLowerCase().includes(k) || a.mesh.toLowerCase().includes(k));
+  return byKind.length ? byKind : assets;
+}
+
 export function Viewport({
   spec,
   lod,
@@ -344,6 +356,8 @@ export function Viewport({
   const [listing, setListing] = useState<ForgedListing | null>(null);
   // "" means the spec blockout was chosen deliberately; null means "whatever matches this asset".
   const [pick, setPick] = useState<string | null>(null);
+  // Substring filter for the forged picker; empty = prefer assets matching catalog kind.
+  const [forgedFilter, setForgedFilter] = useState("");
   const [status, setStatus] = useState<{ loading: boolean; error: string | null; missingLod: boolean }>({
     loading: false,
     error: null,
@@ -366,7 +380,10 @@ export function Viewport({
   // A newly forged asset should be picked up without reloading the page.
   useEffect(() => refresh(), [spec.id, refresh]);
   // Choosing a different asset drops a manual pick, so the preview follows the asset again.
-  useEffect(() => setPick(null), [spec.id]);
+  useEffect(() => {
+    setPick(null);
+    setForgedFilter("");
+  }, [spec.id]);
   // The blockout and every forged file have their own size; never frame one with another's bounds.
   useEffect(() => setBounds(null), [spec.id, pick]);
 
@@ -377,6 +394,12 @@ export function Viewport({
     if (pick) return assets.find((a) => a.file === pick) ?? null;
     return auto;
   }, [pick, assets, auto]);
+  const filteredAssets = useMemo(() => {
+    const list = filterForgedAssets(assets, spec.kind, forgedFilter);
+    // Keep the active pick / auto match visible even if the filter would hide it.
+    if (forged && !list.some((a) => a.file === forged.file)) return [forged, ...list];
+    return list;
+  }, [assets, spec.kind, forgedFilter, forged]);
 
   if (!ready) {
     return (
@@ -425,31 +448,49 @@ export function Viewport({
         {forged && status.missingLod ? <span className="text-subtle">no LOD{lod} in the file; showing LOD0</span> : null}
       </div>
       {assets.length ? (
-        <div className="absolute right-3 top-3 flex items-center gap-2">
-          <label className="sr-only" htmlFor="anvil-forged-pick">
-            Preview source
-          </label>
-          <select
-            id="anvil-forged-pick"
-            className="h-8 max-w-[15rem] rounded-md bg-surface-2/90 px-2 font-mono text-[11px] text-fg outline-none ring-1 ring-white/10"
-            value={forged ? forged.file : ""}
-            onChange={(event) => setPick(event.target.value)}
-          >
-            <option value="">Blockout preview (from the spec)</option>
-            {assets.map((asset) => (
-              <option key={asset.file} value={asset.file}>
-                {asset.file}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            className="h-8 rounded-md bg-surface-2/90 px-2 font-mono text-[11px] text-muted ring-1 ring-white/10 hover:text-fg"
-            onClick={() => refresh()}
-            title="Look again for assets forged since this page loaded"
-          >
-            Rescan
-          </button>
+        <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
+          <div className="flex items-center gap-2">
+            <label className="sr-only" htmlFor="anvil-forged-filter">
+              Filter forged assets
+            </label>
+            <input
+              id="anvil-forged-filter"
+              type="search"
+              value={forgedFilter}
+              onChange={(event) => setForgedFilter(event.target.value)}
+              placeholder={`filter · ${spec.kind}`}
+              title="Filter by mesh/file substring. Empty prefers the current catalog kind."
+              className="h-8 w-[9.5rem] rounded-md bg-surface-2/90 px-2 font-mono text-[11px] text-fg outline-none ring-1 ring-white/10 placeholder:text-subtle"
+            />
+            <label className="sr-only" htmlFor="anvil-forged-pick">
+              Preview source
+            </label>
+            <select
+              id="anvil-forged-pick"
+              className="h-8 max-w-[15rem] rounded-md bg-surface-2/90 px-2 font-mono text-[11px] text-fg outline-none ring-1 ring-white/10"
+              value={forged ? forged.file : ""}
+              onChange={(event) => setPick(event.target.value)}
+            >
+              <option value="">Blockout preview (from the spec)</option>
+              {filteredAssets.map((asset) => (
+                <option key={asset.file} value={asset.file}>
+                  {asset.file}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="h-8 rounded-md bg-surface-2/90 px-2 font-mono text-[11px] text-muted ring-1 ring-white/10 hover:text-fg"
+              onClick={() => refresh()}
+              title="Look again for assets forged since this page loaded"
+            >
+              Rescan
+            </button>
+          </div>
+          <span className="pointer-events-none font-mono text-[10px] tabular-nums text-subtle">
+            {filteredAssets.length}/{assets.length} forged
+            {!forgedFilter.trim() ? ` · kind ${spec.kind}` : ""}
+          </span>
         </div>
       ) : null}
     </div>

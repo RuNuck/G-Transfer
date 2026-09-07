@@ -1,6 +1,6 @@
 # Anvil morning brief — for Kevin at 7am
 
-**As of** Sun Sep 6 / Mon Sep 7, 2026 — ~11:15pm ET (overnight on `/workspace/project` only). Baseline **2.9.0**.
+**As of** Sun Sep 6 / Mon Sep 7, 2026 — ~11:20pm ET (overnight on `/workspace/project` only). Baseline **2.9.0**.
 
 ---
 
@@ -12,7 +12,8 @@
 | 10:39pm Sep 6 | `589429c` | Phase 0 leftovers + Phase 1 job scaffold + WeaponGraph schema |
 | 10:49pm Sep 6 | `472dd89` | Phase 3/4 prep: SceneSpec schema, jungle contract, Probe UX, Plan copy |
 | 11:04pm Sep 6 | `115627d` | Phase 4 scaffold: SceneSpec types, scene-compose, example export |
-| ~11:15pm Sep 6 | (this commit) | Agent guide + MCP resources + `forge_validate` + morning brief |
+| ~11:15pm Sep 6 | `077a856` | Agent guide + MCP resources + `forge_validate` + morning brief |
+| ~11:20pm Sep 6 | (this commit) | M4 WeaponGraph example, forged picker filter, `check:weapon-graph` |
 
 ---
 
@@ -42,7 +43,7 @@ MCP resources (HTTP `/api/mcp`): `anvil://guide/agent`, `anvil://schemas/weapon-
 | Job store + run/scene status | Real (sync scaffold worker; not a durable queue) |
 | `forge_run_asset` Blender build/bake | **Simulated** when blender missing — no new kit GLBs |
 | Scene compose jungle example | **Scaffold** — instances .tscn + report; placeholder kit refs, no mega-mesh (good), but not full biome kits |
-| WeaponGraph | **Schema only** (Phase 2 not implemented; no `forge_weapon`) |
+| WeaponGraph | Schema + **M4 example** + check:weapon-graph (Phase 2 forge_weapon still not implemented) |
 | Godot headless import check | Not runnable here (no godot binary) |
 | Blander kit/surface forge | Not runnable here (no blender binary) |
 
@@ -67,3 +68,10 @@ MCP resources (HTTP `/api/mcp`): `anvil://guide/agent`, `anvil://schemas/weapon-
 6. Phase 3: author jungle kit families before treating scene compose as production.
 
 Docs: `docs/DESIGN-AND-ROADMAP.md`, `docs/AGENT-GUIDE.md`, `docs/scenes/JUNGLE-CONTRACT.md`.
+
+## Overnight note (11:20pm ET)
+
+- M4 WeaponGraph example + check:weapon-graph script.
+- Forged picker filter by kind / mesh substring.
+- DCC worker still unavailable on this box image (needs host refresh).
+- Kevin machine (when authorized) or future box image needs Blender 4.2+ or 5.x for real forge.

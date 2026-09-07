@@ -1,0 +1,354 @@
+{
+  "schemaVersion": 1,
+  "id": "weapon.m4.carbine",
+  "preset": "m4_carbine",
+  "engine": "godot",
+  "displayName": "M4-style carbine",
+  "overallLengthM": 0.84,
+  "caliberHint": "5.56x45",
+  "parts": [
+    {
+      "id": "lower",
+      "role": "lower_receiver",
+      "kitFamily": "rifle",
+      "variant": "m4_lower",
+      "meshHint": "m4_lower_receiver",
+      "materialSlots": ["receiver_steel"]
+    },
+    {
+      "id": "upper",
+      "role": "upper_receiver",
+      "kitFamily": "rifle",
+      "variant": "m4_upper_flat_top",
+      "meshHint": "m4_upper_receiver",
+      "materialSlots": ["receiver_steel"]
+    },
+    {
+      "id": "charging_handle",
+      "role": "other",
+      "kitFamily": "rifle",
+      "variant": "t_handle",
+      "meshHint": "m4_charging_handle",
+      "movable": true,
+      "bone": "charging_handle",
+      "materialSlots": ["receiver_steel"]
+    },
+    {
+      "id": "barrel",
+      "role": "barrel",
+      "kitFamily": "rifle",
+      "variant": "14_5_gov",
+      "meshHint": "m4_barrel_145",
+      "lengthM": 0.368,
+      "materialSlots": ["barrel_steel"]
+    },
+    {
+      "id": "handguard",
+      "role": "handguard",
+      "kitFamily": "rifle",
+      "variant": "quad_rail",
+      "meshHint": "m4_handguard_quad",
+      "lengthM": 0.178,
+      "materialSlots": ["handguard_polymer"]
+    },
+    {
+      "id": "stock",
+      "role": "stock",
+      "kitFamily": "rifle",
+      "variant": "collapsible",
+      "meshHint": "m4_stock_collapsible",
+      "movable": true,
+      "bone": "stock",
+      "materialSlots": ["handguard_polymer"]
+    },
+    {
+      "id": "mag",
+      "role": "magazine",
+      "kitFamily": "rifle",
+      "variant": "stanag30",
+      "meshHint": "stanag_mag_30",
+      "movable": true,
+      "bone": "magazine",
+      "materialSlots": ["mag_aluminum"]
+    },
+    {
+      "id": "grip",
+      "role": "grip",
+      "kitFamily": "rifle",
+      "variant": "a2",
+      "meshHint": "m4_grip_a2",
+      "materialSlots": ["grip_rubber"]
+    },
+    {
+      "id": "muzzle_device",
+      "role": "muzzle",
+      "kitFamily": "rifle",
+      "variant": "a2_flash_hider",
+      "meshHint": "m4_flash_hider_a2",
+      "materialSlots": ["barrel_steel"]
+    },
+    {
+      "id": "sight_front",
+      "role": "sight_front",
+      "kitFamily": "rifle",
+      "variant": "f_marked_fsb",
+      "meshHint": "m4_front_sight_block",
+      "materialSlots": ["receiver_steel"]
+    },
+    {
+      "id": "sight_rear",
+      "role": "sight_rear",
+      "kitFamily": "rifle",
+      "variant": "carry_handle_rear",
+      "meshHint": "m4_rear_sight",
+      "materialSlots": ["receiver_steel"]
+    }
+  ],
+  "sockets": [
+    {
+      "id": "rail_top_upper",
+      "parentPart": "upper",
+      "kind": "picatinny_rail",
+      "localTransform": {
+        "translation": [0, 0.04, 0.05],
+        "rotationDeg": [0, 0, 0]
+      },
+      "allowedChildren": ["optic", "sight_rear"],
+      "railLengthM": 0.18
+    },
+    {
+      "id": "rail_top_handguard",
+      "parentPart": "handguard",
+      "kind": "picatinny_rail",
+      "localTransform": {
+        "translation": [0, 0.035, 0.09],
+        "rotationDeg": [0, 0, 0]
+      },
+      "allowedChildren": ["optic", "sight_front", "rail_cover"],
+      "railLengthM": 0.16
+    },
+    {
+      "id": "rail_bottom_handguard",
+      "parentPart": "handguard",
+      "kind": "picatinny_rail",
+      "localTransform": {
+        "translation": [0, -0.035, 0.09],
+        "rotationDeg": [0, 0, 180]
+      },
+      "allowedChildren": ["underbarrel", "rail_cover"],
+      "railLengthM": 0.16
+    },
+    {
+      "id": "rail_left_handguard",
+      "parentPart": "handguard",
+      "kind": "picatinny_rail",
+      "localTransform": {
+        "translation": [-0.035, 0, 0.09],
+        "rotationDeg": [0, 0, -90]
+      },
+      "allowedChildren": ["rail_cover", "other"],
+      "railLengthM": 0.14
+    },
+    {
+      "id": "rail_right_handguard",
+      "parentPart": "handguard",
+      "kind": "picatinny_rail",
+      "localTransform": {
+        "translation": [0.035, 0, 0.09],
+        "rotationDeg": [0, 0, 90]
+      },
+      "allowedChildren": ["rail_cover", "other"],
+      "railLengthM": 0.14
+    },
+    {
+      "id": "muzzle_thread",
+      "parentPart": "barrel",
+      "kind": "barrel_thread",
+      "localTransform": {
+        "translation": [0, 0, 0.368],
+        "rotationDeg": [0, 0, 0]
+      },
+      "allowedChildren": ["muzzle"],
+      "threadSpec": "1/2-28"
+    },
+    {
+      "id": "stock_tube",
+      "parentPart": "lower",
+      "kind": "stock_tube",
+      "localTransform": {
+        "translation": [0, 0.02, -0.05],
+        "rotationDeg": [0, 0, 0]
+      },
+      "allowedChildren": ["stock"]
+    },
+    {
+      "id": "magwell",
+      "parentPart": "lower",
+      "kind": "magwell",
+      "localTransform": {
+        "translation": [0, -0.04, 0.02],
+        "rotationDeg": [0, 0, 0]
+      },
+      "allowedChildren": ["magazine"]
+    },
+    {
+      "id": "grip_frame",
+      "parentPart": "lower",
+      "kind": "grip_frame",
+      "localTransform": {
+        "translation": [0, -0.06, -0.01],
+        "rotationDeg": [0, 0, 0]
+      },
+      "allowedChildren": ["grip"]
+    },
+    {
+      "id": "qd_rear",
+      "parentPart": "stock",
+      "kind": "qd_sling",
+      "localTransform": {
+        "translation": [0.02, 0.01, -0.08],
+        "rotationDeg": [0, 0, 0]
+      },
+      "allowedChildren": ["other"]
+    }
+  ],
+  "attachments": [
+    {
+      "id": "att_stock",
+      "socket": "stock_tube",
+      "part": "stock"
+    },
+    {
+      "id": "att_mag",
+      "socket": "magwell",
+      "part": "mag"
+    },
+    {
+      "id": "att_grip",
+      "socket": "grip_frame",
+      "part": "grip"
+    },
+    {
+      "id": "att_muzzle",
+      "socket": "muzzle_thread",
+      "part": "muzzle_device"
+    },
+    {
+      "id": "att_front_sight",
+      "socket": "rail_top_handguard",
+      "part": "sight_front",
+      "optional": true
+    },
+    {
+      "id": "att_rear_sight",
+      "socket": "rail_top_upper",
+      "part": "sight_rear",
+      "optional": true
+    }
+  ],
+  "pivot": {
+    "kind": "grip",
+    "part": "grip",
+    "localTranslation": [0, -0.02, 0.01],
+    "toleranceM": 0.02
+  },
+  "clips": [
+    {
+      "name": "cock_back",
+      "part": "charging_handle",
+      "motion": {
+        "type": "slide",
+        "axis": "y",
+        "travelM": 0.08,
+        "durationSec": 0.3
+      }
+    },
+    {
+      "name": "trigger_pull",
+      "part": "lower",
+      "motion": {
+        "type": "rotate",
+        "axis": "x",
+        "angleDeg": 12,
+        "durationSec": 0.12
+      }
+    },
+    {
+      "name": "magazine_release",
+      "part": "mag",
+      "motion": {
+        "type": "slide",
+        "axis": "y",
+        "travelM": 0.12,
+        "durationSec": 0.25
+      }
+    },
+    {
+      "name": "selector_toggle",
+      "part": "lower",
+      "motion": {
+        "type": "rotate",
+        "axis": "z",
+        "angleDeg": 90,
+        "durationSec": 0.2
+      }
+    },
+    {
+      "name": "stock_collapse",
+      "part": "stock",
+      "motion": {
+        "type": "slide",
+        "axis": "y",
+        "travelM": 0.1,
+        "durationSec": 0.35
+      }
+    }
+  ],
+  "materials": [
+    {
+      "slot": "receiver_steel",
+      "recipe": "blued_steel",
+      "wear": 0.3,
+      "dirt": 0.15,
+      "parts": ["lower", "upper", "charging_handle", "sight_front", "sight_rear"]
+    },
+    {
+      "slot": "handguard_polymer",
+      "recipe": "polymer",
+      "wear": 0.2,
+      "dirt": 0.1,
+      "parts": ["handguard", "stock"]
+    },
+    {
+      "slot": "grip_rubber",
+      "recipe": "rubber",
+      "wear": 0.25,
+      "dirt": 0.12,
+      "parts": ["grip"]
+    },
+    {
+      "slot": "barrel_steel",
+      "recipe": "bare_steel",
+      "wear": 0.35,
+      "dirt": 0.1,
+      "parts": ["barrel", "muzzle_device"]
+    },
+    {
+      "slot": "mag_aluminum",
+      "recipe": "aluminum",
+      "wear": 0.4,
+      "dirt": 0.2,
+      "parts": ["mag"]
+    }
+  ],
+  "collision": {
+    "style": "godot_convcolonly",
+    "hullBudget": 8,
+    "excludeParts": ["sight_front", "sight_rear"]
+  },
+  "constraints": {
+    "railLengthBudgetM": 0.35,
+    "requireLowerReceiver": true,
+    "requireMagazine": true
+  }
+}
