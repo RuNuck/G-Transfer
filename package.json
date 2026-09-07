@@ -23,7 +23,7 @@
     "check:weapon-graph": "node tools/validate/check-weapon-graph.mjs",
     "forge:index": "node tools/forge-index/build.mjs",
     "check:fast": "npm run typecheck && node tools/validate/run.mjs exports/forge && npm run validate:fixtures",
-    "validate:fixtures": "node tools/validate/fixtures/expect-fail.mjs",
+    "validate:fixtures": "node tools/validate/fixtures/expect-fail.mjs && node tools/validate/fixtures/expect-pass.mjs",
     "forge:run": "node tools/forge-run/run-asset.mjs",
     "forge:list": "node tools/forge-run/list.mjs",
     "scene:compose": "node tools/scene-compose/compose.mjs docs/schemas/examples/jungle-clearing.scene.json",

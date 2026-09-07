@@ -7,8 +7,10 @@
  * Creates a type=scene job, runs compose scaffold, marks published.
  */
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { join, relative, resolve } from "node:path";
 import { createJob, advanceStage, failJob, projectRoot, saveJob } from "../forge-run/job-store.mjs";
+import { findGodot } from "../forge-run/find-dcc.mjs";
 import { composeScene } from "./compose.mjs";
 
 const DEFAULT_SPEC = "docs/schemas/examples/jungle-clearing.scene.json";
@@ -50,6 +52,66 @@ function resolveSpecPath(args, jobId) {
   const fallback = resolve(projectRoot, DEFAULT_SPEC);
   if (!existsSync(fallback)) throw new Error("default SceneSpec missing: " + DEFAULT_SPEC);
   return fallback;
+}
+
+
+function runGodotSceneOpen(absTscn) {
+  const godot = findGodot();
+  if (!godot.available) {
+    return {
+      ran: false,
+      available: false,
+      ok: null,
+      status: "godot_absent",
+      problems: [],
+      note: "Godot not available — scene open skipped (caller may still publish after kits_resolve)",
+      source: godot.source,
+      path: godot.path,
+    };
+  }
+  const checker = resolve(projectRoot, "tools/godot-check/check-scene.mjs");
+  if (!existsSync(checker)) {
+    return {
+      ran: false,
+      available: true,
+      ok: false,
+      status: "blocked",
+      problems: ["check-scene.mjs missing"],
+      note: "check-scene.mjs missing",
+      source: godot.source,
+      path: godot.path,
+    };
+  }
+  const env = { ...process.env, ANVIL_GODOT: godot.path };
+  const r = spawnSync(process.execPath, [checker, absTscn], {
+    cwd: projectRoot,
+    encoding: "utf8",
+    env,
+    maxBuffer: 8 * 1024 * 1024,
+    timeout: 600000,
+  });
+  let doc = null;
+  try {
+    doc = JSON.parse((r.stdout || "").trim());
+  } catch {
+    const m = (r.stdout || "").match(/\{[\s\S]*\}\s*$/);
+    if (m) {
+      try { doc = JSON.parse(m[0]); } catch { /* ignore */ }
+    }
+  }
+  const ok = Boolean(doc?.ok) && (r.status ?? 1) === 0;
+  return {
+    ran: true,
+    available: true,
+    ok,
+    status: ok ? "ready" : "blocked",
+    exitCode: r.status ?? 1,
+    problems: doc?.problems ?? (ok ? [] : ["scene open failed"]),
+    note: doc?.note || (ok ? "Godot headless scene open ok" : "Godot scene open failed"),
+    source: godot.source,
+    path: godot.path,
+    godotVersion: doc?.godot || null,
+  };
 }
 
 function main() {
@@ -130,7 +192,45 @@ function main() {
       process.exit(1);
     }
 
-    advanceStage(job, "published", "scene kits resolved; written to " + report.paths.dir);
+    // When Godot is present, refuse published/ok until scene.tscn opens headlessly.
+    const absTscn = resolve(projectRoot, report.paths.sceneTscn);
+    advanceStage(job, "validating", "Godot headless open scene.tscn (when available)");
+    const sceneOpen = runGodotSceneOpen(absTscn);
+    job.godotScene = sceneOpen;
+    job.shipGate = sceneOpen.available ? sceneOpen.status : "kits_resolved_godot_absent";
+    saveJob(job);
+
+    if (sceneOpen.available && sceneOpen.ok === false) {
+      job.validation.ok = false;
+      job.validation.hardFails = [...new Set([...(job.validation.hardFails || []), "godot_scene_open"])];
+      failJob(job, "Godot scene open failed: " + ((sceneOpen.problems || []).join("; ") || sceneOpen.note));
+      if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
+      else {
+        console.log(
+          JSON.stringify(
+            {
+              ok: false,
+              jobId: job.id,
+              status: job.status,
+              type: job.type,
+              sceneId: report.sceneId,
+              shipGate: job.shipGate,
+              godotScene: sceneOpen,
+              paths: job.paths,
+              error: "godot_scene_open",
+            },
+            null,
+            2,
+          ),
+        );
+      }
+      process.exit(1);
+    }
+
+    const publishNote = sceneOpen.available
+      ? "scene kits resolved + Godot opened scene.tscn; written to " + report.paths.dir
+      : "scene kits resolved (Godot absent — open skipped); written to " + report.paths.dir;
+    advanceStage(job, "published", publishNote);
 
     if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
     else {
@@ -142,6 +242,12 @@ function main() {
             status: job.status,
             type: job.type,
             sceneId: report.sceneId,
+            shipGate: job.shipGate,
+            godotScene: {
+              ok: sceneOpen.ok,
+              available: sceneOpen.available,
+              note: sceneOpen.note,
+            },
             paths: job.paths,
             seed: report.seed,
             instanceTotal: report.instanceTotal,

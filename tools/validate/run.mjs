@@ -193,8 +193,8 @@ function validateGodotProd(absPath) {
     push("skin_without_clips", "soft", false, `${summary.skins} skin(s) but no animation clips`);
   }
 
-  // Meters / bounds when accessor min/max present — out-of-range is always hard;
-  // missing bounds is hard for weapon/rigged paths (where scale mistakes are costly).
+  // Meters / bounds: out-of-range OR missing POSITION min/max is hard for ALL kinds
+  // (props included — no soft skip).
   if (summary.bounds) {
     const [sx, sy, sz] = summary.bounds.size;
     const maxDim = Math.max(sx, sy, sz);
@@ -207,14 +207,11 @@ function validateGodotProd(absPath) {
         (sane ? "" : " — out of sane meter range [0.02, 50]"),
     );
   } else {
-    const needBounds = summary.suggestsRigged || summary.suggestsWeapon;
     push(
       "meters_bounds",
-      needBounds ? "hard" : "soft",
-      !needBounds,
-      needBounds
-        ? "no POSITION min/max in accessors — cannot prove meters for weapon/rigged asset"
-        : "no POSITION min/max in accessors — bounds not checked",
+      "hard",
+      false,
+      "no POSITION min/max in accessors — cannot prove meters (hard fail for all kinds)",
     );
   }
 

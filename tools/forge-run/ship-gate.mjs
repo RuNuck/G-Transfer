@@ -1,7 +1,8 @@
 /**
  * Godot import ship gate for forge-run finish + index honesty.
- * ready = validate ok AND (when Godot present) import ok.
+ * ready = validate ok AND Godot present AND import ok.
  * Otherwise: validated_glb_only (Godot missing) or blocked (import failed).
+ * forge-run refuses published+ok unless status===ready (godot_absent/godot_import hardFail).
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
