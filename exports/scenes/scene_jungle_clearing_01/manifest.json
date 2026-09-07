@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "sceneId": "scene.jungle.clearing_01",
+  "seed": 20260906,
+  "engine": "godot",
+  "instanceCount": 157,
+  "byLayer": {
+    "ground": 68,
+    "water": 8,
+    "canopy": 24,
+    "undergrowth": 40,
+    "rocks": 16,
+    "landmarks": 1
+  },
+  "kitRefsUsed": [
+    "biome.jungle.terrain_tile_mud",
+    "biome.jungle.path_dirt_a",
+    "biome.jungle.water_plane_a",
+    "biome.jungle.river_bank_a",
+    "biome.jungle.tree_trunk_a",
+    "biome.jungle.tree_trunk_b",
+    "biome.jungle.tree_canopy_a",
+    "biome.jungle.tree_root_a",
+    "biome.jungle.fern_card_a",
+    "biome.jungle.shrub_a",
+    "biome.jungle.mud_decal_a",
+    "biome.jungle.rock_scatter_a",
+    "biome.jungle.fallen_log_a"
+  ],
+  "lightSetups": [
+    "overcast",
+    "god_rays"
+  ],
+  "contentHash": "sha256:a41170cbe03da8fed3462cf51b92e44343cbfa0a78e4f4cd06e64fb5d497a41b",
+  "megaMeshRejected": true,
+  "status": "scaffold"
+}

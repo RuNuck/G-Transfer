@@ -169,13 +169,35 @@ export const TOOLS: McpTool[] = [
     },
   },
   {
+    name: "forge_scene",
+    description:
+      "Enqueue a Phase 4 scene compose job from a SceneSpec object or a brief. Scaffold writes exports/scenes/<id>/scene.tscn + report.json (placeholders; no GLBs invented). Poll with forge_job_status.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        brief: {
+          type: "string",
+          description: "Natural-language scene brief. If sceneSpec is omitted, uses the jungle-clearing example fixture.",
+        },
+        sceneSpec: {
+          type: "object",
+          description: "Full SceneSpec (schemaVersion 1) object. Preferred when the agent has structured input.",
+        },
+        specPath: {
+          type: "string",
+          description: "Optional path to a SceneSpec JSON file under the project root.",
+        },
+      },
+    },
+  },
+  {
     name: "forge_job_status",
     description:
       "Poll a forge job by id. Returns status stages, paths, validation summary, and errors from the local job store.",
     inputSchema: {
       type: "object",
       properties: {
-        jobId: { type: "string", description: "Job id returned by forge_run_asset." },
+        jobId: { type: "string", description: "Job id returned by forge_run_asset or forge_scene." },
         id: { type: "string", description: "Alias for jobId." },
       },
     },
@@ -286,7 +308,12 @@ function specOf(args: Record<string, unknown>) {
 
 function findAnvilRoot(): string {
   const cwd = process.cwd();
-  if (existsSync(resolve(cwd, "tools/forge-run/run-asset.mjs"))) return cwd;
+  if (
+    existsSync(resolve(cwd, "tools/forge-run/run-asset.mjs")) ||
+    existsSync(resolve(cwd, "tools/scene-compose/compose.mjs"))
+  ) {
+    return cwd;
+  }
   return cwd;
 }
 
@@ -511,6 +538,73 @@ export function callTool(name: string, args: Record<string, unknown>) {
         };
       }
       return text(JSON.stringify({ ok: true, job }, null, 2));
+    }
+    case "forge_scene": {
+      const brief = args.brief;
+      const sceneSpec = args.sceneSpec;
+      const specPath = args.specPath;
+      if (
+        (brief === undefined || brief === null || brief === "") &&
+        (sceneSpec === undefined || sceneSpec === null) &&
+        (specPath === undefined || specPath === null || specPath === "")
+      ) {
+        throw new InvalidParams("forge_scene requires brief, sceneSpec, or specPath");
+      }
+      if (brief !== undefined && brief !== null && typeof brief !== "string") {
+        throw new InvalidParams("brief must be a string");
+      }
+      if (typeof brief === "string" && brief.length > MAX_BRIEF_CHARS) {
+        throw new InvalidParams(`brief must be at most ${MAX_BRIEF_CHARS} characters`);
+      }
+      if (sceneSpec !== undefined && sceneSpec !== null && (typeof sceneSpec !== "object" || Array.isArray(sceneSpec))) {
+        throw new InvalidParams("sceneSpec must be an object");
+      }
+      if (specPath !== undefined && specPath !== null && typeof specPath !== "string") {
+        throw new InvalidParams("specPath must be a string");
+      }
+      const root = findAnvilRoot();
+      const runner = resolve(root, "tools/scene-compose/run-scene.mjs");
+      if (!existsSync(runner)) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({ ok: false, error: "scene-compose runner missing", runner }, null, 2),
+            },
+          ],
+          isError: true,
+        };
+      }
+      const argv = [runner, "--json"];
+      if (typeof sceneSpec === "object" && sceneSpec !== null) {
+        argv.push("--scene-spec-json", JSON.stringify(sceneSpec));
+      } else if (typeof specPath === "string" && specPath.trim()) {
+        argv.push("--spec", specPath.trim());
+      } else {
+        argv.push("--brief", String(brief).trim());
+      }
+      const r = spawnSync(process.execPath, argv, {
+        cwd: root,
+        encoding: "utf8",
+        maxBuffer: 8 * 1024 * 1024,
+      });
+      const out = (r.stdout || "").trim() || (r.stderr || "").trim() || `exit ${r.status}`;
+      let payload: unknown = out;
+      try {
+        payload = JSON.parse(out);
+      } catch {
+        // keep string
+      }
+      const failed = (r.status ?? 1) !== 0;
+      return {
+        content: [
+          {
+            type: "text",
+            text: typeof payload === "string" ? payload : JSON.stringify(payload, null, 2),
+          },
+        ],
+        ...(failed ? { isError: true } : {}),
+      };
     }
     case "forge_run_asset": {
       const fileRaw = args.file ?? args.mesh;

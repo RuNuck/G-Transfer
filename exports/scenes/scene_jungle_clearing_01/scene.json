@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "id": "scene.jungle.clearing_01",
+  "displayName": "Jungle clearing with river and dirt path",
+  "biome": "jungle_clearing",
+  "engine": "godot",
+  "aabb": {
+    "min": [-20, 0, -20],
+    "max": [20, 25, 20]
+  },
+  "seed": 20260906,
+  "kitRefs": [
+    { "id": "biome.jungle.terrain_tile_mud", "role": "terrain_tile" },
+    { "id": "biome.jungle.path_dirt_a", "role": "path_dirt" },
+    { "id": "biome.jungle.tree_trunk_a", "role": "tree_trunk" },
+    { "id": "biome.jungle.tree_trunk_b", "role": "tree_trunk" },
+    { "id": "biome.jungle.tree_canopy_a", "role": "tree_canopy" },
+    { "id": "biome.jungle.tree_root_a", "role": "tree_root" },
+    { "id": "biome.jungle.fern_card_a", "role": "understory" },
+    { "id": "biome.jungle.shrub_a", "role": "understory" },
+    { "id": "biome.jungle.river_bank_a", "role": "river_bank" },
+    { "id": "biome.jungle.water_plane_a", "role": "water_plane" },
+    { "id": "biome.jungle.rock_scatter_a", "role": "rock_scatter" },
+    { "id": "biome.jungle.fallen_log_a", "role": "fallen_log" },
+    { "id": "biome.jungle.mud_decal_a", "role": "mud_decal" }
+  ],
+  "layers": {
+    "ground": {
+      "style": "tiled_kit",
+      "tileSizeM": 4,
+      "collision": "box_tiles",
+      "path": {
+        "polyline": [
+          [-18, 0, -8],
+          [-6, 0, -2],
+          [4, 0, 2],
+          [16, 0, 6]
+        ],
+        "widthM": 2.2,
+        "kitRole": "path_dirt"
+      }
+    },
+    "water": {
+      "enabled": true,
+      "style": "kit_segments",
+      "river": {
+        "polyline": [
+          [-20, 0.05, 12],
+          [-8, 0.05, 10],
+          [4, 0.05, 8],
+          [20, 0.05, 4]
+        ],
+        "widthM": 5.5,
+        "bankKitRole": "river_bank",
+        "waterKitRole": "water_plane",
+        "flowAxisHint": "+x"
+      }
+    },
+    "canopy": {
+      "enabled": true,
+      "density": {
+        "perSquareMeter": 0.035,
+        "maxInstances": 80,
+        "minSpacingM": 3.5
+      },
+      "kitRoles": ["tree_trunk", "tree_canopy", "tree_root"],
+      "excludeAabb": [
+        { "min": [-20, 0, 6], "max": [20, 25, 14] },
+        { "min": [-19, 0, -9], "max": [17, 25, -1] }
+      ]
+    },
+    "undergrowth": {
+      "enabled": true,
+      "density": {
+        "perSquareMeter": 0.12,
+        "maxInstances": 350,
+        "minSpacingM": 0.6
+      },
+      "kitRoles": ["understory", "mud_decal"],
+      "excludeAabb": [
+        { "min": [-20, 0, 6], "max": [20, 25, 14] },
+        { "min": [-19, 0, -9], "max": [17, 25, -1] }
+      ]
+    },
+    "rocks": {
+      "enabled": true,
+      "density": {
+        "perSquareMeter": 0.02,
+        "maxInstances": 60,
+        "minSpacingM": 1.5
+      },
+      "kitRoles": ["rock_scatter", "fallen_log"]
+    },
+    "landmarks": {
+      "items": [
+        {
+          "id": "clearing_log",
+          "kitId": "biome.jungle.fallen_log_a",
+          "transform": {
+            "translation": [2, 0, -4],
+            "rotationDeg": [0, 35, 0],
+            "scale": 1
+          }
+        }
+      ]
+    },
+    "lighting": {
+      "defaultSetup": "overcast",
+      "setups": [
+        {
+          "id": "overcast",
+          "kind": "overcast",
+          "sunElevationDeg": 55,
+          "sunAzimuthDeg": 140,
+          "energy": 0.85,
+          "notes": "Diffuse canopy fill; primary gameplay light"
+        },
+        {
+          "id": "god_rays",
+          "kind": "god_rays",
+          "sunElevationDeg": 28,
+          "sunAzimuthDeg": 210,
+          "energy": 1.4,
+          "notes": "Low sun shafts through canopy gaps; validation second setup"
+        }
+      ]
+    },
+    "nav": {
+      "agentRadiusM": 0.4,
+      "agentHeightM": 1.8,
+      "walkableLayers": ["ground", "path", "bank"],
+      "bakeHint": "godot_navigation_region"
+    }
+  },
+  "constraints": {
+    "forbidMegaMesh": true,
+    "maxTotalInstances": 900,
+    "maxUniqueKitPieces": 32,
+    "requireRiverWhenBiome": ["jungle_river"],
+    "riverMustStayInsideAabb": true,
+    "pathMustStayInsideAabb": true,
+    "sameSeedStableHash": true
+  },
+  "notes": "Hand fixture for Phase 4 composer. Instances only; no fused jungle.glb."
+}

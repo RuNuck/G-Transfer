@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "sceneId": "scene.jungle.clearing_01",
+  "status": "scaffold",
+  "gates": [
+    {
+      "id": "schema",
+      "ok": true
+    },
+    {
+      "id": "lights_gte_2",
+      "ok": true
+    },
+    {
+      "id": "mega_mesh",
+      "ok": true,
+      "note": "no fused jungle.glb produced"
+    },
+    {
+      "id": "kits_resolve",
+      "ok": false,
+      "note": "kit GLBs may be missing — see report.kitNotes"
+    },
+    {
+      "id": "godot_import",
+      "ok": null,
+      "note": "skipped (Godot not required for scaffold)"
+    }
+  ]
+}

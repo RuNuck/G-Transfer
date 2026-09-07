@@ -1,0 +1,817 @@
+[gd_scene load_steps=1 format=3]
+
+[node name="Jungle_clearing_with_river_and_dirt_path" type="Node3D"]
+metadata/anvil_scene_id = "scene.jungle.clearing_01"
+metadata/anvil_seed = 20260906
+metadata/anvil_status = "scaffold"
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+
+[node name="Ground" type="Node3D" parent="."]
+[node name="Water" type="Node3D" parent="."]
+[node name="Canopy" type="Node3D" parent="."]
+[node name="Undergrowth" type="Node3D" parent="."]
+[node name="Rocks" type="Node3D" parent="."]
+[node name="Landmarks" type="Node3D" parent="."]
+
+[node name="terrain_tile_mud_000" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -18)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_001" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -14)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_002" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -10)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_003" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -6)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_004" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -2)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_005" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, 2)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_006" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, 6)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_007" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, 10)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_008" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, 14)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_009" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, 18)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_010" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, -18)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_011" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, -14)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_012" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, -10)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_013" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, -6)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_014" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, -2)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_015" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 2)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_016" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 6)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_017" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 10)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_018" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 14)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_019" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 18)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_020" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -18)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_021" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -14)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_022" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -10)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_023" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -6)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_024" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -2)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_025" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 2)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_026" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 6)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_027" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 10)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_028" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 14)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_029" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 18)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_030" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -18)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_031" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -14)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_032" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -10)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_033" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -6)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_034" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -2)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_035" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 2)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_036" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 6)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_037" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 10)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_038" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 14)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_039" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 18)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_040" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -18)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_041" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -14)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_042" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -10)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_043" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -6)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_044" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -2)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_045" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 2)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_046" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 6)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_047" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 10)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_048" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 14)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_049" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 18)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_050" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -18)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_051" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -14)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_052" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -10)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_053" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -6)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_054" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -2)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_055" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 2)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_056" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 6)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_057" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 10)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_058" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 14)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_059" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 18)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_060" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -18)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_061" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -14)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_062" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -10)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="terrain_tile_mud_063" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -6)
+metadata/kit_id = "biome.jungle.terrain_tile_mud"
+metadata/anvil_placeholder = true
+
+[node name="path_dirt_a_000" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -8)
+metadata/kit_id = "biome.jungle.path_dirt_a"
+metadata/anvil_placeholder = true
+
+[node name="path_dirt_a_001" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -2)
+metadata/kit_id = "biome.jungle.path_dirt_a"
+metadata/anvil_placeholder = true
+
+[node name="path_dirt_a_002" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 2)
+metadata/kit_id = "biome.jungle.path_dirt_a"
+metadata/anvil_placeholder = true
+
+[node name="path_dirt_a_003" type="Node3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 6)
+metadata/kit_id = "biome.jungle.path_dirt_a"
+metadata/anvil_placeholder = true
+
+[node name="water_plane_a_000" type="Node3D" parent="Water"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0.05, 12)
+metadata/kit_id = "biome.jungle.water_plane_a"
+metadata/anvil_placeholder = true
+
+[node name="river_bank_a_000" type="Node3D" parent="Water"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 9.25)
+metadata/kit_id = "biome.jungle.river_bank_a"
+metadata/anvil_placeholder = true
+
+[node name="water_plane_a_001" type="Node3D" parent="Water"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.05, 10)
+metadata/kit_id = "biome.jungle.water_plane_a"
+metadata/anvil_placeholder = true
+
+[node name="river_bank_a_001" type="Node3D" parent="Water"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 7.25)
+metadata/kit_id = "biome.jungle.river_bank_a"
+metadata/anvil_placeholder = true
+
+[node name="water_plane_a_002" type="Node3D" parent="Water"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.05, 8)
+metadata/kit_id = "biome.jungle.water_plane_a"
+metadata/anvil_placeholder = true
+
+[node name="river_bank_a_002" type="Node3D" parent="Water"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 5.25)
+metadata/kit_id = "biome.jungle.river_bank_a"
+metadata/anvil_placeholder = true
+
+[node name="water_plane_a_003" type="Node3D" parent="Water"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.05, 4)
+metadata/kit_id = "biome.jungle.water_plane_a"
+metadata/anvil_placeholder = true
+
+[node name="river_bank_a_003" type="Node3D" parent="Water"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, 1.25)
+metadata/kit_id = "biome.jungle.river_bank_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_trunk_a_000" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.671, 0, 0.741, 0, 1, 0, -0.741, 0, -0.671, -6.834, 0, -13.004)
+metadata/kit_id = "biome.jungle.tree_trunk_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_trunk_b_001" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.992, 0, 0.128, 0, 1, 0, -0.128, 0, -0.992, 11.525, 0, -12.69)
+metadata/kit_id = "biome.jungle.tree_trunk_b"
+metadata/anvil_placeholder = true
+
+[node name="tree_canopy_a_002" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.078, 0, 0.997, 0, 1, 0, -0.997, 0, -0.078, -7.495, 0, 4.939)
+metadata/kit_id = "biome.jungle.tree_canopy_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_root_a_003" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.257, 0, 0.966, 0, 1, 0, -0.966, 0, -0.257, 6.997, 0, -12.766)
+metadata/kit_id = "biome.jungle.tree_root_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_trunk_a_004" type="Node3D" parent="Canopy"]
+transform = Transform3D(0.988, 0, -0.152, 0, 1, 0, 0.152, 0, 0.988, 19.068, 0, -8.87)
+metadata/kit_id = "biome.jungle.tree_trunk_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_trunk_b_005" type="Node3D" parent="Canopy"]
+transform = Transform3D(0.996, 0, -0.089, 0, 1, 0, 0.089, 0, 0.996, -9.737, 0, 17.604)
+metadata/kit_id = "biome.jungle.tree_trunk_b"
+metadata/anvil_placeholder = true
+
+[node name="tree_canopy_a_006" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.999, 0, -0.046, 0, 1, 0, 0.046, 0, -0.999, -17.685, 0, -15.677)
+metadata/kit_id = "biome.jungle.tree_canopy_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_root_a_007" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.997, 0, 0.083, 0, 1, 0, -0.083, 0, -0.997, -19.845, 0, -19.81)
+metadata/kit_id = "biome.jungle.tree_root_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_trunk_a_008" type="Node3D" parent="Canopy"]
+transform = Transform3D(0.977, 0, -0.211, 0, 1, 0, 0.211, 0, 0.977, 3.099, 0, -14.28)
+metadata/kit_id = "biome.jungle.tree_trunk_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_trunk_b_009" type="Node3D" parent="Canopy"]
+transform = Transform3D(0.899, 0, -0.437, 0, 1, 0, 0.437, 0, 0.899, -10.108, 0, -9.226)
+metadata/kit_id = "biome.jungle.tree_trunk_b"
+metadata/anvil_placeholder = true
+
+[node name="tree_canopy_a_010" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.151, 0, 0.989, 0, 1, 0, -0.989, 0, -0.151, 1.628, 0, 18.038)
+metadata/kit_id = "biome.jungle.tree_canopy_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_root_a_011" type="Node3D" parent="Canopy"]
+transform = Transform3D(0.206, 0, -0.979, 0, 1, 0, 0.979, 0, 0.206, 3.051, 0, -17.89)
+metadata/kit_id = "biome.jungle.tree_root_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_trunk_a_012" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.997, 0, 0.081, 0, 1, 0, -0.081, 0, -0.997, 9.897, 0, 16.105)
+metadata/kit_id = "biome.jungle.tree_trunk_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_trunk_b_013" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.144, 0, -0.99, 0, 1, 0, 0.99, 0, -0.144, -18.682, 0, -10.586)
+metadata/kit_id = "biome.jungle.tree_trunk_b"
+metadata/anvil_placeholder = true
+
+[node name="tree_canopy_a_014" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.678, 0, -0.735, 0, 1, 0, 0.735, 0, -0.678, 13.478, 0, -0.395)
+metadata/kit_id = "biome.jungle.tree_canopy_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_root_a_015" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.988, 0, 0.157, 0, 1, 0, -0.157, 0, -0.988, 14.656, 0, 17.216)
+metadata/kit_id = "biome.jungle.tree_root_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_trunk_a_016" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.985, 0, 0.172, 0, 1, 0, -0.172, 0, -0.985, -17.957, 0, 3.662)
+metadata/kit_id = "biome.jungle.tree_trunk_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_trunk_b_017" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.854, 0, -0.52, 0, 1, 0, 0.52, 0, -0.854, -6.345, 0, -18.728)
+metadata/kit_id = "biome.jungle.tree_trunk_b"
+metadata/anvil_placeholder = true
+
+[node name="tree_canopy_a_018" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.819, 0, -0.574, 0, 1, 0, 0.574, 0, -0.819, -1.335, 0, 0.658)
+metadata/kit_id = "biome.jungle.tree_canopy_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_root_a_019" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.984, 0, -0.179, 0, 1, 0, 0.179, 0, -0.984, -19.544, 0, 18.763)
+metadata/kit_id = "biome.jungle.tree_root_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_trunk_a_020" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.025, 0, -1, 0, 1, 0, 1, 0, -0.025, 18.712, 0, -13.509)
+metadata/kit_id = "biome.jungle.tree_trunk_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_trunk_b_021" type="Node3D" parent="Canopy"]
+transform = Transform3D(-0.614, 0, -0.79, 0, 1, 0, 0.79, 0, -0.614, 8.997, 0, -19.086)
+metadata/kit_id = "biome.jungle.tree_trunk_b"
+metadata/anvil_placeholder = true
+
+[node name="tree_canopy_a_022" type="Node3D" parent="Canopy"]
+transform = Transform3D(0.993, 0, -0.116, 0, 1, 0, 0.116, 0, 0.993, 1.111, 0, 3.324)
+metadata/kit_id = "biome.jungle.tree_canopy_a"
+metadata/anvil_placeholder = true
+
+[node name="tree_root_a_023" type="Node3D" parent="Canopy"]
+transform = Transform3D(0.777, 0, 0.63, 0, 1, 0, -0.63, 0, 0.777, -10.176, 0, -17.08)
+metadata/kit_id = "biome.jungle.tree_root_a"
+metadata/anvil_placeholder = true
+
+[node name="fern_card_a_000" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.746, 0, -0.666, 0, 1, 0, 0.666, 0, 0.746, -0.912, 0, 19.335)
+metadata/kit_id = "biome.jungle.fern_card_a"
+metadata/anvil_placeholder = true
+
+[node name="shrub_a_001" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.644, 0, -0.765, 0, 1, 0, 0.765, 0, -0.644, -15.141, 0, -15.297)
+metadata/kit_id = "biome.jungle.shrub_a"
+metadata/anvil_placeholder = true
+
+[node name="mud_decal_a_002" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.984, 0, 0.18, 0, 1, 0, -0.18, 0, 0.984, 19.275, 0, -17.365)
+metadata/kit_id = "biome.jungle.mud_decal_a"
+metadata/anvil_placeholder = true
+
+[node name="fern_card_a_003" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.275, 0, 0.962, 0, 1, 0, -0.962, 0, -0.275, 11.117, 0, -10.247)
+metadata/kit_id = "biome.jungle.fern_card_a"
+metadata/anvil_placeholder = true
+
+[node name="shrub_a_004" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.888, 0, -0.46, 0, 1, 0, 0.46, 0, 0.888, -19.6, 0, 17.116)
+metadata/kit_id = "biome.jungle.shrub_a"
+metadata/anvil_placeholder = true
+
+[node name="mud_decal_a_005" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.936, 0, 0.352, 0, 1, 0, -0.352, 0, 0.936, -12.583, 0, -19.744)
+metadata/kit_id = "biome.jungle.mud_decal_a"
+metadata/anvil_placeholder = true
+
+[node name="fern_card_a_006" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.98, 0, 0.199, 0, 1, 0, -0.199, 0, 0.98, -13.406, 0, -14.102)
+metadata/kit_id = "biome.jungle.fern_card_a"
+metadata/anvil_placeholder = true
+
+[node name="shrub_a_007" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.982, 0, -0.191, 0, 1, 0, 0.191, 0, -0.982, 1.441, 0, -16.562)
+metadata/kit_id = "biome.jungle.shrub_a"
+metadata/anvil_placeholder = true
+
+[node name="mud_decal_a_008" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.949, 0, 0.315, 0, 1, 0, -0.315, 0, -0.949, -5.503, 0, -16.727)
+metadata/kit_id = "biome.jungle.mud_decal_a"
+metadata/anvil_placeholder = true
+
+[node name="fern_card_a_009" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.626, 0, 0.78, 0, 1, 0, -0.78, 0, -0.626, -12.109, 0, -12.623)
+metadata/kit_id = "biome.jungle.fern_card_a"
+metadata/anvil_placeholder = true
+
+[node name="shrub_a_010" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.123, 0, -0.992, 0, 1, 0, 0.992, 0, 0.123, 6.605, 0, 18.117)
+metadata/kit_id = "biome.jungle.shrub_a"
+metadata/anvil_placeholder = true
+
+[node name="mud_decal_a_011" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.682, 0, -0.731, 0, 1, 0, 0.731, 0, 0.682, 7.526, 0, 1.133)
+metadata/kit_id = "biome.jungle.mud_decal_a"
+metadata/anvil_placeholder = true
+
+[node name="fern_card_a_012" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.879, 0, -0.476, 0, 1, 0, 0.476, 0, -0.879, 9.246, 0, -17.856)
+metadata/kit_id = "biome.jungle.fern_card_a"
+metadata/anvil_placeholder = true
+
+[node name="shrub_a_013" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.355, 0, 0.935, 0, 1, 0, -0.935, 0, 0.355, 6.03, 0, -18.889)
+metadata/kit_id = "biome.jungle.shrub_a"
+metadata/anvil_placeholder = true
+
+[node name="mud_decal_a_014" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.1, 0, -0.995, 0, 1, 0, 0.995, 0, 0.1, -11.953, 0, 19.154)
+metadata/kit_id = "biome.jungle.mud_decal_a"
+metadata/anvil_placeholder = true
+
+[node name="fern_card_a_015" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.301, 0, 0.954, 0, 1, 0, -0.954, 0, 0.301, -10.613, 0, -17.623)
+metadata/kit_id = "biome.jungle.fern_card_a"
+metadata/anvil_placeholder = true
+
+[node name="shrub_a_016" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.6, 0, 0.8, 0, 1, 0, -0.8, 0, -0.6, 15.991, 0, 2.162)
+metadata/kit_id = "biome.jungle.shrub_a"
+metadata/anvil_placeholder = true
+
+[node name="mud_decal_a_017" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.103, 0, 0.995, 0, 1, 0, -0.995, 0, -0.103, 19.511, 0, -10.966)
+metadata/kit_id = "biome.jungle.mud_decal_a"
+metadata/anvil_placeholder = true
+
+[node name="fern_card_a_018" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.864, 0, -0.503, 0, 1, 0, 0.503, 0, 0.864, 14.619, 0, 19.586)
+metadata/kit_id = "biome.jungle.fern_card_a"
+metadata/anvil_placeholder = true
+
+[node name="shrub_a_019" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.944, 0, 0.331, 0, 1, 0, -0.331, 0, -0.944, -16.708, 0, -13.359)
+metadata/kit_id = "biome.jungle.shrub_a"
+metadata/anvil_placeholder = true
+
+[node name="mud_decal_a_020" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-1, 0, 0.021, 0, 1, 0, -0.021, 0, -1, 18.158, 0, -16.771)
+metadata/kit_id = "biome.jungle.mud_decal_a"
+metadata/anvil_placeholder = true
+
+[node name="fern_card_a_021" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.889, 0, -0.458, 0, 1, 0, 0.458, 0, -0.889, -15.398, 0, -9.808)
+metadata/kit_id = "biome.jungle.fern_card_a"
+metadata/anvil_placeholder = true
+
+[node name="shrub_a_022" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.997, 0, 0.083, 0, 1, 0, -0.083, 0, 0.997, 15.763, 0, -14.403)
+metadata/kit_id = "biome.jungle.shrub_a"
+metadata/anvil_placeholder = true
+
+[node name="mud_decal_a_023" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.623, 0, 0.782, 0, 1, 0, -0.782, 0, -0.623, 18.267, 0, -11.77)
+metadata/kit_id = "biome.jungle.mud_decal_a"
+metadata/anvil_placeholder = true
+
+[node name="fern_card_a_024" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.876, 0, -0.482, 0, 1, 0, 0.482, 0, 0.876, 0.433, 0, -9.592)
+metadata/kit_id = "biome.jungle.fern_card_a"
+metadata/anvil_placeholder = true
+
+[node name="shrub_a_025" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.754, 0, 0.657, 0, 1, 0, -0.657, 0, -0.754, 10.283, 0, 4.271)
+metadata/kit_id = "biome.jungle.shrub_a"
+metadata/anvil_placeholder = true
+
+[node name="mud_decal_a_026" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.984, 0, 0.176, 0, 1, 0, -0.176, 0, 0.984, -8.251, 0, -0.126)
+metadata/kit_id = "biome.jungle.mud_decal_a"
+metadata/anvil_placeholder = true
+
+[node name="fern_card_a_027" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.993, 0, 0.116, 0, 1, 0, -0.116, 0, -0.993, -0.909, 0, 16.616)
+metadata/kit_id = "biome.jungle.fern_card_a"
+metadata/anvil_placeholder = true
+
+[node name="shrub_a_028" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.082, 0, -0.997, 0, 1, 0, 0.997, 0, 0.082, 7.397, 0, -11.708)
+metadata/kit_id = "biome.jungle.shrub_a"
+metadata/anvil_placeholder = true
+
+[node name="mud_decal_a_029" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.943, 0, -0.334, 0, 1, 0, 0.334, 0, -0.943, -19.477, 0, -3.681)
+metadata/kit_id = "biome.jungle.mud_decal_a"
+metadata/anvil_placeholder = true
+
+[node name="fern_card_a_030" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.79, 0, -0.614, 0, 1, 0, 0.614, 0, 0.79, -17.587, 0, 3.828)
+metadata/kit_id = "biome.jungle.fern_card_a"
+metadata/anvil_placeholder = true
+
+[node name="shrub_a_031" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.997, 0, -0.071, 0, 1, 0, 0.071, 0, 0.997, -6.889, 0, -19.083)
+metadata/kit_id = "biome.jungle.shrub_a"
+metadata/anvil_placeholder = true
+
+[node name="mud_decal_a_032" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.752, 0, 0.659, 0, 1, 0, -0.659, 0, 0.752, -14.103, 0, 15.79)
+metadata/kit_id = "biome.jungle.mud_decal_a"
+metadata/anvil_placeholder = true
+
+[node name="fern_card_a_033" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.691, 0, -0.723, 0, 1, 0, 0.723, 0, 0.691, 0.411, 0, -17.458)
+metadata/kit_id = "biome.jungle.fern_card_a"
+metadata/anvil_placeholder = true
+
+[node name="shrub_a_034" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.016, 0, 1, 0, 1, 0, -1, 0, 0.016, -4.672, 0, -11.797)
+metadata/kit_id = "biome.jungle.shrub_a"
+metadata/anvil_placeholder = true
+
+[node name="mud_decal_a_035" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.155, 0, -0.988, 0, 1, 0, 0.988, 0, -0.155, -3.336, 0, 1.835)
+metadata/kit_id = "biome.jungle.mud_decal_a"
+metadata/anvil_placeholder = true
+
+[node name="fern_card_a_036" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.814, 0, -0.581, 0, 1, 0, 0.581, 0, 0.814, 4.322, 0, 17.928)
+metadata/kit_id = "biome.jungle.fern_card_a"
+metadata/anvil_placeholder = true
+
+[node name="shrub_a_037" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(0.374, 0, -0.927, 0, 1, 0, 0.927, 0, 0.374, -12.922, 0, -11.663)
+metadata/kit_id = "biome.jungle.shrub_a"
+metadata/anvil_placeholder = true
+
+[node name="mud_decal_a_038" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.863, 0, -0.505, 0, 1, 0, 0.505, 0, -0.863, -1.426, 0, 16.076)
+metadata/kit_id = "biome.jungle.mud_decal_a"
+metadata/anvil_placeholder = true
+
+[node name="fern_card_a_039" type="Node3D" parent="Undergrowth"]
+transform = Transform3D(-0.841, 0, 0.542, 0, 1, 0, -0.542, 0, -0.841, 8.705, 0, 16.359)
+metadata/kit_id = "biome.jungle.fern_card_a"
+metadata/anvil_placeholder = true
+
+[node name="rock_scatter_a_000" type="Node3D" parent="Rocks"]
+transform = Transform3D(0.668, 0, -0.745, 0, 1, 0, 0.745, 0, 0.668, 3.028, 0, -17.56)
+metadata/kit_id = "biome.jungle.rock_scatter_a"
+metadata/anvil_placeholder = true
+
+[node name="fallen_log_a_001" type="Node3D" parent="Rocks"]
+transform = Transform3D(0.542, 0, 0.841, 0, 1, 0, -0.841, 0, 0.542, 1.206, 0, 11.411)
+metadata/kit_id = "biome.jungle.fallen_log_a"
+metadata/anvil_placeholder = true
+
+[node name="rock_scatter_a_002" type="Node3D" parent="Rocks"]
+transform = Transform3D(0.41, 0, -0.912, 0, 1, 0, 0.912, 0, 0.41, 6.335, 0, -7.037)
+metadata/kit_id = "biome.jungle.rock_scatter_a"
+metadata/anvil_placeholder = true
+
+[node name="fallen_log_a_003" type="Node3D" parent="Rocks"]
+transform = Transform3D(0.244, 0, 0.97, 0, 1, 0, -0.97, 0, 0.244, -13.403, 0, -16.382)
+metadata/kit_id = "biome.jungle.fallen_log_a"
+metadata/anvil_placeholder = true
+
+[node name="rock_scatter_a_004" type="Node3D" parent="Rocks"]
+transform = Transform3D(0.115, 0, 0.993, 0, 1, 0, -0.993, 0, 0.115, 6.887, 0, -11.808)
+metadata/kit_id = "biome.jungle.rock_scatter_a"
+metadata/anvil_placeholder = true
+
+[node name="fallen_log_a_005" type="Node3D" parent="Rocks"]
+transform = Transform3D(0.999, 0, -0.05, 0, 1, 0, 0.05, 0, 0.999, 9.045, 0, -12.296)
+metadata/kit_id = "biome.jungle.fallen_log_a"
+metadata/anvil_placeholder = true
+
+[node name="rock_scatter_a_006" type="Node3D" parent="Rocks"]
+transform = Transform3D(0.887, 0, -0.461, 0, 1, 0, 0.461, 0, 0.887, -17.109, 0, 11.06)
+metadata/kit_id = "biome.jungle.rock_scatter_a"
+metadata/anvil_placeholder = true
+
+[node name="fallen_log_a_007" type="Node3D" parent="Rocks"]
+transform = Transform3D(-0.747, 0, 0.664, 0, 1, 0, -0.664, 0, -0.747, 2.82, 0, -2.319)
+metadata/kit_id = "biome.jungle.fallen_log_a"
+metadata/anvil_placeholder = true
+
+[node name="rock_scatter_a_008" type="Node3D" parent="Rocks"]
+transform = Transform3D(-0.586, 0, 0.81, 0, 1, 0, -0.81, 0, -0.586, 19.561, 0, 7.466)
+metadata/kit_id = "biome.jungle.rock_scatter_a"
+metadata/anvil_placeholder = true
+
+[node name="fallen_log_a_009" type="Node3D" parent="Rocks"]
+transform = Transform3D(-0.208, 0, 0.978, 0, 1, 0, -0.978, 0, -0.208, -17.864, 0, -17.517)
+metadata/kit_id = "biome.jungle.fallen_log_a"
+metadata/anvil_placeholder = true
+
+[node name="rock_scatter_a_010" type="Node3D" parent="Rocks"]
+transform = Transform3D(0.423, 0, 0.906, 0, 1, 0, -0.906, 0, 0.423, 14.434, 0, 18.481)
+metadata/kit_id = "biome.jungle.rock_scatter_a"
+metadata/anvil_placeholder = true
+
+[node name="fallen_log_a_011" type="Node3D" parent="Rocks"]
+transform = Transform3D(-0.788, 0, -0.615, 0, 1, 0, 0.615, 0, -0.788, -13.806, 0, -9.137)
+metadata/kit_id = "biome.jungle.fallen_log_a"
+metadata/anvil_placeholder = true
+
+[node name="rock_scatter_a_012" type="Node3D" parent="Rocks"]
+transform = Transform3D(0.378, 0, -0.926, 0, 1, 0, 0.926, 0, 0.378, 9.759, 0, -15.111)
+metadata/kit_id = "biome.jungle.rock_scatter_a"
+metadata/anvil_placeholder = true
+
+[node name="fallen_log_a_013" type="Node3D" parent="Rocks"]
+transform = Transform3D(0.779, 0, -0.627, 0, 1, 0, 0.627, 0, 0.779, -18.075, 0, -12.645)
+metadata/kit_id = "biome.jungle.fallen_log_a"
+metadata/anvil_placeholder = true
+
+[node name="rock_scatter_a_014" type="Node3D" parent="Rocks"]
+transform = Transform3D(-0.285, 0, -0.958, 0, 1, 0, 0.958, 0, -0.285, -14.938, 0, 11.197)
+metadata/kit_id = "biome.jungle.rock_scatter_a"
+metadata/anvil_placeholder = true
+
+[node name="fallen_log_a_015" type="Node3D" parent="Rocks"]
+transform = Transform3D(0.199, 0, -0.98, 0, 1, 0, 0.98, 0, 0.199, 5.776, 0, -8.981)
+metadata/kit_id = "biome.jungle.fallen_log_a"
+metadata/anvil_placeholder = true
+
+[node name="clearing_log" type="MeshInstance3D" parent="Landmarks"]
+transform = Transform3D(0.819, 0, 0.574, 0, 1, 0, -0.574, 0, 0.819, 2, 0, -4)
+metadata/kit_id = "biome.jungle.fallen_log_a"
+metadata/anvil_placeholder = true
+
+[node name="Lighting_overcast" type="Node3D" parent="."]
+[node name="Sun" type="DirectionalLight3D" parent="Lighting_overcast"]
+light_energy = 0.85
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.687, 20, -4.394)
+metadata/kind = "overcast"
+metadata/notes = "Diffuse canopy fill; primary gameplay light"
+
+[node name="Lighting_god_rays" type="Node3D" parent="."]
+[node name="Sun" type="DirectionalLight3D" parent="Lighting_god_rays"]
+light_energy = 1.4
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.415, 20, -7.647)
+metadata/kind = "god_rays"
+metadata/notes = "Low sun shafts through canopy gaps; validation second setup"
+
+[node name="Navigation" type="NavigationRegion3D" parent="."]
+

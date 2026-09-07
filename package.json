@@ -24,7 +24,9 @@
     "check:fast": "npm run typecheck && node tools/validate/run.mjs exports/forge && npm run validate:fixtures",
     "validate:fixtures": "node tools/validate/fixtures/expect-fail.mjs",
     "forge:run": "node tools/forge-run/run-asset.mjs",
-    "forge:list": "node tools/forge-run/list.mjs"
+    "forge:list": "node tools/forge-run/list.mjs",
+    "scene:compose": "node tools/scene-compose/compose.mjs docs/schemas/examples/jungle-clearing.scene.json",
+    "forge:scene": "node tools/scene-compose/run-scene.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.0",

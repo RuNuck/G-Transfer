@@ -31,7 +31,7 @@ function initializeResult() {
       version: SERVER_VERSION,
     },
     instructions:
-      "Anvil forges production game assets. Prefer forge_run_asset + forge_job_status for existing exports GLBs (Phase 1 jobs). For new specs start with forge_create_asset(brief, engine). blender_execute on this HTTP server never runs code — use blender_run_python on the local anvil-blender stdio server (see anvil://blender/addon). Read anvil://pipeline/{unreal,unity,godot} before exporting.",
+      "Anvil forges production game assets. Prefer forge_run_asset + forge_job_status for existing exports GLBs (Phase 1 jobs). Use forge_scene + forge_job_status for Phase 4 scene scaffold (SceneSpec to exports/scenes/). For new asset specs start with forge_create_asset(brief, engine). blender_execute on this HTTP server never runs code — use blender_run_python on the local anvil-blender stdio server (see anvil://blender/addon). Read anvil://pipeline/{unreal,unity,godot} before exporting.",
   };
 }
 
