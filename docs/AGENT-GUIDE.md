@@ -33,17 +33,22 @@ Supporting (debug / escape hatch): `forge_blender_script`, `forge_bake_plan`, `f
 
 ## Happy paths
 
-### Existing GLB → ready
+### Kind Run (forge from catalog)
 
-1. Run with kind lantern (or file validate-only) then poll job status
-2. `forge_job_status({ jobId })` until `published` / `failed`
-3. Confirm with `forge_validate({ path: "…" })` (or trust job validation only if report lists hard gates)
-4. Check `exports/index.json` entry `status: "ready"`
+1. `forge_run_asset({ kind: "lantern", bake?: true, engine?: "godot", brief?: "…" })`
+2. poll `forge_job_status` until published/failed
+3. ship-gate ready = validate + godot-check when Godot present
+4. `exports/index.json` status ready
+
+### File validate-only
+
+1. `forge_run_asset({ file or mesh })` re-validates an existing GLB — does NOT Blender-forge a new mesh
+2. poll job; may become ready only after ship-gate (godot-check)
 
 ### Plan-only brief (spec/script; no GLB)
 
 1. `forge_create_asset` for spec + script (Plan)
-2. Stop claiming success — queue human/Blender forge, **or** only run jobs against GLBs already under `exports/`
+2. Stop claiming success — you CAN Run with kind (catalog Blender forge), not only existing exports GLBs
 
 ### Scene (jungle / environment)
 
@@ -112,7 +117,8 @@ On disk: `docs/schemas/`, example SceneSpec `docs/schemas/examples/jungle-cleari
 ```bash
 npm run validate -- exports/forge --json
 npm run forge:index
-npm run forge:run -- --file exports/forge/us_ammo_can.glb --json
+npm run forge:run -- --kind lantern [--bake] --json   # primary: catalog Blender forge
+npm run forge:run -- --file exports/forge/us_ammo_can.glb --json  # validate-only existing GLB
 npm run forge:scene -- --brief "jungle clearing" --json
 npm run scene:compose
 npm run typecheck && npm test

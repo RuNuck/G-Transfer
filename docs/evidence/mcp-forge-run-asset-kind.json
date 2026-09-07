@@ -1,0 +1,79 @@
+{
+  "endpoint": "http://localhost:8080/api/mcp",
+  "note": "Live MCP HTTP: initialize then tools/call forge_run_asset kind=lantern (Ori cold kind transcript)",
+  "steps": [
+    {
+      "name": "initialize",
+      "httpStatus": 200,
+      "contentType": "application/json",
+      "mcpSessionId": null,
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "protocolVersion": "2025-03-26",
+          "capabilities": {
+            "tools": {
+              "listChanged": false
+            },
+            "resources": {
+              "listChanged": false,
+              "subscribe": false
+            },
+            "prompts": {
+              "listChanged": false
+            }
+          },
+          "serverInfo": {
+            "name": "anvil",
+            "title": "Anvil \u2014 Production Game Asset MCP",
+            "version": "2.9.0"
+          },
+          "instructions": "Anvil forges production game assets. Read anvil://guide/agent first. Plan = forge_create_asset (spec/script only). Run = forge_run_asset / forge_scene + forge_job_status; never declare success without forge_validate (godot_prod). Scene = compose kits (anvil://schemas/scene-spec), not a mega-mesh. WeaponGraph schema: anvil://schemas/weapon-graph. blender_execute on this HTTP server never runs code \u2014 use blender_run_python on local anvil-blender (anvil://blender/addon). Also: anvil://pipeline/godot."
+        }
+      },
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {
+          "protocolVersion": "2025-03-26",
+          "capabilities": {},
+          "clientInfo": {
+            "name": "ori-evidence",
+            "version": "1.0.0"
+          }
+        }
+      }
+    },
+    {
+      "name": "tools/call forge_run_asset",
+      "httpStatus": 200,
+      "contentType": "application/json",
+      "mcpSessionId": null,
+      "response": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\n  \"schemaVersion\": 1,\n  \"id\": \"job_20260907125947_7662e0\",\n  \"type\": \"asset\",\n  \"status\": \"published\",\n  \"createdAt\": \"2026-09-07T12:59:47.509Z\",\n  \"updatedAt\": \"2026-09-07T12:59:52.803Z\",\n  \"startedAt\": \"2026-09-07T12:59:47.510Z\",\n  \"finishedAt\": \"2026-09-07T12:59:52.803Z\",\n  \"inputs\": {\n    \"mode\": \"kind-build\",\n    \"kind\": \"lantern\",\n    \"engine\": \"godot\",\n    \"script\": \"tools/blender-check/out/gen/lantern_godot.py\",\n    \"brief\": null,\n    \"bake\": false\n  },\n  \"paths\": {\n    \"mesh\": \"exports/forge-smoke/oil_lantern.glb\",\n    \"textures\": \"exports/forge-smoke/textures\",\n    \"buildScript\": \"tools/blender-check/out/gen/lantern_godot.py\",\n    \"index\": \"exports/index.json\",\n    \"indexStatus\": \"ready\"\n  },\n  \"stages\": [\n    {\n      \"status\": \"building\",\n      \"at\": \"2026-09-07T12:59:47.510Z\",\n      \"note\": \"Blender headless build: /home/box/tools/blender-5.2.1-linux-x64/blender\"\n    },\n    {\n      \"status\": \"baking\",\n      \"at\": \"2026-09-07T12:59:47.510Z\",\n      \"note\": \"bake skipped (--bake not set); materials are untextured Principled BSDF\"\n    },\n    {\n      \"status\": \"validating\",\n      \"at\": \"2026-09-07T12:59:48.571Z\",\n      \"note\": \"running tools/validate godot_prod\"\n    },\n    {\n      \"status\": \"validating\",\n      \"at\": \"2026-09-07T12:59:48.678Z\",\n      \"note\": \"running tools/godot-check (ship gate)\"\n    },\n    {\n      \"status\": \"published\",\n      \"at\": \"2026-09-07T12:59:52.803Z\",\n      \"note\": \"validated + godot import ok + index ready\"\n    }\n  ],\n  \"notes\": [\n    \"Blender headless build: /home/box/tools/blender-5.2.1-linux-x64/blender\",\n    \"bake skipped (--bake not set); materials are untextured Principled BSDF\",\n    \"running tools/validate godot_prod\",\n    \"running tools/godot-check (ship gate)\",\n    \"validated + godot import ok + index ready\"\n  ],\n  \"errors\": [],\n  \"validation\": {\n    \"ok\": true,\n    \"exitCode\": 0,\n    \"counts\": {\n      \"assets\": 1,\n      \"passed\": 1,\n      \"failed\": 0\n    },\n    \"hardFails\": [],\n    \"report\": {\n      \"file\": \"exports/forge-smoke/oil_lantern.glb\",\n      \"absPath\": \"/workspace/project/exports/forge-smoke/oil_lantern.glb\",\n      \"profile\": \"godot_prod\",\n      \"ok\": true,\n      \"hardFails\": [],\n      \"gates\": [\n        {\n          \"id\": \"file_exists\",\n          \"severity\": \"hard\",\n          \"ok\": true,\n          \"detail\": \"exports/forge-smoke/oil_lantern.glb\"\n        },\n        {\n          \"id\": \"extension\",\n          \"severity\": \"hard\",\n          \"ok\": true,\n          \"detail\": \".glb\"\n        },\n        {\n          \"id\": \"readable_glb\",\n          \"severity\": \"hard\",\n          \"ok\": true,\n          \"detail\": \"glTF 2, 164612 bytes\"\n        },\n        {\n          \"id\": \"has_meshes\",\n          \"severity\": \"hard\",\n          \"ok\": true,\n          \"detail\": \"2 mesh(es): oil_lantern, oil_lantern_col-convcolonly\"\n        },\n        {\n          \"id\": \"has_materials\",\n          \"severity\": \"hard\",\n          \"ok\": true,\n          \"detail\": \"3 material(s)\"\n        },\n        {\n          \"id\": \"has_nodes\",\n          \"severity\": \"hard\",\n          \"ok\": true,\n          \"detail\": \"2 node(s)\"\n        },\n        {\n          \"id\": \"collision_godot_suffix\",\n          \"severity\": \"hard\",\n          \"ok\": true,\n          \"detail\": \"Godot collision node(s): oil_lantern_col-convcolonly\"\n        },\n        {\n          \"id\": \"meters_bounds\",\n          \"severity\": \"hard\",\n          \"ok\": true,\n          \"detail\": \"AABB size \u2248 0.190\u00d70.370\u00d70.190 m (from POSITION min/max)\"\n        }\n      ],\n      \"soft\": [\n        {\n          \"id\": \"rigged_clips\",\n          \"severity\": \"soft\",\n          \"ok\": true,\n          \"detail\": \"no clips (path does not suggest rigged)\"\n        },\n        {\n          \"id\": \"pbr_textures_resolve\",\n          \"severity\": \"soft\",\n          \"ok\": true,\n          \"detail\": \"no material texture maps claimed (untextured Principled / blockout OK)\"\n        },\n        {\n          \"id\": \"pivot_weapon_or_rigged\",\n          \"severity\": \"soft\",\n          \"ok\": true,\n          \"detail\": \"path does not suggest weapon/rigged \u2014 pivot not gated\"\n        }\n      ],\n      \"summary\": {\n        \"bytes\": 164612,\n        \"meshes\": [\n          \"oil_lantern\",\n          \"oil_lantern_col-convcolonly\"\n        ],\n        \"materials\": [\n          \"mat_brass\",\n          \"mat_glass\",\n          \"mat_flame\"\n        ],\n        \"animations\": [],\n        \"skins\": 0,\n        \"godotCollisionNodes\": [\n          \"oil_lantern_col-convcolonly\"\n        ],\n        \"bounds\": {\n          \"min\": [\n            -0.0950000062584877,\n            -0.004999995231628418,\n            -0.0950000062584877\n          ],\n          \"max\": [\n            0.0950000062584877,\n            0.36460021138191223,\n            0.0950000062584877\n          ],\n          \"size\": [\n            0.1900000125169754,\n            0.36960020661354065,\n            0.1900000125169754\n          ]\n        },\n        \"suggestsRigged\": false,\n        \"suggestsWeapon\": false,\n        \"textures\": {\n          \"claimedPbr\": 0,\n          \"missing\": 0\n        },\n        \"pivot\": {\n          \"gripNode\": null,\n          \"rootNearOrigin\": null\n        }\n      }\n    }\n  },\n  \"blender\": {\n    \"available\": true,\n    \"path\": \"/home/box/tools/blender-5.2.1-linux-x64/blender\",\n    \"source\": \"fallback path\",\n    \"kitDir\": \"/workspace/project/public/downloads\",\n    \"note\": \"headless Blender build via tools/forge-run/headless-run.py\",\n    \"logTail\": \"ANVIL_KIT_DIR= /workspace/project/public/downloads\\nANVIL_HEADLESS build /workspace/project/tools/blender-check/out/gen/lantern_godot.py\\nINFO Draco is available, use library at /home/box/tools/blender-5.2.1-linux-x64/lib/libbf_intern_draco_bridge.so\\nINFO MeshOptimizer is available, use library at /home/box/tools/blender-5.2.1-linux-x64/lib/libbf_intern_meshopt_bridge.so\\n12:59:48 | INFO: Starting glTF 2.0 export\\n12:59:48 | INFO: Extracting primitive: oil_lantern\\n12:59:48 | INFO: Primitives created: 3\\n12:59:48 | INFO: Extracting primitive: oil_lantern_col-convcolonly\\n12:59:48 | INFO: Primitives created: 1\\n12:59:48 | INFO: Finished glTF 2.0 export in 0.028431415557861328 s\\n\\nAnvil built oil_lantern built (part kit) in collection Anvil_oil_lantern: LOD0 2856 tris (budget 3000), oil_lantern_LOD1 990 tris, oil_lantern_LOD2 240 tris, collision oil_lantern_col-convcolonly (capsule), pivot bottom -> exported /workspace/project/exports/forge-smoke/oil_lantern.glb\\nExport: File > Export > glTF 2.0 \u00b7 GLB \u00b7 selected objects \u00b7 apply modifiers \u00b7 +Y up (the export set is selected)\\nTextures: tex_oil_lantern_albedo tex_oil_lantern_normal tex_oil_lantern_orm\\nGodot ORM: R=AO, G=Roughness, B=Metallic. Import as StandardMaterial3D.\\nANVIL_BUILD_RESULT oil_lantern built (part kit) in collection Anvil_oil_lantern: LOD0 2856 tris (budget 3000), oil_lantern_LOD1 990 tris, oil_lantern_LOD2 240 tris, collision oil_lantern_col-convcolonly (capsule), pivot bottom -> exported /workspace/project/exports/forge-smoke/oil_lantern.glb\\nANVIL_EXPORT_OK /workspace/project/exports/forge-smoke/oil_lantern.glb 164612\\nBlender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:12:34)\\n\\nBlender quit\\n\\n\",\n    \"exitCode\": 0,\n    \"buildSource\": \"part kit\"\n  },\n  \"godotImport\": {\n    \"ran\": true,\n    \"available\": true,\n    \"ok\": true,\n    \"status\": \"ready\",\n    \"exitCode\": 0,\n    \"source\": \"fallback path\",\n    \"path\": \"/home/box/tools/godot-4.7.2/Godot_v4.7.2-stable_linux.x86_64\",\n    \"problems\": [],\n    \"godotVersion\": \"4.7.2.stable.official.ed1daf0bf\",\n    \"note\": \"Godot headless import ok\"\n  },\n  \"shipGate\": \"ready\"\n}"
+            }
+          ]
+        }
+      },
+      "request": {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "method": "tools/call",
+        "params": {
+          "name": "forge_run_asset",
+          "arguments": {
+            "kind": "lantern"
+          }
+        }
+      }
+    }
+  ]
+}
