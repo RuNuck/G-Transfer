@@ -23,7 +23,7 @@ Never treat a green Plan / `forge_qc_checklist` (spec-only) as "forged." **Ready
 |---|---|--------|
 | `forge_create_asset` | Brief -> AssetSpec, naming, PBR/LOD notes, full Blender build script. | Run Blender; write GLB; mark ready. |
 | `forge_run_asset` | **Run**: kind (+engine/bake/brief) = real Blender forge; file/mesh = validate-only. Ship gate ready needs Godot import ok. | Claim ready from Plan alone. |
-| `forge_scene` | Job from SceneSpec / brief / `specPath` → `exports/scenes/<id>/` (.tscn, report, manifest). **Compose kit instances.** | Author one mega-mesh jungle; invent missing kit GLBs. |
+| `forge_scene` | Job from SceneSpec / brief / `specPath` → `exports/scenes/<id>/` (.tscn, report, manifest). **Compose kit instances.** Publish only after kits + Godot scene open. | Author one mega-mesh jungle; invent missing kit GLBs; publish when Godot absent. |
 | `forge_validate` | Artifact gates (`godot_prod`) on a path or folder; fail closed. CLI twin: `npm run validate -- <paths> --json`. | Rubber-stamp from the brief. |
 | `forge_job_status` | Poll job id from run/scene; status, paths, validation summary, errors. | Start work. |
 
@@ -54,9 +54,10 @@ Supporting (debug / escape hatch): `forge_blender_script`, `forge_bake_plan`, `f
 
 1. Read `anvil://schemas/scene-spec` (and `docs/scenes/JUNGLE-CONTRACT.md`)
 2. `forge_scene({ sceneSpec })` or brief (scaffold may use the jungle example fixture)
-3. Poll `forge_job_status`
+3. Poll `forge_job_status` until **published** or **failed**
 4. Inspect `exports/scenes/<id>/` — instances only; **reject** fused mega-meshes
-5. Validate kits via index / `forge_validate` on referenced GLBs when present
+5. Publish requires kits resolved **and** Godot headless-open of `scene.tscn`. Godot absent / open skipped => `status=failed`, `validation.ok=false`, hardFail `godot_absent` (never published+ok). Open fail => hardFail `godot_scene_open`.
+6. Validate kits via index / `forge_validate` on referenced GLBs when present
 
 ### Weapon (Phase 2 target)
 
@@ -108,7 +109,8 @@ On disk: `docs/schemas/`, example SceneSpec `docs/schemas/examples/jungle-cleari
 ## DCC on this forge host
 
 - Blender 5.2.1 and Godot 4.7.2 installed. See docs/DCC-SETUP.md.
-- Index: validate-ok alone => validated_glb_only; ready needs import ok when Godot present.
+- Asset index: validate-ok alone is never ship-ready — forge-run refuses published+ok without Godot import (`hardFail godot_absent` / `godot_import`; index may still label `validated_glb_only` when Godot is missing).
+- Scenes (`forge_scene`): fail-closed like forge — Godot absent or scene open skipped => `failed` + `godot_absent`, never published+ok. Do not treat scenes as validated_glb_only soft-pass.
 
 ---
 
