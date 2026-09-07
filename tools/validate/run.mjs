@@ -315,4 +315,11 @@ function main() {
   process.exit(reportDoc.ok ? 0 : 1);
 }
 
-main();
+export { validateGodotProd, collectGlbs, findProjectRoot, PROFILE };
+
+const isMain =
+  process.argv[1] &&
+  resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isMain) main();
+

@@ -2,15 +2,16 @@
 /**
  * Build exports/index.json — catalog of forged GLBs under exports/.
  *
- *   node tools/forge-index/build.mjs [--root exports] [--out exports/index.json]
+ *   node tools/forge-index/build.mjs [--root exports] [--out exports/index.json] [--skip-validate]
  *
  * Listing rules mirror src/routes/api/forged.ts (skip engine project copies, depth cap).
+ * When validation runs (default), each entry gets ready true/false from godot_prod gates.
  */
-import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, extname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { readFileSync } from "node:fs";
+import { validateGodotProd } from "../validate/run.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(here, "../..");
@@ -19,15 +20,18 @@ const MAX_DEPTH = 4;
 const MAX_ASSETS = 200;
 
 function parseArgs(argv) {
-  const args = { root: "exports", out: "exports/index.json" };
+  const args = { root: "exports", out: "exports/index.json", skipValidate: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--root") args.root = argv[++i];
     else if (a.startsWith("--root=")) args.root = a.slice(7);
     else if (a === "--out") args.out = argv[++i];
     else if (a.startsWith("--out=")) args.out = a.slice(6);
+    else if (a === "--skip-validate") args.skipValidate = true;
     else if (a === "--help" || a === "-h") {
-      console.log("usage: node tools/forge-index/build.mjs [--root exports] [--out exports/index.json]");
+      console.log(
+        "usage: node tools/forge-index/build.mjs [--root exports] [--out exports/index.json] [--skip-validate]",
+      );
       process.exit(0);
     }
   }
@@ -39,6 +43,27 @@ function isEngineProject(dir) {
     if (existsSync(join(dir, marker))) return true;
   }
   return false;
+}
+
+/** Map relative export path → ok from last godot-prod report (optional hint). */
+function loadLastReportMap() {
+  const candidates = [
+    join(projectRoot, "exports/forge/godot-prod-report.json"),
+    join(projectRoot, "exports/godot-prod-report.json"),
+  ];
+  const map = new Map();
+  for (const path of candidates) {
+    if (!existsSync(path)) continue;
+    try {
+      const doc = JSON.parse(readFileSync(path, "utf8"));
+      for (const r of doc.results ?? []) {
+        if (typeof r.file === "string") map.set(r.file.replace(/\\/g, "/"), Boolean(r.ok));
+      }
+    } catch {
+      // ignore corrupt report
+    }
+  }
+  return map;
 }
 
 function collect(dir, root, depth, out) {
@@ -69,6 +94,7 @@ function collect(dir, root, depth, out) {
       out.push({
         id: file.replace(/\.glb$/i, "").replace(/[\\/]/g, "."),
         file,
+        absPath: full,
         mesh: entry.name.slice(0, -extname(entry.name).length),
         bytes: st.size,
         modified: st.mtimeMs,
@@ -97,18 +123,69 @@ function main() {
   collect(root, root, 0, entries);
   entries.sort((a, b) => b.modified - a.modified);
 
+  const reportHint = args.skipValidate ? new Map() : loadLastReportMap();
+  let readyCount = 0;
+  let failedCount = 0;
+  let unchecked = 0;
+
+  for (const entry of entries) {
+    const relFromProject = relative(projectRoot, entry.absPath).split("\\").join("/");
+    delete entry.absPath;
+
+    if (args.skipValidate) {
+      entry.ready = null;
+      entry.status = "indexed";
+      unchecked++;
+      continue;
+    }
+
+    let ok = null;
+    try {
+      const result = validateGodotProd(resolve(projectRoot, relFromProject));
+      ok = Boolean(result.ok);
+      entry.validation = {
+        ok,
+        hardFails: result.hardFails ?? [],
+        profile: result.profile,
+      };
+    } catch (e) {
+      if (reportHint.has(relFromProject)) {
+        ok = reportHint.get(relFromProject);
+        entry.validation = { ok, hardFails: [], profile: "godot_prod", fromReport: true };
+      } else {
+        ok = false;
+        entry.validation = { ok: false, hardFails: ["validate_error"], detail: String(e.message || e) };
+      }
+    }
+
+    entry.ready = ok;
+    entry.status = ok ? "ready" : "failed";
+    if (ok) readyCount++;
+    else failedCount++;
+  }
+
   const doc = {
     schemaVersion: 1,
     updatedAt: new Date().toISOString(),
     root: relative(projectRoot, root).split("\\").join("/") || "exports",
     profile: "godot_prod",
-    counts: { assets: entries.length },
+    validated: !args.skipValidate,
+    counts: {
+      assets: entries.length,
+      ready: args.skipValidate ? null : readyCount,
+      failed: args.skipValidate ? null : failedCount,
+      unchecked: args.skipValidate ? unchecked : 0,
+    },
     entries,
   };
 
   mkdirSync(dirname(outPath), { recursive: true });
   writeFileSync(outPath, JSON.stringify(doc, null, 2) + "\n");
-  console.log(`wrote ${relative(projectRoot, outPath)} (${entries.length} assets)`);
+  console.log(
+    `wrote ${relative(projectRoot, outPath)} (${entries.length} assets` +
+      (args.skipValidate ? ", validate skipped" : `, ready=${readyCount}, failed=${failedCount}`) +
+      `)`,
+  );
 }
 
 main();

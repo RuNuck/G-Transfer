@@ -2,6 +2,11 @@
 
 Production game asset MCP. A Three.js studio that turns a text brief into a game-asset spec, an MCP server at `/api/mcp` for Claude Code, a Blender add-on, and a local stdio MCP relay that talks to it.
 
+## Status
+
+See docs/DESIGN-AND-ROADMAP.md (roadmap) and docs/OVERNIGHT-STATUS.md (as-of-now). Validation/index/jobs: tools/validate, tools/forge-index, tools/forge-run; catalog at exports/index.json.
+
+
 ## Commands
 
 | Command | What it does |

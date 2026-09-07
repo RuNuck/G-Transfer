@@ -5,6 +5,10 @@ import { specFromBrief } from "@/lib/assets/spec";
 import { DEFAULT_ENGINE, KINDS, type AssetKind, type Engine } from "@/lib/assets/types";
 import { collisionName, folderHint, meshName, textureSet } from "@/lib/assets/naming";
 import type { McpPrompt, McpResource, McpTool } from "./protocol";
+import { readForgeJob } from "@/lib/jobs";
+import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 
 export const TOOLS: McpTool[] = [
   {
@@ -152,6 +156,30 @@ export const TOOLS: McpTool[] = [
     description: "List Anvil's built-in production prototypes Claude can instantiate immediately.",
     inputSchema: { type: "object", properties: {} },
   },
+  {
+    name: "forge_run_asset",
+    description:
+      "Enqueue / run a forge asset job against an existing exports GLB (Phase 1 scaffold). Walks stages queued to published; Blender build/bake simulated when blender binary is missing. Prefer jobs over pasting scripts once reliable.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        file: { type: "string", description: "Path to an existing .glb under exports/ (alias: mesh)." },
+        mesh: { type: "string", description: "Alias for file — path or mesh name under exports/forge." },
+      },
+    },
+  },
+  {
+    name: "forge_job_status",
+    description:
+      "Poll a forge job by id. Returns status stages, paths, validation summary, and errors from the local job store.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        jobId: { type: "string", description: "Job id returned by forge_run_asset." },
+        id: { type: "string", description: "Alias for jobId." },
+      },
+    },
+  },
 ];
 
 export const RESOURCES: McpResource[] = [
@@ -254,6 +282,12 @@ function specOf(args: Record<string, unknown>) {
   const brief = requiredText(args, "brief");
   const kind = asKind(args.kind);
   return specFromBrief(brief, explicitEngine(args.engine), kind);
+}
+
+function findAnvilRoot(): string {
+  const cwd = process.cwd();
+  if (existsSync(resolve(cwd, "tools/forge-run/run-asset.mjs"))) return cwd;
+  return cwd;
 }
 
 function text(value: string) {
@@ -456,6 +490,68 @@ export function callTool(name: string, args: Record<string, unknown>) {
           2,
         ),
       );
+    }
+    case "forge_job_status": {
+      const jobIdRaw = args.jobId ?? args.id;
+      if (typeof jobIdRaw !== "string" || !jobIdRaw.trim()) {
+        throw new InvalidParams("jobId is required and must be a non-empty string");
+      }
+      const jobId = jobIdRaw.trim();
+      const root = findAnvilRoot();
+      const job = readForgeJob(jobId, root);
+      if (!job) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({ ok: false, error: `job not found: ${jobId}` }, null, 2),
+            },
+          ],
+          isError: true,
+        };
+      }
+      return text(JSON.stringify({ ok: true, job }, null, 2));
+    }
+    case "forge_run_asset": {
+      const fileRaw = args.file ?? args.mesh;
+      if (typeof fileRaw !== "string" || !fileRaw.trim()) {
+        throw new InvalidParams("file or mesh is required (path to an existing exports .glb)");
+      }
+      const root = findAnvilRoot();
+      const runner = resolve(root, "tools/forge-run/run-asset.mjs");
+      if (!existsSync(runner)) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({ ok: false, error: "forge-run runner missing", runner }, null, 2),
+            },
+          ],
+          isError: true,
+        };
+      }
+      const r = spawnSync(process.execPath, [runner, "--file", fileRaw.trim(), "--json"], {
+        cwd: root,
+        encoding: "utf8",
+        maxBuffer: 8 * 1024 * 1024,
+      });
+      const out = (r.stdout || "").trim() || (r.stderr || "").trim() || `exit ${r.status}`;
+      let payload: unknown = out;
+      try {
+        payload = JSON.parse(out);
+      } catch {
+        // keep string
+      }
+      const failed = (r.status ?? 1) !== 0;
+      return {
+        content: [
+          {
+            type: "text",
+            text: typeof payload === "string" ? payload : JSON.stringify(payload, null, 2),
+          },
+        ],
+        ...(failed ? { isError: true } : {}),
+      };
     }
     case "forge_list_prototypes":
       return text(

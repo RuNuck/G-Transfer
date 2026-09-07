@@ -23,3 +23,6 @@ public/downloads/*.zip
 docs/_*.txt
 docs/_*.b64
 docs/_*.md
+
+# forge job store (local filesystem worker)
+.anvil/

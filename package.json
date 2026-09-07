@@ -21,7 +21,10 @@
     "format": "prettier --write .",
     "validate": "node tools/validate/run.mjs",
     "forge:index": "node tools/forge-index/build.mjs",
-    "check:fast": "npm run typecheck && node tools/validate/run.mjs exports/forge"
+    "check:fast": "npm run typecheck && node tools/validate/run.mjs exports/forge && npm run validate:fixtures",
+    "validate:fixtures": "node tools/validate/fixtures/expect-fail.mjs",
+    "forge:run": "node tools/forge-run/run-asset.mjs",
+    "forge:list": "node tools/forge-run/list.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.0",

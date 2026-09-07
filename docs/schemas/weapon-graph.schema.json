@@ -1,0 +1,703 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://anvil.local/schemas/weapon-graph.schema.json",
+  "title": "Anvil WeaponGraph",
+  "description": "Modular M4-class weapon declaration for Anvil forge (Phase 2). Godot-first; meters; grip pivot; named clips.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "preset",
+    "parts",
+    "sockets",
+    "pivot",
+    "clips",
+    "materials"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^weapon\\.[a-z0-9_.-]+$",
+      "description": "Stable id, e.g. weapon.m4.carbine"
+    },
+    "preset": {
+      "type": "string",
+      "enum": [
+        "m4_carbine",
+        "m4_cqbr",
+        "ar15_custom",
+        "custom"
+      ]
+    },
+    "engine": {
+      "type": "string",
+      "enum": [
+        "godot",
+        "unreal",
+        "unity",
+        "blender"
+      ],
+      "default": "godot"
+    },
+    "displayName": {
+      "type": "string"
+    },
+    "overallLengthM": {
+      "type": "number",
+      "minimum": 0.4,
+      "maximum": 1.2,
+      "description": "Muzzle to stock extreme in meters"
+    },
+    "caliberHint": {
+      "type": "string",
+      "examples": [
+        "5.56x45"
+      ]
+    },
+    "parts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/part"
+      }
+    },
+    "sockets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/socket"
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "description": "Optional mounted children referencing sockets",
+      "items": {
+        "$ref": "#/$defs/attachment"
+      }
+    },
+    "pivot": {
+      "$ref": "#/$defs/pivot"
+    },
+    "clips": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/clip"
+      }
+    },
+    "materials": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/materialRole"
+      }
+    },
+    "collision": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "style": {
+          "type": "string",
+          "enum": [
+            "godot_convcolonly",
+            "godot_colonly",
+            "primitives"
+          ],
+          "default": "godot_convcolonly"
+        },
+        "hullBudget": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16,
+          "default": 8
+        },
+        "excludeParts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "railLengthBudgetM": {
+          "type": "number",
+          "minimum": 0
+        },
+        "requireLowerReceiver": {
+          "type": "boolean",
+          "default": true
+        },
+        "requireMagazine": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    }
+  },
+  "$defs": {
+    "part": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "role",
+        "kitFamily"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique within graph, e.g. lower_receiver"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "lower_receiver",
+            "upper_receiver",
+            "barrel",
+            "handguard",
+            "stock",
+            "magazine",
+            "grip",
+            "muzzle",
+            "optic",
+            "underbarrel",
+            "sight_front",
+            "sight_rear",
+            "rail_cover",
+            "fastener",
+            "other"
+          ]
+        },
+        "kitFamily": {
+          "type": "string",
+          "description": "Anvil kit module / family id"
+        },
+        "variant": {
+          "type": "string"
+        },
+        "meshHint": {
+          "type": "string"
+        },
+        "lengthM": {
+          "type": "number",
+          "minimum": 0
+        },
+        "movable": {
+          "type": "boolean",
+          "default": false
+        },
+        "bone": {
+          "type": "string",
+          "description": "Rig bone name when movable"
+        },
+        "materialSlots": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "socket": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "parentPart",
+        "kind",
+        "localTransform"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "examples": [
+            "rail_top_picatinny",
+            "barrel_thread_muzzle",
+            "stock_lockup"
+          ]
+        },
+        "parentPart": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "picatinny_rail",
+            "mlok",
+            "barrel_thread",
+            "stock_tube",
+            "magwell",
+            "grip_frame",
+            "qd_sling",
+            "custom"
+          ]
+        },
+        "localTransform": {
+          "type": "object",
+          "required": [
+            "translation",
+            "rotationDeg"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "translation": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "type": "number"
+              },
+              "description": "Meters in parent part space"
+            },
+            "rotationDeg": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "type": "number"
+              },
+              "description": "Euler XYZ degrees"
+            }
+          }
+        },
+        "allowedChildren": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Allowed part roles or attachment ids"
+        },
+        "railLengthM": {
+          "type": "number",
+          "minimum": 0,
+          "description": "For rail sockets"
+        },
+        "threadSpec": {
+          "type": "string",
+          "examples": [
+            "1/2-28"
+          ]
+        }
+      }
+    },
+    "attachment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "socket",
+        "part"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "socket": {
+          "type": "string"
+        },
+        "part": {
+          "type": "string",
+          "description": "parts[].id to mount"
+        },
+        "optional": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "pivot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "part",
+        "localTranslation"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "grip",
+            "world_drop",
+            "sling"
+          ],
+          "description": "FPS default is grip"
+        },
+        "part": {
+          "type": "string",
+          "description": "Usually grip or lower_receiver"
+        },
+        "localTranslation": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "number"
+          }
+        },
+        "toleranceM": {
+          "type": "number",
+          "default": 0.02,
+          "description": "Godot verify budget vs spec"
+        }
+      }
+    },
+    "clip": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "part",
+        "motion"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Must survive GLB→Godot",
+          "examples": [
+            "cock_back",
+            "trigger_pull",
+            "magazine_release",
+            "selector_toggle",
+            "stock_collapse"
+          ]
+        },
+        "part": {
+          "type": "string"
+        },
+        "motion": {
+          "type": "object",
+          "required": [
+            "type",
+            "axis"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "slide",
+                "rotate"
+              ]
+            },
+            "axis": {
+              "type": "string",
+              "enum": [
+                "x",
+                "y",
+                "z"
+              ]
+            },
+            "travelM": {
+              "type": "number",
+              "description": "For slide, meters"
+            },
+            "angleDeg": {
+              "type": "number",
+              "description": "For rotate"
+            },
+            "durationSec": {
+              "type": "number",
+              "minimum": 0.01,
+              "default": 0.25
+            }
+          }
+        }
+      }
+    },
+    "materialRole": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slot",
+        "recipe"
+      ],
+      "properties": {
+        "slot": {
+          "type": "string",
+          "examples": [
+            "receiver_steel",
+            "handguard_polymer",
+            "grip_rubber"
+          ]
+        },
+        "recipe": {
+          "type": "string",
+          "enum": [
+            "painted_steel",
+            "blued_steel",
+            "bare_steel",
+            "polymer",
+            "rubber",
+            "wood",
+            "brass",
+            "aluminum",
+            "glass",
+            "generic"
+          ]
+        },
+        "wear": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.25
+        },
+        "dirt": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.1
+        },
+        "parts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "parts[].id using this slot"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "schemaVersion": 1,
+      "id": "weapon.m4.carbine",
+      "preset": "m4_carbine",
+      "engine": "godot",
+      "displayName": "M4-style carbine",
+      "overallLengthM": 0.84,
+      "caliberHint": "5.56x45",
+      "parts": [
+        {
+          "id": "lower",
+          "role": "lower_receiver",
+          "kitFamily": "rifle",
+          "variant": "m4_lower"
+        },
+        {
+          "id": "upper",
+          "role": "upper_receiver",
+          "kitFamily": "rifle",
+          "variant": "m4_upper"
+        },
+        {
+          "id": "barrel",
+          "role": "barrel",
+          "kitFamily": "rifle",
+          "lengthM": 0.368
+        },
+        {
+          "id": "handguard",
+          "role": "handguard",
+          "kitFamily": "rifle",
+          "variant": "quad_rail"
+        },
+        {
+          "id": "stock",
+          "role": "stock",
+          "kitFamily": "rifle",
+          "variant": "collapsible",
+          "movable": true,
+          "bone": "stock"
+        },
+        {
+          "id": "mag",
+          "role": "magazine",
+          "kitFamily": "rifle",
+          "variant": "stanag30",
+          "movable": true,
+          "bone": "magazine"
+        },
+        {
+          "id": "grip",
+          "role": "grip",
+          "kitFamily": "rifle"
+        }
+      ],
+      "sockets": [
+        {
+          "id": "rail_top",
+          "parentPart": "upper",
+          "kind": "picatinny_rail",
+          "localTransform": {
+            "translation": [
+              0,
+              0.04,
+              0.05
+            ],
+            "rotationDeg": [
+              0,
+              0,
+              0
+            ]
+          },
+          "allowedChildren": [
+            "optic",
+            "sight_rear"
+          ],
+          "railLengthM": 0.18
+        },
+        {
+          "id": "muzzle_thread",
+          "parentPart": "barrel",
+          "kind": "barrel_thread",
+          "localTransform": {
+            "translation": [
+              0,
+              0,
+              0.368
+            ],
+            "rotationDeg": [
+              0,
+              0,
+              0
+            ]
+          },
+          "allowedChildren": [
+            "muzzle"
+          ],
+          "threadSpec": "1/2-28"
+        },
+        {
+          "id": "stock_tube",
+          "parentPart": "lower",
+          "kind": "stock_tube",
+          "localTransform": {
+            "translation": [
+              0,
+              0.02,
+              -0.05
+            ],
+            "rotationDeg": [
+              0,
+              0,
+              0
+            ]
+          },
+          "allowedChildren": [
+            "stock"
+          ]
+        }
+      ],
+      "attachments": [
+        {
+          "id": "att_stock",
+          "socket": "stock_tube",
+          "part": "stock"
+        }
+      ],
+      "pivot": {
+        "kind": "grip",
+        "part": "grip",
+        "localTranslation": [
+          0,
+          -0.02,
+          0.01
+        ],
+        "toleranceM": 0.02
+      },
+      "clips": [
+        {
+          "name": "cock_back",
+          "part": "upper",
+          "motion": {
+            "type": "slide",
+            "axis": "y",
+            "travelM": 0.08,
+            "durationSec": 0.3
+          }
+        },
+        {
+          "name": "trigger_pull",
+          "part": "lower",
+          "motion": {
+            "type": "rotate",
+            "axis": "x",
+            "angleDeg": 12,
+            "durationSec": 0.12
+          }
+        },
+        {
+          "name": "magazine_release",
+          "part": "mag",
+          "motion": {
+            "type": "slide",
+            "axis": "y",
+            "travelM": 0.12,
+            "durationSec": 0.25
+          }
+        },
+        {
+          "name": "selector_toggle",
+          "part": "lower",
+          "motion": {
+            "type": "rotate",
+            "axis": "z",
+            "angleDeg": 90,
+            "durationSec": 0.2
+          }
+        },
+        {
+          "name": "stock_collapse",
+          "part": "stock",
+          "motion": {
+            "type": "slide",
+            "axis": "y",
+            "travelM": 0.1,
+            "durationSec": 0.35
+          }
+        }
+      ],
+      "materials": [
+        {
+          "slot": "receiver_steel",
+          "recipe": "blued_steel",
+          "wear": 0.3,
+          "dirt": 0.15,
+          "parts": [
+            "lower",
+            "upper"
+          ]
+        },
+        {
+          "slot": "handguard_polymer",
+          "recipe": "polymer",
+          "wear": 0.2,
+          "parts": [
+            "handguard",
+            "grip",
+            "stock"
+          ]
+        },
+        {
+          "slot": "barrel_steel",
+          "recipe": "bare_steel",
+          "wear": 0.35,
+          "parts": [
+            "barrel"
+          ]
+        }
+      ],
+      "collision": {
+        "style": "godot_convcolonly",
+        "hullBudget": 8,
+        "excludeParts": [
+          "optic"
+        ]
+      },
+      "constraints": {
+        "railLengthBudgetM": 0.35,
+        "requireLowerReceiver": true,
+        "requireMagazine": true
+      }
+    }
+  ]
+}
