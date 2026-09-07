@@ -82,8 +82,8 @@ export function qcFor(spec: AssetSpec): QcItem[] {
   const pbrProblems = spec.materials.flatMap((m) => {
     const issues: string[] = [];
     if (m.roughness < 0.04 || m.roughness > 0.95) issues.push(`${m.name}: roughness ${m.roughness} outside 0.04–0.95`);
-    if (m.metalness > 0.1 && m.metalness < 0.7) issues.push(`${m.name}: metalness ${m.metalness} is neither dielectric (≤0.1) nor metal (≥0.7)`);
-    if (m.metalness >= 0.7 && (m.roughness < 0.2 || m.roughness > 0.5)) issues.push(`${m.name}: metal roughness ${m.roughness} outside 0.2–0.5`);
+    if (m.metalness !== 0 && m.metalness !== 1) issues.push(`${m.name}: metalness ${m.metalness} must be binary 0 or 1 for production materials`);
+    if (m.metalness === 1 && (m.roughness < 0.2 || m.roughness > 0.5)) issues.push(`${m.name}: metal roughness ${m.roughness} outside 0.2–0.5`);
     return issues;
   });
   return [
@@ -158,7 +158,7 @@ export function qcFor(spec: AssetSpec): QcItem[] {
       label: "PBR ranges",
       kind: "check",
       ok: pbrProblems.length === 0,
-      detail: pbrProblems.length ? pbrProblems.join(" ") : "Dielectrics metalness 0, metals ≥ 0.7 with roughness 0.2–0.5, all roughness 0.04–0.95.",
+      detail: pbrProblems.length ? pbrProblems.join(" ") : "Dielectrics metalness 0, metals metalness 1 with roughness 0.2–0.5, all roughness 0.04–0.95.",
     },
   ];
 }

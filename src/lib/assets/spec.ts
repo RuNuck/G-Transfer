@@ -189,7 +189,7 @@ function defaultMaterials(kind: AssetKind, seed: number): AssetSpec["materials"]
       return [mat("Steel", "primary", "#6a6e72", 0.45, 0.82), mat("Rust", "trim", "#6a4636", 0.85, 0.0)];
     case "lantern":
       return [
-        mat("Brass", "trim", "#b08a4a", 0.35, 0.85),
+        mat("Brass", "trim", "#b08a4a", 0.35, 1.0),
         mat("Glass", "glass", "#c5d4c8", 0.08, 0.0),
         mat("Flame", "emissive", "#f0e2b8", 0.4, 0, "#f0e2b8", 3.2),
       ];
@@ -215,7 +215,9 @@ function mat(
   emissive?: string,
   emissiveIntensity?: number,
 ): AssetSpec["materials"][number] {
-  return { name, slot, albedo, roughness, metalness, emissive, emissiveIntensity };
+  // Production PBR: metallicFactor must be binary 0 (dielectric) or 1 (metal).
+  const metal = metalness >= 0.5 ? 1 : 0;
+  return { name, slot, albedo, roughness, metalness: metal, emissive, emissiveIntensity };
 }
 
 function lerpColor(a: string, b: string, t: number) {

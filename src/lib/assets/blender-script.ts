@@ -486,7 +486,7 @@ def make_collision(body):
         bpy.ops.mesh.primitive_uv_sphere_add(radius=max(size) / 2 + pad, location=center, segments=16, ring_count=8)
         ob = C.object
     elif COLLISION == "capsule":
-        bpy.ops.mesh.primitive_cylinder_add(radius=max(size.x, size.y) / 2 + pad, depth=size.z + 2 * pad, vertices=12, location=center)
+        bpy.ops.mesh.primitive_cylinder_add(radius=max(size.x, size.y) / 2 + pad, depth=size.z + 2 * pad, vertices=8, location=center)
         ob = C.object
     elif COLLISION == "convex":
         ob = convex_hull(body)
@@ -498,6 +498,14 @@ def make_collision(body):
     ob.data.name = COL_NAME
     select_only(ob)
     bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+    # Quinn / prod hull budget: collision proxy ≤32 tris (capsule cylinder verts=8 → 28).
+    COL_TRI_LIMIT = 32
+    tris = triangle_count(ob)
+    if tris > COL_TRI_LIMIT:
+        mod = ob.modifiers.new("AnvilColDecimate", "DECIMATE")
+        mod.ratio = max(0.05, COL_TRI_LIMIT / float(tris))
+        mod.use_collapse_triangulate = True
+        bpy.ops.object.modifier_apply(modifier="AnvilColDecimate")
     move_origin(ob, body.location)  # same pivot as the render mesh
     ob.display_type = "WIRE"
     ob.hide_render = True
