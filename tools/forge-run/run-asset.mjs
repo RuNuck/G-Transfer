@@ -71,19 +71,34 @@ function parseArgs(argv) {
   return args;
 }
 
+function underExports(absPath) {
+  const root = resolve(projectRoot, "exports");
+  const abs = resolve(absPath);
+  return abs === root || abs.startsWith(root + "/") || abs.startsWith(root + "\\");
+}
+
+/** Resolve an existing .glb strictly under exports/. Rejects absolute/../ escape. */
 function resolveMesh(input) {
   if (!input) return null;
+  const exportsRoot = resolve(projectRoot, "exports");
   const candidates = [];
-  if (isAbsolute(input)) candidates.push(input);
-  candidates.push(resolve(projectRoot, input));
-  candidates.push(resolve(projectRoot, "exports", input));
-  candidates.push(resolve(projectRoot, "exports/forge", input));
-  if (!input.toLowerCase().endsWith(".glb")) {
-    candidates.push(resolve(projectRoot, "exports/forge", input + ".glb"));
-    candidates.push(resolve(projectRoot, "exports", input + ".glb"));
+  if (isAbsolute(input)) {
+    candidates.push(resolve(input));
+  } else {
+    // project-relative (e.g. exports/foo.glb) and exports-rooted names
+    candidates.push(resolve(projectRoot, input));
+    candidates.push(resolve(exportsRoot, input));
+    candidates.push(resolve(exportsRoot, "forge", input));
+    if (!input.toLowerCase().endsWith(".glb")) {
+      candidates.push(resolve(exportsRoot, "forge", input + ".glb"));
+      candidates.push(resolve(exportsRoot, input + ".glb"));
+    }
   }
   for (const c of candidates) {
-    if (existsSync(c)) return c;
+    const abs = resolve(c);
+    if (!underExports(abs)) continue;
+    if (!abs.toLowerCase().endsWith(".glb")) continue;
+    if (existsSync(abs)) return abs;
   }
   return null;
 }
@@ -181,15 +196,39 @@ function finishPublished(job, abs, args, blenderInfo) {
   job.shipGate = ship.status;
   saveJob(job);
 
-  if (ship.available && ship.ok === false) {
-    failJob(job, "godot import ship gate blocked: " + ((ship.problems || []).join("; ") || ship.note));
+  // NEVER published+ok when shipGate !== ready (Godot-absent or import fail),
+  // even if glTF validate passed. Fold into validation.ok=false + hardFail.
+  if (ship.status !== "ready") {
+    const failId = ship.available ? "godot_import" : "godot_absent";
+    job.validation.ok = false;
+    job.validation.hardFails = [...new Set([...(job.validation.hardFails || []), failId])];
+    saveJob(job);
     const idxBlocked = rebuildIndex();
     job.paths.index = "exports/index.json";
-    if (idxBlocked.exitCode === 0) patchIndexShipGate(rel, ship);
+    if (idxBlocked.exitCode === 0) {
+      job.paths.indexStatus = patchIndexShipGate(rel, ship) || ship.status;
+    }
+    failJob(
+      job,
+      ship.available
+        ? "godot import ship gate blocked: " + ((ship.problems || []).join("; ") || ship.note)
+        : "Godot absent — shipGate validated_glb_only (refuse published+ok; hardFail godot_absent)",
+    );
     if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
     else
       console.error(
-        JSON.stringify({ ok: false, jobId: job.id, status: job.status, shipGate: ship.status, godotImport: ship }, null, 2),
+        JSON.stringify(
+          {
+            ok: false,
+            jobId: job.id,
+            status: job.status,
+            shipGate: ship.status,
+            validation: job.validation,
+            godotImport: ship,
+          },
+          null,
+          2,
+        ),
       );
     process.exit(1);
   }
@@ -206,11 +245,7 @@ function finishPublished(job, abs, args, blenderInfo) {
   job.paths.indexStatus = indexStatus;
   saveJob(job);
 
-  const publishNote =
-    ship.status === "ready"
-      ? "validated + godot import ok + index ready"
-      : "validated_glb_only (Godot missing) — index not ready";
-  advanceStage(job, "published", publishNote);
+  advanceStage(job, "published", "validated + godot import ok + index ready");
   if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
   else {
     console.log(
