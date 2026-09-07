@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useForge } from "@/lib/store";
 
 const ADDON = "/downloads/anvil_blender_addon.zip";
 const SERVER = "/downloads/anvil-mcp-server.mjs";
@@ -7,6 +9,7 @@ const EXAMPLE = "/downloads/claude-mcp.example.json";
 
 export function ConnectPanel({ origin }: { origin: string }) {
   const mcpUrl = `${origin}/api/mcp`;
+  const pushLog = useForge((s) => s.pushLog);
   const httpSnippet = useMemo(
     () =>
       JSON.stringify(
@@ -25,6 +28,7 @@ export function ConnectPanel({ origin }: { origin: string }) {
   const [copied, setCopied] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const [probe, setProbe] = useState<string>("");
+  const [probeOk, setProbeOk] = useState<boolean | null>(null);
 
   async function copy(label: string, text: string) {
     try {
@@ -39,6 +43,8 @@ export function ConnectPanel({ origin }: { origin: string }) {
 
   async function ping() {
     setProbe("Calling initialize + tools/list…");
+    setProbeOk(null);
+    pushLog({ direction: "in", method: "probe", summary: `initialize + tools/list → ${mcpUrl}` });
     try {
       const rpc = async (body: unknown, session?: string | null) => {
         const res = await fetch(mcpUrl, {
@@ -70,9 +76,19 @@ export function ConnectPanel({ origin }: { origin: string }) {
       const list = await rpc({ jsonrpc: "2.0", id: 2, method: "tools/list", params: {} }, init.session);
       const names = (list.json.result?.tools ?? []).map((t: { name: string }) => t.name);
       const info = init.json.result?.serverInfo ?? {};
-      setProbe(`OK ${info.name ?? "?"} v${info.version ?? "?"}\n${names.join(" · ")}`);
+      const summary = `OK ${info.name ?? "?"} v${info.version ?? "?"} · ${names.length} tools`;
+      const detail = `${summary}\n${names.join(" · ")}`;
+      setProbe(detail);
+      setProbeOk(true);
+      pushLog({ direction: "out", method: "probe", summary });
+      toast.success("MCP probe OK", { description: summary });
     } catch (err) {
-      setProbe(`Probe failed: ${err instanceof Error ? err.message : String(err)}`);
+      const message = err instanceof Error ? err.message : String(err);
+      const fail = `Probe failed: ${message}`;
+      setProbe(fail);
+      setProbeOk(false);
+      pushLog({ direction: "sys", method: "probe", summary: fail });
+      toast.error("MCP probe failed", { description: message });
     }
   }
 
@@ -133,7 +149,15 @@ export function ConnectPanel({ origin }: { origin: string }) {
           Probe this MCP
         </Button>
         {probe ? (
-          <pre className="mt-2 whitespace-pre-wrap rounded-md bg-surface-2 p-3 font-mono text-[11px] text-muted">
+          <pre
+            className={
+              probeOk === true
+                ? "mt-2 whitespace-pre-wrap rounded-md bg-surface-2 p-3 font-mono text-[11px] text-ok"
+                : probeOk === false
+                  ? "mt-2 whitespace-pre-wrap rounded-md bg-surface-2 p-3 font-mono text-[11px] text-danger"
+                  : "mt-2 whitespace-pre-wrap rounded-md bg-surface-2 p-3 font-mono text-[11px] text-muted"
+            }
+          >
             {probe}
           </pre>
         ) : null}

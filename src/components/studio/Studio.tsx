@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Hammer, Box, Cable, Layers, ScrollText } from "lucide-react";
+import { Toaster } from "sonner";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import { CATALOG } from "@/lib/assets/catalog";
@@ -96,6 +97,7 @@ export function Studio() {
 
   return (
     <div className="relative flex h-dvh min-h-0 flex-col bg-bg text-fg">
+      <Toaster theme="dark" position="bottom-right" richColors closeButton />
       <header className="flex h-12 shrink-0 items-center gap-3 border-b border-border px-3">
         <AnvilMark />
         <div className="min-w-0">
@@ -167,9 +169,12 @@ export function Studio() {
               placeholder="Sci-fi crate, 0.8 m, Unreal, weathered hull…"
               className="h-11 min-w-0 flex-1 rounded-md bg-surface-2 px-3 text-sm text-fg outline-none ring-ring/60 placeholder:text-subtle focus:ring-2"
             />
-            <Button type="submit" size="lg" disabled={store.forging}>
-              {store.forging ? "Forging…" : "Forge"}
-            </Button>
+            <div className="flex shrink-0 flex-col gap-0.5 sm:items-end">
+              <Button type="submit" size="lg" disabled={store.forging} title="Builds AssetSpec + Blender script here. Run the script in local Blender (add-on / stdio MCP) to forge the GLB.">
+                {store.forging ? "Planning…" : "Plan"}
+              </Button>
+              <span className="hidden text-[10px] text-subtle sm:block">Spec + script · GLB needs local Blender</span>
+            </div>
           </form>
           {error ? <p className="px-3 py-2 text-xs text-danger">{error}</p> : null}
           <div className="flex shrink-0 gap-1 overflow-x-auto border-b border-border px-3 py-2 lg:hidden">

@@ -1,0 +1,537 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://anvil.local/schemas/scene-spec.schema.json",
+  "title": "Anvil SceneSpec",
+  "description": "Bounded environment composition for Anvil (Phase 4). Godot-first; meters; kit instances only — never a mega-mesh jungle blob.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "biome",
+    "aabb",
+    "seed",
+    "layers",
+    "engine"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^scene\\.[a-z0-9_.-]+$",
+      "description": "Stable id, e.g. scene.jungle.clearing_01"
+    },
+    "displayName": {
+      "type": "string"
+    },
+    "biome": {
+      "type": "string",
+      "enum": [
+        "jungle_clearing",
+        "jungle_river",
+        "temperate_forest",
+        "arid_outcrop",
+        "custom"
+      ],
+      "description": "Biome kit family selector; composer resolves piece refs via index"
+    },
+    "engine": {
+      "type": "string",
+      "enum": [
+        "godot",
+        "unreal",
+        "unity",
+        "blender"
+      ],
+      "default": "godot"
+    },
+    "aabb": {
+      "$ref": "#/$defs/aabbMeters",
+      "description": "Axis-aligned bounds in meters (world space)"
+    },
+    "seed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Deterministic scatter seed; same seed ⇒ stable instance hash"
+    },
+    "layers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ground",
+        "lighting"
+      ],
+      "properties": {
+        "ground": {
+          "$ref": "#/$defs/groundLayer"
+        },
+        "water": {
+          "$ref": "#/$defs/waterLayer"
+        },
+        "canopy": {
+          "$ref": "#/$defs/scatterLayer"
+        },
+        "undergrowth": {
+          "$ref": "#/$defs/scatterLayer"
+        },
+        "rocks": {
+          "$ref": "#/$defs/scatterLayer"
+        },
+        "landmarks": {
+          "$ref": "#/$defs/landmarksLayer"
+        },
+        "lighting": {
+          "$ref": "#/$defs/lightingLayer"
+        },
+        "nav": {
+          "$ref": "#/$defs/navLayer"
+        }
+      }
+    },
+    "constraints": {
+      "$ref": "#/$defs/constraints"
+    },
+    "kitRefs": {
+      "type": "array",
+      "description": "Explicit biome kit piece ids the composer may instance (index keys)",
+      "items": {
+        "$ref": "#/$defs/kitRef"
+      },
+      "minItems": 1
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "vec3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "number"
+      },
+      "description": "XYZ in meters"
+    },
+    "aabbMeters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min",
+        "max"
+      ],
+      "properties": {
+        "min": {
+          "$ref": "#/$defs/vec3"
+        },
+        "max": {
+          "$ref": "#/$defs/vec3"
+        }
+      }
+    },
+    "kitRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "role"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^biome\\.[a-z0-9_.-]+$",
+          "description": "Index id, e.g. biome.jungle.tree_trunk_a"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "terrain_tile",
+            "path_dirt",
+            "tree_trunk",
+            "tree_canopy",
+            "tree_root",
+            "understory",
+            "river_bank",
+            "water_plane",
+            "rock_scatter",
+            "fallen_log",
+            "mud_decal",
+            "landmark",
+            "other"
+          ]
+        },
+        "variant": {
+          "type": "string"
+        }
+      }
+    },
+    "densityCap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maxInstances"
+      ],
+      "properties": {
+        "perSquareMeter": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Soft density target"
+        },
+        "maxInstances": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5000,
+          "description": "Hard instance budget for this layer"
+        },
+        "minSpacingM": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Minimum center-to-center spacing"
+        }
+      }
+    },
+    "scatterLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "density"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "density": {
+          "$ref": "#/$defs/densityCap"
+        },
+        "kitRoles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Subset of kitRefs.role allowed on this layer"
+        },
+        "excludeAabb": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/aabbMeters"
+          },
+          "description": "Keep-out volumes (e.g. path corridor, river)"
+        }
+      }
+    },
+    "groundLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "style"
+      ],
+      "properties": {
+        "style": {
+          "type": "string",
+          "enum": [
+            "tiled_kit",
+            "heightfield_stub",
+            "flat_plane"
+          ],
+          "default": "tiled_kit"
+        },
+        "tileSizeM": {
+          "type": "number",
+          "minimum": 1,
+          "default": 4
+        },
+        "path": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Dirt path as polyline in XZ (Y ignored / ground-projected)",
+          "properties": {
+            "polyline": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "$ref": "#/$defs/vec3"
+              }
+            },
+            "widthM": {
+              "type": "number",
+              "minimum": 0.5,
+              "maximum": 8,
+              "default": 2
+            },
+            "kitRole": {
+              "type": "string",
+              "const": "path_dirt"
+            }
+          }
+        },
+        "collision": {
+          "type": "string",
+          "enum": [
+            "trimesh_ground",
+            "heightfield",
+            "box_tiles"
+          ],
+          "default": "box_tiles"
+        }
+      }
+    },
+    "waterLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "style": {
+          "type": "string",
+          "enum": [
+            "kit_segments",
+            "plane"
+          ],
+          "default": "kit_segments"
+        },
+        "river": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "River centerline + banks; kit meshes only (no fluid sim)",
+          "properties": {
+            "polyline": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "$ref": "#/$defs/vec3"
+              }
+            },
+            "widthM": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 40,
+              "default": 6
+            },
+            "bankKitRole": {
+              "type": "string",
+              "const": "river_bank"
+            },
+            "waterKitRole": {
+              "type": "string",
+              "const": "water_plane"
+            },
+            "flowAxisHint": {
+              "type": "string",
+              "enum": [
+                "+x",
+                "-x",
+                "+z",
+                "-z"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "landmarksLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "kitId",
+              "transform"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kitId": {
+                "type": "string",
+                "pattern": "^biome\\.[a-z0-9_.-]+$"
+              },
+              "transform": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "translation"
+                ],
+                "properties": {
+                  "translation": {
+                    "$ref": "#/$defs/vec3"
+                  },
+                  "rotationDeg": {
+                    "$ref": "#/$defs/vec3"
+                  },
+                  "scale": {
+                    "type": "number",
+                    "minimum": 0.5,
+                    "maximum": 2,
+                    "default": 1,
+                    "description": "Uniform scale only; non-1 must stay within kit authoring tolerance"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "lightingLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "setups"
+      ],
+      "properties": {
+        "setups": {
+          "type": "array",
+          "minItems": 2,
+          "description": "≥2 named light setups required for validation",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "kind"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "examples": [
+                  "overcast",
+                  "golden_shafts",
+                  "god_rays"
+                ]
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "sun_sky",
+                  "overcast",
+                  "god_rays",
+                  "night_moon",
+                  "custom"
+                ]
+              },
+              "sunElevationDeg": {
+                "type": "number"
+              },
+              "sunAzimuthDeg": {
+                "type": "number"
+              },
+              "energy": {
+                "type": "number",
+                "minimum": 0
+              },
+              "notes": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "defaultSetup": {
+          "type": "string",
+          "description": "setups[].id used when opening the scene"
+        }
+      }
+    },
+    "navLayer": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "agentRadiusM": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 1.5,
+          "default": 0.4
+        },
+        "agentHeightM": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 3,
+          "default": 1.8
+        },
+        "walkableLayers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "ground",
+              "path",
+              "bank"
+            ]
+          },
+          "default": [
+            "ground",
+            "path"
+          ]
+        },
+        "bakeHint": {
+          "type": "string",
+          "enum": [
+            "godot_navigation_region",
+            "none"
+          ],
+          "default": "godot_navigation_region"
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "forbidMegaMesh": {
+          "type": "boolean",
+          "const": true,
+          "default": true,
+          "description": "Product rule: reject fused jungle.glb outputs"
+        },
+        "maxTotalInstances": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8000,
+          "default": 1200
+        },
+        "maxUniqueKitPieces": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256,
+          "default": 64
+        },
+        "requireRiverWhenBiome": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Biomes that must include water.river polyline"
+        },
+        "riverMustStayInsideAabb": {
+          "type": "boolean",
+          "default": true
+        },
+        "pathMustStayInsideAabb": {
+          "type": "boolean",
+          "default": true
+        },
+        "sameSeedStableHash": {
+          "type": "boolean",
+          "default": true,
+          "description": "Composer must hash-stable instance list for identical SceneSpec"
+        }
+      }
+    }
+  }
+}
