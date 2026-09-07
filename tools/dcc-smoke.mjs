@@ -118,8 +118,10 @@ function main() {
 
   if (args.godot && glb && existsSync(glb)) {
     if (!godot.available) {
-      console.warn("SKIP godot-check: Godot not found (set ANVIL_GODOT)");
-      report.steps.push({ step: "godot_import", skipped: true });
+      console.error("FAIL: Godot not found. Set ANVIL_GODOT or put godot on PATH (no SKIP in prod smoke).");
+      report.steps.push({ step: "godot_import", exitCode: 1, skipped: false, hardFail: "godot_absent" });
+      writeReport(report);
+      process.exit(1);
     } else {
       const g = run(
         "godot-check",

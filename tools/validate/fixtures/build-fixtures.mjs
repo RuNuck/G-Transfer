@@ -237,12 +237,28 @@ writeFileSync(join(failDir, "malformed-not-glb.glb"), Buffer.from("NOT A GLTF FI
 console.log("wrote", join(failDir, "malformed-not-glb.glb"));
 
 // --- PASS fixtures ---
+// Honest pass assets must claim resolvable PBR (claimedPbr===0 is now hard-fail).
+const okPbr = {
+  material: {
+    name: "M_OkPbr",
+    pbrMetallicRoughness: {
+      baseColorTexture: { index: 0 },
+      metallicRoughnessTexture: { index: 1 },
+    },
+    normalTexture: { index: 2 },
+  },
+  textures: [{ source: 0 }, { source: 1 }, { source: 2 }],
+  images: [{ name: "albedo" }, { name: "orm" }, { name: "normal" }],
+};
+
 writeGlb(
   join(passDir, "prop-meters-ok.glb"),
   baseDoc({
     nodeName: "crate_col-convcolonly",
     meshName: "SM_Crate",
     max: [0.5, 0.5, 0.5],
+    ...okPbr,
+    material: { ...okPbr.material, name: "M_CratePbr" },
   }),
 );
 
@@ -252,16 +268,7 @@ writeGlb(
     nodeName: "textured_col-convcolonly",
     meshName: "SM_Textured",
     max: [1, 1, 1],
-    material: {
-      name: "M_OkPbr",
-      pbrMetallicRoughness: {
-        baseColorTexture: { index: 0 },
-        metallicRoughnessTexture: { index: 1 },
-      },
-      normalTexture: { index: 2 },
-    },
-    textures: [{ source: 0 }, { source: 1 }, { source: 2 }],
-    images: [{ name: "albedo" }, { name: "orm" }, { name: "normal" }],
+    ...okPbr,
   }),
 );
 
@@ -270,6 +277,8 @@ const rifleOk = baseDoc({
   meshName: "SM_RifleOk",
   max: [0.7, 0.2, 0.08],
   translation: [0, 0, 0],
+  ...okPbr,
+  material: { ...okPbr.material, name: "M_RiflePbr" },
 });
 rifleOk.nodes = [
   { name: "grip", mesh: 0, translation: [0, 0, 0] },

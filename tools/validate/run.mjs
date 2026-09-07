@@ -231,9 +231,9 @@ function validateGodotProd(absPath) {
   } else {
     push(
       "pbr_textures_resolve",
-      "soft",
-      true,
-      "no material texture maps claimed (untextured Principled / blockout OK)",
+      "hard",
+      false,
+      "no albedo+normal+ORM (or claimed PBR maps) — untextured/blockout is not ready/publish",
     );
   }
 

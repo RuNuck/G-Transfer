@@ -8,8 +8,8 @@
  *   node tools/forge-run/run-asset.mjs --kind lantern [--engine godot] [--bake] [--out-dir exports/forge-smoke] [--json]
  *   node tools/forge-run/run-asset.mjs --script path/to/build.py [--bake-script path/to/bake.py] [--out exports/forge-smoke/foo.glb]
  *
- * Prefers ANVIL_BLENDER, then `which blender`. Falls back to simulated build/bake
- * stages when Blender is missing and only --file is given.
+ * Prefers ANVIL_BLENDER, then `which blender`. Refuses publish when Blender is missing
+ * (no simulated build/bake path to published).
  */
 import { existsSync, mkdirSync, realpathSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -394,11 +394,18 @@ function main() {
     return;
   }
 
-  // --- Existing GLB path (validate + index; Blender stages simulated if no binary) ---
+  // --- Existing GLB path (validate + index; require Blender present — no simulate publish) ---
   const abs = resolveMesh(args.file);
   if (!abs) {
     console.error("missing --file/--mesh pointing at an existing .glb under exports/, or use --kind / --script for a real Blender build");
     process.exit(2);
+  }
+
+  if (!blender.available) {
+    console.error(
+      "Blender not found (set ANVIL_BLENDER or install blender on PATH). Refusing existing-GLB publish via simulated build/bake.",
+    );
+    process.exit(1);
   }
 
   const rel = relative(projectRoot, abs).split("\\").join("/");
@@ -412,27 +419,13 @@ function main() {
       path: blender.path,
       source: blender.source,
       kitDir,
-      note: blender.available
-        ? "Blender present; existing-GLB mode does not rebuild — use --kind/--script for a real headless forge"
-        : "blender binary not found (ANVIL_BLENDER / which blender); build/bake stages simulated",
+      note: "Blender present; existing-GLB mode does not rebuild — use --kind/--script for a real headless forge",
     },
   });
 
   try {
-    advanceStage(
-      job,
-      "building",
-      blender.available
-        ? "existing GLB — skip Blender rebuild (pass --kind to forge new)"
-        : "simulated build (no blender); reusing existing GLB",
-    );
-    advanceStage(
-      job,
-      "baking",
-      blender.available
-        ? "existing GLB — skip Blender bake"
-        : "simulated bake (no blender); textures assumed already in GLB",
-    );
+    advanceStage(job, "building", "existing GLB — skip Blender rebuild (pass --kind to forge new)");
+    advanceStage(job, "baking", "existing GLB — skip Blender bake");
     finishPublished(job, abs, args, job.blender);
   } catch (e) {
     failJob(job, e.message || String(e));
@@ -441,5 +434,4 @@ function main() {
     process.exit(1);
   }
 }
-
 main();
