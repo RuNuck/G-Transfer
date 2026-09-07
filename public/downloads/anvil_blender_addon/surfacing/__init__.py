@@ -292,8 +292,8 @@ def _painted_steel(G, m, M):
     rough = G.mix(M["wear"], rough, 0.35, color=False)
     rough = G.mix(M["dirt"], rough, 0.9, color=False)
     rough = G.mix(G.mul(M["dust"], 0.6), rough, 0.95, color=False)
-    metal = G.mix(M["wear"], min(m["metallic"], 0.25), 1.0, color=False)
-    metal = G.mix(G.mul(M["dirt"], 0.8), metal, 0.0, color=False)
+    # Wear chips expose metal (AA fringe ok); base paint is dielectric 0 — no mid plateaus.
+    metal = G.mix(M["wear"], 0.0, 1.0, color=False)
     height = G.sub(G.mul(M["fine"], 0.35), G.mul(M["wear"], 0.9))  # chips sit below the paint
     return dict(color=color, rough=rough, metal=metal, height=height, distance=0.0005)
 
@@ -308,7 +308,7 @@ def _blued_steel(G, m, M):
     rough = G.mad(M["fine"], 0.06, rough)
     rough = G.mix(M["wear"], rough, 0.28, color=False)
     rough = G.mix(M["dirt"], rough, 0.7, color=False)
-    metal = G.mix(G.mul(M["dirt"], 0.6), max(m["metallic"], 0.85), 0.25, color=False)
+    metal = 1.0  # binary metal; dirt/wear stay on albedo+roughness
     height = G.mad(M["streak"], 0.3, G.mul(M["fine"], 0.15))
     return dict(color=color, rough=rough, metal=metal, height=height, distance=0.00015)
 
@@ -322,7 +322,7 @@ def _bare_steel(G, m, M):
     rough = G.mad(M["streak"], 0.25, m["roughness"] - 0.1)
     rough = G.mix(M["wear"], rough, 0.2, color=False)
     rough = G.mix(M["dirt"], rough, 0.75, color=False)
-    metal = G.mix(G.mul(M["dirt"], 0.6), max(m["metallic"], 0.9), 0.3, color=False)
+    metal = 1.0  # binary metal; dirt/wear stay on albedo+roughness
     height = G.mad(M["streak"], 0.4, G.mul(M["fine"], 0.2))
     return dict(color=color, rough=rough, metal=metal, height=height, distance=0.0002)
 
@@ -380,7 +380,8 @@ def _brass(G, m, M):
     rough = G.mad(M["fine"], 0.12, m["roughness"] - 0.06)
     rough = G.mix(G.mul(M["dirt"], 0.8), rough, 0.7, color=False)
     rough = G.mix(M["wear"], rough, 0.18, color=False)
-    metal = G.mix(G.mul(M["dirt"], 0.5), 1.0, 0.6, color=False)
+    # Quinn/prod: ORM metallic binary 0/1 (wear AA only) — no dirt mid-gray plateaus.
+    metal = 1.0
     height = G.mad(M["fine"], 0.25, G.mul(M["streak"], 0.15))
     return dict(color=color, rough=rough, metal=metal, height=height, distance=0.00015)
 
@@ -465,7 +466,7 @@ def _generic(G, m, M):
     rough = G.mad(M["fine"], 0.12, m["roughness"] - 0.06)
     rough = G.mix(M["wear"], rough, 0.3 if metallic >= 0.5 else 0.4, color=False)
     rough = G.mix(M["dirt"], rough, 0.85, color=False)
-    metal = G.mix(G.mul(M["dirt"], 0.6), metallic, 0.0, color=False)
+    metal = 1.0 if metallic >= 0.5 else 0.0  # binary; dirt stays on albedo/rough
     height = G.mul(M["fine"], 0.3)
     return dict(color=color, rough=rough, metal=metal, height=height, distance=0.0003)
 
@@ -803,6 +804,11 @@ def pack(engine, name, size, ao_img, rough_img, metal_img):
         return buf.reshape(count, 4)[:, 0]
 
     ao, rough, metal = channel(ao_img), channel(rough_img), channel(metal_img)
+    # Production ORM metallic: binary 0/1 with thin wear AA only — snap mid-gray plateaus.
+    # Keep fringe in (0, 0.12] U [0.88, 1) so island/wear edges stay anti-aliased.
+    mid = (metal > 0.12) & (metal < 0.88)
+    metal = np.where(mid, np.where(metal >= 0.5, 1.0, 0.0), metal)
+    metal = np.clip(metal, 0.0, 1.0)
     packed = np.ones((count, 4), dtype=np.float32)
     if engine == "unity":
         packed[:, 0] = metal
@@ -907,11 +913,11 @@ def surface(low, high=None, slots=None, size=1024, samples=16, out_dir=None, nam
         # what an unreachable texel should hold: the slots' own average look, not black
         mean_rgb = [sum(slot["rgb"][i] for slot in resolved) / len(resolved) for i in range(3)]
         mean_rough = sum(slot["roughness"] for slot in resolved) / len(resolved)
-        mean_metal = sum(slot["metallic"] for slot in resolved) / len(resolved)
         fills = {
             "color": tuple(mean_rgb) + (1.0,),
             "rough": (mean_rough, mean_rough, mean_rough, 1.0),
-            "metal": (mean_metal, mean_metal, mean_metal, 1.0),
+            # Empty UV / unreachable texels: dielectric 0 (not slot-mean mid-gray ~0.33).
+            "metal": (0.0, 0.0, 0.0, 1.0),
             "normal": (0.5, 0.5, 1.0, 1.0),
         }
         for pass_name, img, kind in (("color", albedo_img, "EMIT"), ("rough", rough_img, "EMIT"), ("metal", metal_img, "EMIT"), ("normal", normal_img, "NORMAL")):

@@ -4,9 +4,16 @@ import type { AssetSpec, PipelineStage, QcItem } from "./types";
 /** One LOD screen-size table for every tool and note (fractions of screen height). */
 export const LOD_SCREEN = { lod0: 1.0, lod1: 0.45, lod2: 0.12, cull: 0.04 } as const;
 
-/** Atlas size the bake script and the QC agree on. */
+/** Atlas size the bake script and the QC agree on.
+ * Snaps toward declared texelDensity × characteristic meters so small env props
+ * (e.g. lantern ~0.36 m at 512 px/m) bake 512² instead of overshooting to 2k (~2691 px/m).
+ */
 export function atlasSize(spec: AssetSpec) {
-  return spec.texelDensity >= 1024 ? 2048 : spec.texelDensity >= 512 ? 1024 : 512;
+  const maxDim = Math.max(spec.dimensions?.x ?? 0, spec.dimensions?.y ?? 0, spec.dimensions?.z ?? 0, 0.01);
+  const ideal = spec.texelDensity * maxDim;
+  if (ideal >= 1536) return 2048;
+  if (ideal >= 768) return 1024;
+  return 512;
 }
 
 const NAME_RULES: Record<AssetSpec["engine"], RegExp> = {

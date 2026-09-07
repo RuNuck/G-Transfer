@@ -1,339 +1,37 @@
 {
-  "at": "2026-09-07T12:43:42.028Z",
+  "at": "2026-09-07T13:38:36.186Z",
   "kind": "lantern",
   "engine": "godot",
-  "bake": false,
-  "blender": {
-    "path": "/home/box/tools/blender-5.2.1-linux-x64/blender",
-    "source": "ANVIL_BLENDER",
-    "available": true
-  },
-  "godot": {
-    "path": "/home/box/tools/godot-4.7.2/Godot_v4.7.2-stable_linux.x86_64",
-    "source": "ANVIL_GODOT",
-    "available": true
-  },
-  "steps": [
-    {
-      "step": "forge_kind",
-      "exitCode": 0
-    },
-    {
-      "step": "godot_import",
-      "exitCode": 0,
-      "ok": true,
-      "problems": [],
-      "godotVersion": "4.7.2.stable.official.ed1daf0bf"
-    }
-  ],
+  "bake": true,
   "job": {
-    "schemaVersion": 1,
-    "id": "job_20260907124342_e4e6bc",
-    "type": "asset",
+    "id": "job_20260907133827_501189",
     "status": "published",
-    "createdAt": "2026-09-07T12:43:42.201Z",
-    "updatedAt": "2026-09-07T12:43:47.666Z",
-    "startedAt": "2026-09-07T12:43:42.202Z",
-    "finishedAt": "2026-09-07T12:43:47.666Z",
-    "inputs": {
-      "mode": "kind-build",
-      "kind": "lantern",
-      "engine": "godot",
-      "script": "tools/blender-check/out/gen/lantern_godot.py",
-      "brief": null,
-      "bake": false
-    },
-    "paths": {
-      "mesh": "exports/forge-smoke/oil_lantern.glb",
-      "textures": "exports/forge-smoke/textures",
-      "buildScript": "tools/blender-check/out/gen/lantern_godot.py",
-      "index": "exports/index.json",
-      "indexStatus": "ready"
-    },
-    "stages": [
-      {
-        "status": "building",
-        "at": "2026-09-07T12:43:42.202Z",
-        "note": "Blender headless build: /home/box/tools/blender-5.2.1-linux-x64/blender"
-      },
-      {
-        "status": "baking",
-        "at": "2026-09-07T12:43:42.202Z",
-        "note": "bake skipped (--bake not set); materials are untextured Principled BSDF"
-      },
-      {
-        "status": "validating",
-        "at": "2026-09-07T12:43:43.394Z",
-        "note": "running tools/validate godot_prod"
-      },
-      {
-        "status": "validating",
-        "at": "2026-09-07T12:43:43.538Z",
-        "note": "running tools/godot-check (ship gate)"
-      },
-      {
-        "status": "published",
-        "at": "2026-09-07T12:43:47.666Z",
-        "note": "validated + godot import ok + index ready"
-      }
-    ],
-    "notes": [
-      "Blender headless build: /home/box/tools/blender-5.2.1-linux-x64/blender",
-      "bake skipped (--bake not set); materials are untextured Principled BSDF",
-      "running tools/validate godot_prod",
-      "running tools/godot-check (ship gate)",
-      "validated + godot import ok + index ready"
-    ],
-    "errors": [],
-    "validation": {
-      "ok": true,
-      "exitCode": 0,
-      "counts": {
-        "assets": 1,
-        "passed": 1,
-        "failed": 0
-      },
-      "hardFails": [],
-      "report": {
-        "file": "exports/forge-smoke/oil_lantern.glb",
-        "absPath": "/workspace/project/exports/forge-smoke/oil_lantern.glb",
-        "profile": "godot_prod",
-        "ok": true,
-        "hardFails": [],
-        "gates": [
-          {
-            "id": "file_exists",
-            "severity": "hard",
-            "ok": true,
-            "detail": "exports/forge-smoke/oil_lantern.glb"
-          },
-          {
-            "id": "extension",
-            "severity": "hard",
-            "ok": true,
-            "detail": ".glb"
-          },
-          {
-            "id": "readable_glb",
-            "severity": "hard",
-            "ok": true,
-            "detail": "glTF 2, 164612 bytes"
-          },
-          {
-            "id": "has_meshes",
-            "severity": "hard",
-            "ok": true,
-            "detail": "2 mesh(es): oil_lantern, oil_lantern_col-convcolonly"
-          },
-          {
-            "id": "has_materials",
-            "severity": "hard",
-            "ok": true,
-            "detail": "3 material(s)"
-          },
-          {
-            "id": "has_nodes",
-            "severity": "hard",
-            "ok": true,
-            "detail": "2 node(s)"
-          },
-          {
-            "id": "collision_godot_suffix",
-            "severity": "hard",
-            "ok": true,
-            "detail": "Godot collision node(s): oil_lantern_col-convcolonly"
-          },
-          {
-            "id": "meters_bounds",
-            "severity": "hard",
-            "ok": true,
-            "detail": "AABB size ≈ 0.190×0.370×0.190 m (from POSITION min/max)"
-          }
-        ],
-        "soft": [
-          {
-            "id": "rigged_clips",
-            "severity": "soft",
-            "ok": true,
-            "detail": "no clips (path does not suggest rigged)"
-          },
-          {
-            "id": "pbr_textures_resolve",
-            "severity": "soft",
-            "ok": true,
-            "detail": "no material texture maps claimed (untextured Principled / blockout OK)"
-          },
-          {
-            "id": "pivot_weapon_or_rigged",
-            "severity": "soft",
-            "ok": true,
-            "detail": "path does not suggest weapon/rigged — pivot not gated"
-          }
-        ],
-        "summary": {
-          "bytes": 164612,
-          "meshes": [
-            "oil_lantern",
-            "oil_lantern_col-convcolonly"
-          ],
-          "materials": [
-            "mat_brass",
-            "mat_glass",
-            "mat_flame"
-          ],
-          "animations": [],
-          "skins": 0,
-          "godotCollisionNodes": [
-            "oil_lantern_col-convcolonly"
-          ],
-          "bounds": {
-            "min": [
-              -0.0950000062584877,
-              -0.004999995231628418,
-              -0.0950000062584877
-            ],
-            "max": [
-              0.0950000062584877,
-              0.36460021138191223,
-              0.0950000062584877
-            ],
-            "size": [
-              0.1900000125169754,
-              0.36960020661354065,
-              0.1900000125169754
-            ]
-          },
-          "suggestsRigged": false,
-          "suggestsWeapon": false,
-          "textures": {
-            "claimedPbr": 0,
-            "missing": 0
-          },
-          "pivot": {
-            "gripNode": null,
-            "rootNearOrigin": null
-          }
-        }
-      }
-    },
-    "blender": {
-      "available": true,
-      "path": "/home/box/tools/blender-5.2.1-linux-x64/blender",
-      "source": "ANVIL_BLENDER",
-      "kitDir": "/workspace/project/public/downloads",
-      "note": "headless Blender build via tools/forge-run/headless-run.py",
-      "logTail": "ANVIL_KIT_DIR= /workspace/project/public/downloads\nANVIL_HEADLESS build /workspace/project/tools/blender-check/out/gen/lantern_godot.py\nINFO Draco is available, use library at /home/box/tools/blender-5.2.1-linux-x64/lib/libbf_intern_draco_bridge.so\nINFO MeshOptimizer is available, use library at /home/box/tools/blender-5.2.1-linux-x64/lib/libbf_intern_meshopt_bridge.so\n12:43:43 | INFO: Starting glTF 2.0 export\n12:43:43 | INFO: Extracting primitive: oil_lantern\n12:43:43 | INFO: Primitives created: 3\n12:43:43 | INFO: Extracting primitive: oil_lantern_col-convcolonly\n12:43:43 | INFO: Primitives created: 1\n12:43:43 | INFO: Finished glTF 2.0 export in 0.03857111930847168 s\n\nAnvil built oil_lantern built (part kit) in collection Anvil_oil_lantern: LOD0 2856 tris (budget 3000), oil_lantern_LOD1 990 tris, oil_lantern_LOD2 240 tris, collision oil_lantern_col-convcolonly (capsule), pivot bottom -> exported /workspace/project/exports/forge-smoke/oil_lantern.glb\nExport: File > Export > glTF 2.0 · GLB · selected objects · apply modifiers · +Y up (the export set is selected)\nTextures: tex_oil_lantern_albedo tex_oil_lantern_normal tex_oil_lantern_orm\nGodot ORM: R=AO, G=Roughness, B=Metallic. Import as StandardMaterial3D.\nANVIL_BUILD_RESULT oil_lantern built (part kit) in collection Anvil_oil_lantern: LOD0 2856 tris (budget 3000), oil_lantern_LOD1 990 tris, oil_lantern_LOD2 240 tris, collision oil_lantern_col-convcolonly (capsule), pivot bottom -> exported /workspace/project/exports/forge-smoke/oil_lantern.glb\nANVIL_EXPORT_OK /workspace/project/exports/forge-smoke/oil_lantern.glb 164612\nBlender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:12:34)\n\nBlender quit\n\n",
-      "exitCode": 0,
-      "buildSource": "part kit"
-    },
-    "godotImport": {
-      "ran": true,
-      "available": true,
-      "ok": true,
-      "status": "ready",
-      "exitCode": 0,
-      "source": "ANVIL_GODOT",
-      "path": "/home/box/tools/godot-4.7.2/Godot_v4.7.2-stable_linux.x86_64",
-      "problems": [],
-      "godotVersion": "4.7.2.stable.official.ed1daf0bf",
-      "note": "Godot headless import ok"
-    },
-    "shipGate": "ready"
+    "publishedPath": null
   },
-  "glb": "exports/forge-smoke/oil_lantern.glb",
-  "godotReport": {
-    "assets": [
-      {
-        "animations": [],
-        "body": "oil_lantern2",
-        "collision": [
-          {
-            "class": "StaticBody3D",
-            "name": "oil_lantern_col"
-          },
-          {
-            "class": "CollisionShape3D",
-            "name": "CollisionShape3D"
-          }
-        ],
-        "file": "oil_lantern.glb",
-        "meshes": [
-          {
-            "materials": [
-              {
-                "albedo_color": [
-                  0.69,
-                  0.541,
-                  0.29
-                ],
-                "albedo_texture": false,
-                "ao_texture": false,
-                "class": "StandardMaterial3D",
-                "emission": false,
-                "metallic": 0.85,
-                "name": "mat_brass",
-                "normal_texture": false,
-                "orm_texture": false,
-                "roughness": 0.35,
-                "texture_sizes": []
-              },
-              {
-                "albedo_color": [
-                  0.773,
-                  0.831,
-                  0.784
-                ],
-                "albedo_texture": false,
-                "ao_texture": false,
-                "class": "StandardMaterial3D",
-                "emission": false,
-                "metallic": 0,
-                "name": "mat_glass",
-                "normal_texture": false,
-                "orm_texture": false,
-                "roughness": 0.08,
-                "texture_sizes": []
-              },
-              {
-                "albedo_color": [
-                  0.941,
-                  0.886,
-                  0.722
-                ],
-                "albedo_texture": false,
-                "ao_texture": false,
-                "class": "StandardMaterial3D",
-                "emission": true,
-                "metallic": 0,
-                "name": "mat_flame",
-                "normal_texture": false,
-                "orm_texture": false,
-                "roughness": 0.4,
-                "texture_sizes": []
-              }
-            ],
-            "name": "oil_lantern",
-            "size": [
-              0.18,
-              0.36,
-              0.18
-            ],
-            "surfaces": 3,
-            "triangles": 2856,
-            "vertices": 0
-          }
-        ],
-        "nodes": [
-          "oil_lantern2",
-          "oil_lantern_col",
-          "CollisionShape3D",
-          "oil_lantern"
-        ],
-        "skeletons": []
-      }
-    ],
-    "godot": "4.7.2.stable.official.ed1daf0bf",
+  "validate": {
+    "ok": true,
+    "profile": "godot_prod"
+  },
+  "godotImport": {
+    "ran": true,
+    "available": true,
+    "ok": true,
+    "status": "ready",
+    "exitCode": 0,
+    "source": "ANVIL_GODOT",
+    "path": "/home/box/tools/godot-4.7.2/Godot_v4.7.2-stable_linux.x86_64",
     "problems": [],
-    "ok": true
-  }
+    "godotVersion": "4.7.2.stable.official.ed1daf0bf",
+    "note": "Godot headless import ok"
+  },
+  "shipGate": "ready",
+  "ormB": {
+    "B255_frac": 0.609,
+    "B0_frac": 0.39,
+    "mid160_230_frac": 0.0001,
+    "plateaus": []
+  },
+  "td_est_px_m": 673,
+  "bake_size": 512,
+  "note": "Quinn ORM-B binary + TD resmoke; bake 512px"
 }

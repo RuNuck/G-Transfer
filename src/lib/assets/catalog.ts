@@ -230,7 +230,7 @@ export const CATALOG: CatalogItem[] = [
     brief: "Kerosene lantern, brass cage, glass chimney, emissive flame, hanging bail.",
     style: "stylized",
     triangleBudget: { lod0: 3000, lod1: 990, lod2: 240 },
-    texelDensity: 1024,
+    texelDensity: 512,
     collision: "capsule",
     dimensions: { x: 0.18, y: 0.36, z: 0.18 },
   },

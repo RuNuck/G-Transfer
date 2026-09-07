@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-07T13:25:39.971Z",
+  "updatedAt": "2026-09-07T13:38:36.185Z",
   "root": "exports",
   "profile": "godot_prod",
   "validated": true,
@@ -17,12 +17,12 @@
       "id": "forge-smoke.oil_lantern",
       "file": "forge-smoke/oil_lantern.glb",
       "mesh": "oil_lantern",
-      "bytes": 6270292,
-      "modified": 1788787449568.6316,
-      "modifiedAt": "2026-09-07T13:24:09.568Z",
+      "bytes": 717344,
+      "modified": 1788788311653.9084,
+      "modifiedAt": "2026-09-07T13:38:31.653Z",
       "folder": "forge-smoke",
       "folderHint": "res://art/forge-smoke/",
-      "hash": "sha256:87c6a2d9f6fce5af87fa720762e5dee2fc0f3551dab0e17b6a4916cb87bdea68",
+      "hash": "sha256:8a01c2d2ad603ae64ecf7ba6368ad77f28eefc2518594edacdda19394092c853",
       "engine": "godot",
       "status": "ready",
       "validation": {
@@ -244,7 +244,8 @@
       "validation": {
         "ok": false,
         "hardFails": [
-          "collision_godot_suffix"
+          "collision_godot_suffix",
+          "pbr_textures_resolve"
         ],
         "profile": "godot_prod"
       },
@@ -307,7 +308,8 @@
       "validation": {
         "ok": false,
         "hardFails": [
-          "collision_godot_suffix"
+          "collision_godot_suffix",
+          "pbr_textures_resolve"
         ],
         "profile": "godot_prod"
       },
