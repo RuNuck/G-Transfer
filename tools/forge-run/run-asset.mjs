@@ -11,7 +11,7 @@
  * Prefers ANVIL_BLENDER, then `which blender`. Falls back to simulated build/bake
  * stages when Blender is missing and only --file is given.
  */
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, realpathSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -73,8 +73,19 @@ function parseArgs(argv) {
 
 function underExports(absPath) {
   const root = resolve(projectRoot, "exports");
-  const abs = resolve(absPath);
-  return abs === root || abs.startsWith(root + "/") || abs.startsWith(root + "\\");
+  let abs;
+  try {
+    abs = realpathSync(absPath);
+  } catch {
+    abs = resolve(absPath);
+  }
+  let rootReal = root;
+  try {
+    rootReal = realpathSync(root);
+  } catch {
+    /* exports may be absent in some hosts */
+  }
+  return abs === rootReal || abs.startsWith(rootReal + "/") || abs.startsWith(rootReal + "\\");
 }
 
 /** Resolve an existing .glb strictly under exports/. Rejects absolute/../ escape. */
