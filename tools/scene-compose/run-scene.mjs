@@ -89,19 +89,48 @@ function main() {
       manifest: report.paths.manifest,
       dir: report.paths.dir,
     };
+    const kitsResolve = !(report.kitNotes || []).some((k) => k.status === "missing");
+    const hardFails = kitsResolve ? [] : ["kits_resolve"];
     job.validation = {
-      ok: true,
-      hardFails: [],
+      ok: kitsResolve,
+      hardFails,
       counts: report.instanceCounts,
       report: {
-        status: report.status,
+        status: kitsResolve ? report.status : "scaffold",
         contentHash: report.contentHash,
         kitMissing: (report.kitNotes || []).filter((k) => k.status === "missing").length,
+        kits_resolve: kitsResolve,
       },
     };
     saveJob(job);
 
-    advanceStage(job, "published", "scene scaffold written to " + report.paths.dir);
+    // Honesty: never mark published/ok when kits unresolved — scaffold/failed only.
+    if (!kitsResolve) {
+      failJob(job, "kits_resolve false — scene remains scaffold (kit GLBs missing); not published");
+      if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
+      else {
+        console.log(
+          JSON.stringify(
+            {
+              ok: false,
+              jobId: job.id,
+              status: job.status,
+              type: job.type,
+              sceneId: report.sceneId,
+              shipStatus: "scaffold",
+              paths: job.paths,
+              kitMissing: job.validation.report.kitMissing,
+              error: "kits_resolve false",
+            },
+            null,
+            2,
+          ),
+        );
+      }
+      process.exit(1);
+    }
+
+    advanceStage(job, "published", "scene kits resolved; written to " + report.paths.dir);
 
     if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
     else {

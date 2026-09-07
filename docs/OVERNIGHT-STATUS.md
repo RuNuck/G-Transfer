@@ -150,3 +150,13 @@ Wired headless forge on this box (tools/forge-run + dcc:smoke).
 5. Durable job queue (today: sync fs job store).
 
 Docs: `docs/DCC-SETUP.md`.
+
+---
+
+## Reed PR checklist A-C (+D) — Mon Sep 7 ~8:30am ET
+
+- A: forge-run finish runs godot-check; index ready only after import ok; else validated_glb_only/blocked.
+- B: godot_prod hard-fails missing PBR texture refs + out-of-range meters; weapon/rigged pivot heuristic; fixtures no-textures-pbr + bad-scale.
+- C: MCP forge_run_asset accepts kind/bake/brief/engine; file/mesh validate-only; AGENT-GUIDE DCC truth.
+- D: scene compose/run-scene do not publish/ok when kits unresolved (scaffold/failed).
+

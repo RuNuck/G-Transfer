@@ -17,6 +17,7 @@ import { basename, dirname, isAbsolute, join, relative, resolve } from "node:pat
 import { fileURLToPath } from "node:url";
 import { createJob, advanceStage, failJob, projectRoot, saveJob } from "./job-store.mjs";
 import { defaultKitDir, findBlender } from "./find-dcc.mjs";
+import { runGodotImportCheck, patchIndexShipGate } from "./ship-gate.mjs";
 import { emitKind } from "./emit-script.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -34,6 +35,7 @@ function parseArgs(argv) {
     out: null,
     jsonOnly: false,
     force: false,
+    brief: null,
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -54,6 +56,8 @@ function parseArgs(argv) {
     else if (a.startsWith("--bake-script=")) args.bakeScript = a.slice(14);
     else if (a === "--out-dir") args.outDir = argv[++i];
     else if (a.startsWith("--out-dir=")) args.outDir = a.slice(10);
+    else if (a === "--brief") args.brief = argv[++i];
+    else if (a.startsWith("--brief=")) args.brief = a.slice(8);
     else if (a === "--out") args.out = argv[++i];
     else if (a.startsWith("--out=")) args.out = a.slice(6);
     else if (a === "--help" || a === "-h") {
@@ -171,6 +175,25 @@ function finishPublished(job, abs, args, blenderInfo) {
     process.exit(1);
   }
 
+  advanceStage(job, "validating", "running tools/godot-check (ship gate)");
+  const ship = runGodotImportCheck(abs);
+  job.godotImport = ship;
+  job.shipGate = ship.status;
+  saveJob(job);
+
+  if (ship.available && ship.ok === false) {
+    failJob(job, "godot import ship gate blocked: " + ((ship.problems || []).join("; ") || ship.note));
+    const idxBlocked = rebuildIndex();
+    job.paths.index = "exports/index.json";
+    if (idxBlocked.exitCode === 0) patchIndexShipGate(rel, ship);
+    if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
+    else
+      console.error(
+        JSON.stringify({ ok: false, jobId: job.id, status: job.status, shipGate: ship.status, godotImport: ship }, null, 2),
+      );
+    process.exit(1);
+  }
+
   const idx = rebuildIndex();
   job.paths.index = "exports/index.json";
   if (idx.exitCode !== 0) {
@@ -179,12 +202,29 @@ function finishPublished(job, abs, args, blenderInfo) {
     process.exit(1);
   }
 
-  advanceStage(job, "published", "validated + index rebuilt");
+  const indexStatus = patchIndexShipGate(rel, ship) || ship.status;
+  job.paths.indexStatus = indexStatus;
+  saveJob(job);
+
+  const publishNote =
+    ship.status === "ready"
+      ? "validated + godot import ok + index ready"
+      : "validated_glb_only (Godot missing) — index not ready";
+  advanceStage(job, "published", publishNote);
   if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
   else {
     console.log(
       JSON.stringify(
-        { ok: true, jobId: job.id, status: job.status, mesh: rel, blender: job.blender, paths: job.paths },
+        {
+          ok: true,
+          jobId: job.id,
+          status: job.status,
+          shipGate: ship.status,
+          mesh: rel,
+          blender: job.blender,
+          godotImport: { ok: ship.ok, available: ship.available, problems: ship.problems },
+          paths: job.paths,
+        },
         null,
         2,
       ),
@@ -192,6 +232,7 @@ function finishPublished(job, abs, args, blenderInfo) {
   }
   process.exit(0);
 }
+
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
@@ -247,6 +288,7 @@ function main() {
         kind: args.kind,
         engine: args.engine,
         script: relative(projectRoot, buildScript).split("\\").join("/"),
+        brief: args.brief || null,
         bake: Boolean(bakeScript),
       },
       paths: {},

@@ -22,7 +22,7 @@ Never treat a green Plan / `forge_qc_checklist` (spec-only) as "forged." **Ready
 | Tool | Does | Does not |
 |---|---|--------|
 | `forge_create_asset` | Brief -> AssetSpec, naming, PBR/LOD notes, full Blender build script. | Run Blender; write GLB; mark ready. |
-| `forge_run_asset` | Job over an **existing** `exports/**/*.glb` (stages → validate → index). Blender build/bake is simulated when `blender` is missing. | Invent new mesh topology from a brief alone. |
+| `forge_run_asset` | **Run**: kind (+engine/bake/brief) = real Blender forge; file/mesh = validate-only. Ship gate ready needs Godot import ok. | Claim ready from Plan alone. |
 | `forge_scene` | Job from SceneSpec / brief / `specPath` → `exports/scenes/<id>/` (.tscn, report, manifest). **Compose kit instances.** | Author one mega-mesh jungle; invent missing kit GLBs. |
 | `forge_validate` | Artifact gates (`godot_prod`) on a path or folder; fail closed. CLI twin: `npm run validate -- <paths> --json`. | Rubber-stamp from the brief. |
 | `forge_job_status` | Poll job id from run/scene; status, paths, validation summary, errors. | Start work. |
@@ -35,12 +35,12 @@ Supporting (debug / escape hatch): `forge_blender_script`, `forge_bake_plan`, `f
 
 ### Existing GLB → ready
 
-1. `forge_run_asset({ file: "exports/forge/….glb" })` → `jobId`
+1. Run with kind lantern (or file validate-only) then poll job status
 2. `forge_job_status({ jobId })` until `published` / `failed`
 3. Confirm with `forge_validate({ path: "…" })` (or trust job validation only if report lists hard gates)
 4. Check `exports/index.json` entry `status: "ready"`
 
-### New brief (no Blender on host)
+### Plan-only brief (spec/script; no GLB)
 
 1. `forge_create_asset` for spec + script (Plan)
 2. Stop claiming success — queue human/Blender forge, **or** only run jobs against GLBs already under `exports/`
@@ -100,10 +100,10 @@ On disk: `docs/schemas/`, example SceneSpec `docs/schemas/examples/jungle-cleari
 
 ---
 
-## Hard blockers on this forge host
+## DCC on this forge host
 
-- **No Blender** and **No Godot** on the overnight box — real kit build/bake/import cannot run here; jobs simulate/skip DCC stages.
-- Prefer documenting the gap over installing heavy DCC stacks into the shared agent box.
+- Blender 5.2.1 and Godot 4.7.2 installed. See docs/DCC-SETUP.md.
+- Index: validate-ok alone => validated_glb_only; ready needs import ok when Godot present.
 
 ---
 

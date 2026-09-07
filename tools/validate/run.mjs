@@ -193,19 +193,74 @@ function validateGodotProd(absPath) {
     push("skin_without_clips", "soft", false, `${summary.skins} skin(s) but no animation clips`);
   }
 
-  // Meters / bounds when accessor min/max present
+  // Meters / bounds when accessor min/max present — out-of-range is always hard;
+  // missing bounds is hard for weapon/rigged paths (where scale mistakes are costly).
   if (summary.bounds) {
     const [sx, sy, sz] = summary.bounds.size;
     const maxDim = Math.max(sx, sy, sz);
     const sane = [sx, sy, sz].every((d) => Number.isFinite(d)) && maxDim >= 0.02 && maxDim <= 50;
     push(
       "meters_bounds",
-      sane ? "soft" : "hard",
+      "hard",
       sane,
-      `AABB size ≈ ${sx.toFixed(3)}×${sy.toFixed(3)}×${sz.toFixed(3)} m (from POSITION min/max)`,
+      `AABB size ≈ ${sx.toFixed(3)}×${sy.toFixed(3)}×${sz.toFixed(3)} m (from POSITION min/max)` +
+        (sane ? "" : " — out of sane meter range [0.02, 50]"),
     );
   } else {
-    push("meters_bounds", "soft", true, "no POSITION min/max in accessors — bounds not checked (install Godot for import-time proof)");
+    const needBounds = summary.suggestsRigged || summary.suggestsWeapon;
+    push(
+      "meters_bounds",
+      needBounds ? "hard" : "soft",
+      !needBounds,
+      needBounds
+        ? "no POSITION min/max in accessors — cannot prove meters for weapon/rigged asset"
+        : "no POSITION min/max in accessors — bounds not checked",
+    );
+  }
+
+  // PBR textures must resolve when materials claim texture maps / anvilPbr extras
+  const tex = summary.textures || { claimedPbr: 0, missing: [], refs: [] };
+  if (tex.claimedPbr > 0) {
+    const okTex = (tex.missing || []).length === 0;
+    push(
+      "pbr_textures_resolve",
+      "hard",
+      okTex,
+      okTex
+        ? `${tex.refs.length} PBR texture ref(s) resolve (${tex.imageCount} image(s))`
+        : `materials claim PBR textures but ${tex.missing.length} ref(s) missing: ` +
+          tex.missing.map((m) => `${m.material}.${m.slot}`).join(", "),
+    );
+  } else {
+    push(
+      "pbr_textures_resolve",
+      "soft",
+      true,
+      "no material texture maps claimed (untextured Principled / blockout OK)",
+    );
+  }
+
+  // Pivot / grip heuristics for weapons and rigged
+  const pivot = summary.pivot || {};
+  if (pivot.suggestsWeapon || pivot.suggestsRigged) {
+    const gripOk = Boolean(pivot.gripNode) || pivot.rootNearOrigin === true;
+    push(
+      "pivot_weapon_or_rigged",
+      "hard",
+      gripOk,
+      gripOk
+        ? pivot.gripNode
+          ? `grip-like node: ${pivot.gripNode}`
+          : `root translation near origin: [${(pivot.rootTranslation || []).join(", ")}]`
+        : "weapon/rigged asset lacks grip/hand_socket node and root is not near origin",
+    );
+  } else {
+    push(
+      "pivot_weapon_or_rigged",
+      "soft",
+      true,
+      "path does not suggest weapon/rigged — pivot not gated",
+    );
   }
 
   // LOD sibling note (Godot auto-LOD vs exported _LOD*)
@@ -216,6 +271,7 @@ function validateGodotProd(absPath) {
 
   return report(rel, absPath, summary, gates, soft);
 }
+
 
 function report(rel, absPath, summary, gates, soft) {
   const hardFails = gates.filter((g) => !g.ok);
@@ -237,6 +293,13 @@ function report(rel, absPath, summary, gates, soft) {
           godotCollisionNodes: summary.godotCollisionNodes,
           bounds: summary.bounds,
           suggestsRigged: summary.suggestsRigged,
+          suggestsWeapon: summary.suggestsWeapon,
+          textures: summary.textures
+            ? { claimedPbr: summary.textures.claimedPbr, missing: summary.textures.missing?.length ?? 0 }
+            : null,
+          pivot: summary.pivot
+            ? { gripNode: summary.pivot.gripNode, rootNearOrigin: summary.pivot.rootNearOrigin }
+            : null,
         }
       : null,
   };

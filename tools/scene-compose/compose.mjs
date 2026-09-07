@@ -447,10 +447,13 @@ export function composeScene(specPath, options = {}) {
       { id: "schema", ok: true },
       { id: "lights_gte_2", ok: lightSetups.length >= 2 },
       { id: "mega_mesh", ok: true, note: "no fused jungle.glb produced" },
-      { id: "kits_resolve", ok: false, note: "kit GLBs may be missing — see report.kitNotes" },
+      { id: "kits_resolve", ok: !(report.kitNotes || []).some((k) => k.status === "missing"), note: "see report.kitNotes" },
       { id: "godot_import", ok: null, note: "skipped (Godot not required for scaffold)" },
     ],
   };
+  const kitsResolveOk = validation.gates.find((g) => g.id === "kits_resolve")?.ok === true;
+  report.kits_resolve = kitsResolveOk;
+  if (!kitsResolveOk) report.status = "scaffold";
   writeFileSync(join(outDir, "validation.json"), JSON.stringify(validation, null, 2) + "\n");
 
   return report;
@@ -479,7 +482,7 @@ function main() {
       console.log(
         JSON.stringify(
           {
-            ok: true,
+            ok: Boolean(report.kits_resolve),
             status: report.status,
             sceneId: report.sceneId,
             exportId: report.exportId,
@@ -492,7 +495,7 @@ function main() {
         ),
       );
     }
-    process.exit(0);
+    process.exit(report.kits_resolve ? 0 : 1);
   } catch (e) {
     console.error(JSON.stringify({ ok: false, error: e.message || String(e) }, null, 2));
     process.exit(1);

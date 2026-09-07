@@ -159,12 +159,36 @@ export const TOOLS: McpTool[] = [
   {
     name: "forge_run_asset",
     description:
-      "Enqueue / run a forge asset job against an existing exports GLB (Phase 1 scaffold). Walks stages queued to published; Blender build/bake simulated when blender binary is missing. Prefer jobs over pasting scripts once reliable.",
+      "Run (not Plan): forge via catalog kind (real headless Blender: ANVIL_BLENDER / PATH) or validate-only an existing exports GLB via file/mesh. Plan-only = forge_create_asset. Poll forge_job_status; confirm forge_validate. When Godot is present, ship gate requires import ok for index ready.",
     inputSchema: {
       type: "object",
       properties: {
-        file: { type: "string", description: "Path to an existing .glb under exports/ (alias: mesh)." },
-        mesh: { type: "string", description: "Alias for file — path or mesh name under exports/forge." },
+        kind: {
+          type: "string",
+          enum: [...KINDS],
+          description: "Catalog prototype (crate, lantern, ...). Triggers real Blender forge (mirrors CLI --kind).",
+        },
+        brief: {
+          type: "string",
+          description: "Optional context stored on the job. Kind/file still drives the path; Plan-only specs use forge_create_asset.",
+        },
+        engine: {
+          type: "string",
+          enum: ["godot", "unreal", "unity", "blender"],
+          description: "Target engine when kind is set. Default godot.",
+        },
+        bake: {
+          type: "boolean",
+          description: "When kind is set, run Cycles bake after build (mirrors CLI --bake; default false).",
+        },
+        file: {
+          type: "string",
+          description: "Validate-only path to an existing .glb under exports/ (alias: mesh). Does not rebuild in Blender.",
+        },
+        mesh: {
+          type: "string",
+          description: "Alias for file — validate-only existing exports GLB.",
+        },
       },
     },
   },
@@ -641,9 +665,19 @@ export function callTool(name: string, args: Record<string, unknown>) {
       };
     }
     case "forge_run_asset": {
+      const kind = asKind(args.kind);
       const fileRaw = args.file ?? args.mesh;
-      if (typeof fileRaw !== "string" || !fileRaw.trim()) {
-        throw new InvalidParams("file or mesh is required (path to an existing exports .glb)");
+      const hasFile = typeof fileRaw === "string" && Boolean(fileRaw.trim());
+      if (!kind && !hasFile) {
+        throw new InvalidParams(
+          "forge_run_asset requires kind (catalog Blender forge) and/or file/mesh (validate-only existing exports .glb). Plan-only: use forge_create_asset.",
+        );
+      }
+      if (args.brief !== undefined && args.brief !== null && typeof args.brief !== "string") {
+        throw new InvalidParams("brief must be a string");
+      }
+      if (args.bake !== undefined && args.bake !== null && typeof args.bake !== "boolean") {
+        throw new InvalidParams("bake must be a boolean");
       }
       const root = findAnvilRoot();
       const runner = resolve(root, "tools/forge-run/run-asset.mjs");
@@ -658,10 +692,23 @@ export function callTool(name: string, args: Record<string, unknown>) {
           isError: true,
         };
       }
-      const r = spawnSync(process.execPath, [runner, "--file", fileRaw.trim(), "--json"], {
+      const argv = [runner, "--json"];
+      if (kind) {
+        argv.push("--kind", kind);
+        const engine = explicitEngine(args.engine) ?? DEFAULT_ENGINE;
+        argv.push("--engine", engine);
+        if (args.bake === true) argv.push("--bake");
+        if (typeof args.brief === "string" && args.brief.trim()) {
+          argv.push("--brief", args.brief.trim().slice(0, MAX_BRIEF_CHARS));
+        }
+      } else if (hasFile) {
+        argv.push("--file", String(fileRaw).trim());
+      }
+      const r = spawnSync(process.execPath, argv, {
         cwd: root,
         encoding: "utf8",
-        maxBuffer: 8 * 1024 * 1024,
+        maxBuffer: 16 * 1024 * 1024,
+        env: process.env,
       });
       const out = (r.stdout || "").trim() || (r.stderr || "").trim() || `exit ${r.status}`;
       let payload: unknown = out;

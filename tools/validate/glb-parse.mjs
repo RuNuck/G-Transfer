@@ -27,6 +27,85 @@ export function suggestsRigged(filePath) {
   );
 }
 
+
+/** Path/filename hints that the asset is a weapon (pivot/grip expectations). */
+export function suggestsWeapon(filePath) {
+  const s = String(filePath).toLowerCase().replace(/\\/g, "/");
+  return (
+    /(^|\/)(rifle|pistol|shotgun|smg|weapon|gun|m4|ak)[^/]*\.glb$/.test(s) ||
+    /\/(weapons?|guns?)\//.test(s) ||
+    /_weapon\.glb$/.test(s)
+  );
+}
+
+/**
+ * Collect material texture refs. Returns { claimedPbr, missing, refs }.
+ * claimedPbr = material has pbrMetallicRoughness with at least one *Texture map.
+ */
+export function materialTextureReport(json) {
+  const textures = json.textures || [];
+  const images = json.images || [];
+  const refs = [];
+  const missing = [];
+  let claimedPbr = 0;
+  const slots = [
+    ["pbrMetallicRoughness", "baseColorTexture"],
+    ["pbrMetallicRoughness", "metallicRoughnessTexture"],
+    [null, "normalTexture"],
+    [null, "occlusionTexture"],
+    [null, "emissiveTexture"],
+  ];
+  for (let mi = 0; mi < (json.materials || []).length; mi++) {
+    const mat = json.materials[mi] || {};
+    const name = mat.name || ("material_" + mi);
+    let matClaimed = false;
+    for (const [parent, key] of slots) {
+      const container = parent ? mat[parent] : mat;
+      const texInfo = container && container[key];
+      if (!texInfo || texInfo.index == null) continue;
+      matClaimed = true;
+      const ti = texInfo.index;
+      const tex = textures[ti];
+      const imageIndex = tex && tex.source != null ? tex.source : null;
+      const okTex = Boolean(tex);
+      const okImg = imageIndex != null && Boolean(images[imageIndex]);
+      const ref = { material: name, slot: key, textureIndex: ti, imageIndex, ok: okTex && okImg };
+      refs.push(ref);
+      if (!ref.ok) missing.push(ref);
+    }
+    if (matClaimed) claimedPbr += 1;
+    // Explicit claim via extras
+    if (mat.extras && (mat.extras.anvilPbr || mat.extras.anvil_pbr || mat.extras.pbr === true)) {
+      if (!matClaimed) {
+        claimedPbr += 1;
+        missing.push({ material: name, slot: "(extras.anvilPbr)", textureIndex: null, imageIndex: null, ok: false });
+      }
+    }
+  }
+  return { claimedPbr, missing, refs, textureCount: textures.length, imageCount: images.length };
+}
+
+/**
+ * Root / grip pivot heuristic for weapons and rigged assets.
+ */
+export function pivotReport(json, filePath) {
+  const nodes = json.nodes || [];
+  const names = nodes.map((n) => (n && n.name) || "");
+  const grip = names.find((n) => /grip|hand_socket|ik_hand|weapon_root/i.test(n || ""));
+  let rootTranslation = null;
+  if (nodes[0] && Array.isArray(nodes[0].translation)) rootTranslation = nodes[0].translation.map(Number);
+  const nearOrigin = rootTranslation
+    ? rootTranslation.every((v) => Number.isFinite(v) && Math.abs(v) <= 2)
+    : null;
+  return {
+    suggestsWeapon: suggestsWeapon(filePath),
+    suggestsRigged: suggestsRigged(filePath),
+    gripNode: grip || null,
+    rootTranslation,
+    rootNearOrigin: nearOrigin,
+  };
+}
+
 export function readGlb(filePath) {
   const st = statSync(filePath);
   if (!st.isFile()) throw new Error("not a file");
@@ -124,5 +203,8 @@ export function summarizeGlb(parsed, filePath) {
     unrealCollisionNodes: unrealCol,
     bounds,
     suggestsRigged: suggestsRigged(filePath),
+    suggestsWeapon: suggestsWeapon(filePath),
+    textures: materialTextureReport(json),
+    pivot: pivotReport(json, filePath),
   };
 }

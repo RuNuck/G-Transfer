@@ -5,7 +5,7 @@
  *   node tools/forge-index/build.mjs [--root exports] [--out exports/index.json] [--skip-validate]
  *
  * Listing rules mirror src/routes/api/forged.ts (skip engine project copies, depth cap).
- * When validation runs (default), each entry gets ready true/false from godot_prod gates.
+ * When validation runs (default), validate-ok => validated_glb_only (ready=false). Index ready only after forge-run Godot ship-gate patches an entry.
  */
 import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -126,6 +126,7 @@ function main() {
   const reportHint = args.skipValidate ? new Map() : loadLastReportMap();
   let readyCount = 0;
   let failedCount = 0;
+  let validatedOnlyCount = 0;
   let unchecked = 0;
 
   for (const entry of entries) {
@@ -158,10 +159,18 @@ function main() {
       }
     }
 
-    entry.ready = ok;
-    entry.status = ok ? "ready" : "failed";
-    if (ok) readyCount++;
-    else failedCount++;
+    // Honesty: validate-ok alone is never "ready". Ready requires Godot import
+    // proof (forge-run ship-gate patches index after check-import). Index rebuild
+    // marks validate-ok as validated_glb_only so we never fake ready.
+    if (ok) {
+      entry.ready = false;
+      entry.status = "validated_glb_only";
+      validatedOnlyCount++;
+    } else {
+      entry.ready = false;
+      entry.status = "failed";
+      failedCount++;
+    }
   }
 
   const doc = {
@@ -174,6 +183,7 @@ function main() {
       assets: entries.length,
       ready: args.skipValidate ? null : readyCount,
       failed: args.skipValidate ? null : failedCount,
+      validated_glb_only: args.skipValidate ? null : validatedOnlyCount,
       unchecked: args.skipValidate ? unchecked : 0,
     },
     entries,
@@ -183,7 +193,7 @@ function main() {
   writeFileSync(outPath, JSON.stringify(doc, null, 2) + "\n");
   console.log(
     `wrote ${relative(projectRoot, outPath)} (${entries.length} assets` +
-      (args.skipValidate ? ", validate skipped" : `, ready=${readyCount}, failed=${failedCount}`) +
+      (args.skipValidate ? ", validate skipped" : `, ready=${readyCount}, validated_glb_only=${validatedOnlyCount}, failed=${failedCount}`) +
       `)`,
   );
 }

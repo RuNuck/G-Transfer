@@ -1,14 +1,16 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-07T11:59:09.108Z",
+  "updatedAt": "2026-09-07T12:43:47.665Z",
   "root": "exports",
   "profile": "godot_prod",
   "validated": true,
   "counts": {
     "assets": 15,
-    "ready": 11,
+    "ready": 1,
     "failed": 4,
-    "unchecked": 0
+    "validated_glb_only": 10,
+    "unchecked": 0,
+    "blocked": 0
   },
   "entries": [
     {
@@ -16,11 +18,11 @@
       "file": "forge-smoke/oil_lantern.glb",
       "mesh": "oil_lantern",
       "bytes": 164612,
-      "modified": 1788782348651.498,
-      "modifiedAt": "2026-09-07T11:59:08.651Z",
+      "modified": 1788785023255.8777,
+      "modifiedAt": "2026-09-07T12:43:43.255Z",
       "folder": "forge-smoke",
       "folderHint": "res://art/forge-smoke/",
-      "hash": "sha256:6c0640b67c8a1fa1c2b1695a70997f5a3ff94007a4cc3ac1c8f5bc6ba1f75167",
+      "hash": "sha256:11cf8d35217408435e4d790cf57444d3539c772a29bc33ac5b042993e9ff73ed",
       "engine": "godot",
       "status": "ready",
       "validation": {
@@ -28,7 +30,14 @@
         "hardFails": [],
         "profile": "godot_prod"
       },
-      "ready": true
+      "ready": true,
+      "shipGate": {
+        "status": "ready",
+        "godotImportOk": true,
+        "godotAvailable": true,
+        "problems": [],
+        "note": "Godot headless import ok"
+      }
     },
     {
       "id": "forge.us_ammo_can",
@@ -41,13 +50,13 @@
       "folderHint": "res://art/forge/",
       "hash": "sha256:56bef4c45efa439624529e54c9c550f843845aed2faeeffb4d4f48a9f30cc1a6",
       "engine": "godot",
-      "status": "ready",
+      "status": "validated_glb_only",
       "validation": {
         "ok": true,
         "hardFails": [],
         "profile": "godot_prod"
       },
-      "ready": true
+      "ready": false
     },
     {
       "id": "forge.closed_great_helm",
@@ -60,13 +69,13 @@
       "folderHint": "res://art/forge/",
       "hash": "sha256:0fc2d0fe21b477d0f7b093f249406c7abfdba52dcccd3b43e79d50ba38da07de",
       "engine": "godot",
-      "status": "ready",
+      "status": "validated_glb_only",
       "validation": {
         "ok": true,
         "hardFails": [],
         "profile": "godot_prod"
       },
-      "ready": true
+      "ready": false
     },
     {
       "id": "forge.kerosene_lantern",
@@ -79,13 +88,13 @@
       "folderHint": "res://art/forge/",
       "hash": "sha256:5121a63ef69696ac58dc2d2a64ed45f367620392078e9510adbe4fa606511bb3",
       "engine": "godot",
-      "status": "ready",
+      "status": "validated_glb_only",
       "validation": {
         "ok": true,
         "hardFails": [],
         "profile": "godot_prod"
       },
-      "ready": true
+      "ready": false
     },
     {
       "id": "forge.sci_fi_hover_bike",
@@ -98,13 +107,13 @@
       "folderHint": "res://art/forge/",
       "hash": "sha256:1dea5f42ebcf68bcfddd77cfe16ed64728bb0d1f8af835ac12bc2067f90ed170",
       "engine": "godot",
-      "status": "ready",
+      "status": "validated_glb_only",
       "validation": {
         "ok": true,
         "hardFails": [],
         "profile": "godot_prod"
       },
-      "ready": true
+      "ready": false
     },
     {
       "id": "forge.iron_banded_oak_loot_chest",
@@ -117,13 +126,13 @@
       "folderHint": "res://art/forge/",
       "hash": "sha256:377448d33901d08b63ac1a5bbfab4ae2309e4681822285ce150caaa86ee5d34c",
       "engine": "godot",
-      "status": "ready",
+      "status": "validated_glb_only",
       "validation": {
         "ok": true,
         "hardFails": [],
         "profile": "godot_prod"
       },
-      "ready": true
+      "ready": false
     },
     {
       "id": "godot-test.ammo_can_godot",
@@ -136,13 +145,13 @@
       "folderHint": "res://art/godot-test/",
       "hash": "sha256:d9f6f96008d7e0cb6ddee710ea54e1ebd7a95275c806477d53b9e49e6a74032e",
       "engine": "godot",
-      "status": "ready",
+      "status": "validated_glb_only",
       "validation": {
         "ok": true,
         "hardFails": [],
         "profile": "godot_prod"
       },
-      "ready": true
+      "ready": false
     },
     {
       "id": "godot-test.hoverbike_godot",
@@ -155,13 +164,13 @@
       "folderHint": "res://art/godot-test/",
       "hash": "sha256:5445fabdee3869796a7b7a8a2e0ed0b2aae879b101544b81ffa430e6e11d7dcd",
       "engine": "godot",
-      "status": "ready",
+      "status": "validated_glb_only",
       "validation": {
         "ok": true,
         "hardFails": [],
         "profile": "godot_prod"
       },
-      "ready": true
+      "ready": false
     },
     {
       "id": "godot-test.lantern_godot",
@@ -174,13 +183,13 @@
       "folderHint": "res://art/godot-test/",
       "hash": "sha256:91ff80d3ecf10ae2257b2e4149c779cf96a85eecd04e6d5e7edd0b63580f4a2d",
       "engine": "godot",
-      "status": "ready",
+      "status": "validated_glb_only",
       "validation": {
         "ok": true,
         "hardFails": [],
         "profile": "godot_prod"
       },
-      "ready": true
+      "ready": false
     },
     {
       "id": "godot-test.helmet_godot",
@@ -193,13 +202,13 @@
       "folderHint": "res://art/godot-test/",
       "hash": "sha256:93b42b8be0e3d00f968a98efb7a5df5761181d84be29d4331a84475a220e5016",
       "engine": "godot",
-      "status": "ready",
+      "status": "validated_glb_only",
       "validation": {
         "ok": true,
         "hardFails": [],
         "profile": "godot_prod"
       },
-      "ready": true
+      "ready": false
     },
     {
       "id": "godot-test.chest_godot",
@@ -212,13 +221,13 @@
       "folderHint": "res://art/godot-test/",
       "hash": "sha256:ecc8bbedeba6c62c56e2512e46b83d93ee2b603cc28e6fb38d0bd1cb6c33bd4e",
       "engine": "godot",
-      "status": "ready",
+      "status": "validated_glb_only",
       "validation": {
         "ok": true,
         "hardFails": [],
         "profile": "godot_prod"
       },
-      "ready": true
+      "ready": false
     },
     {
       "id": "rifle-rigged.SM_Rifle_test_piece.rigged",
