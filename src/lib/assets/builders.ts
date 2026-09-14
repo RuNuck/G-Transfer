@@ -38,6 +38,7 @@ function mats(spec: AssetSpec) {
     if (spec.kind === "crate" || spec.kind === "chest") return slot === "primary" ? "wood" : "metal";
     if (spec.kind === "barrel" || spec.kind === "ammo_can") return "paint";
     if (spec.category === "architecture") return "stone";
+    if (spec.category === "environments") return slot === "primary" ? "wood" : "stone";
     if (spec.category === "weapons") return slot === "secondary" ? "paint" : "gun";
     return "sci";
   };
@@ -419,6 +420,28 @@ function mannequin(spec: AssetSpec, lod: LodLevel) {
   return g;
 }
 
+/** Studio viewport stub for jungle biome kits — Blender part kit is source of truth. */
+function junglePiece(spec: AssetSpec, lod: LodLevel) {
+  const g = new THREE.Group();
+  const { p, s, t } = mats(spec);
+  const { x, y, z } = spec.dimensions;
+  const kind = spec.kind;
+  if (kind.includes("trunk") || kind.includes("fallen_log")) {
+    add(g, new THREE.CylinderGeometry(Math.min(x, z) / 2, Math.min(x, z) / 2, y, segs(lod, 12, 8, 6)), p, [0, y / 2, 0]);
+  } else if (kind.includes("canopy") || kind.includes("shrub")) {
+    add(g, new THREE.SphereGeometry(Math.min(x, z) / 2, segs(lod, 10, 8, 6), segs(lod, 8, 6, 4)), s, [0, y * 0.55, 0], undefined, [1, y / Math.min(x, z), 1]);
+  } else if (kind.includes("water")) {
+    add(g, new THREE.BoxGeometry(x, y, z), p, [0, y / 2, 0]);
+  } else if (kind.includes("rock")) {
+    add(g, new THREE.SphereGeometry(Math.min(x, y, z) / 2, segs(lod, 10, 8, 6), segs(lod, 8, 6, 4)), t, [0, y / 2, 0], undefined, [x / Math.min(x, y, z), y / Math.min(x, y, z), z / Math.min(x, y, z)]);
+  } else if (kind.includes("fern")) {
+    add(g, new THREE.BoxGeometry(x, y, Math.max(z, 0.04)), s, [0, y / 2, 0]);
+  } else {
+    add(g, new THREE.BoxGeometry(x, y, z), p, [0, y / 2, 0]);
+  }
+  return g;
+}
+
 const BUILDERS: Record<AssetSpec["kind"], (spec: AssetSpec, lod: LodLevel) => THREE.Group> = {
   crate,
   sci_crate: sciCrate,
@@ -442,6 +465,19 @@ const BUILDERS: Record<AssetSpec["kind"], (spec: AssetSpec, lod: LodLevel) => TH
   potion,
   hoverbike,
   mannequin,
+  jungle_terrain_tile_mud: junglePiece,
+  jungle_path_dirt_a: junglePiece,
+  jungle_tree_trunk_a: junglePiece,
+  jungle_tree_trunk_b: junglePiece,
+  jungle_tree_canopy_a: junglePiece,
+  jungle_tree_root_a: junglePiece,
+  jungle_fern_card_a: junglePiece,
+  jungle_shrub_a: junglePiece,
+  jungle_river_bank_a: junglePiece,
+  jungle_water_plane_a: junglePiece,
+  jungle_rock_scatter_a: junglePiece,
+  jungle_fallen_log_a: junglePiece,
+  jungle_mud_decal_a: junglePiece,
 };
 
 /**

@@ -107,7 +107,7 @@ A jungle is trunk/canopy/root, understory, bank, path, rocks, lights — placed 
 | `anvil://conventions/naming` | SM/Godot suffixes |
 | `anvil://blender/addon` | Add-on + stdio bridge install |
 
-On disk: `docs/schemas/`, example SceneSpec `docs/schemas/examples/jungle-clearing.scene.json`.
+On disk: `docs/schemas/`, example SceneSpec `docs/schemas/examples/jungle-clearing.scene.json`, biome kits `docs/schemas/examples/jungle.biome-kits.json` + `docs/scenes/JUNGLE-KITS.md`. Forge pieces with `npm run forge:biome:jungle` (GLBs gitignored; compose resolves on file presence).
 
 ---
 

@@ -3,7 +3,7 @@
 [node name="Jungle_clearing_with_river_and_dirt_path" type="Node3D"]
 metadata/anvil_scene_id = "scene.jungle.clearing_01"
 metadata/anvil_seed = 20260906
-metadata/anvil_status = "scaffold"
+metadata/anvil_status = "kits_present"
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 

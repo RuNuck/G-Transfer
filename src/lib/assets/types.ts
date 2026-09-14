@@ -29,10 +29,24 @@ export const KINDS = [
   "potion",
   "hoverbike",
   "mannequin",
+  // Phase 3 jungle biome kits (scene-compose biome.jungle.*)
+  "jungle_terrain_tile_mud",
+  "jungle_path_dirt_a",
+  "jungle_tree_trunk_a",
+  "jungle_tree_trunk_b",
+  "jungle_tree_canopy_a",
+  "jungle_tree_root_a",
+  "jungle_fern_card_a",
+  "jungle_shrub_a",
+  "jungle_river_bank_a",
+  "jungle_water_plane_a",
+  "jungle_rock_scatter_a",
+  "jungle_fallen_log_a",
+  "jungle_mud_decal_a",
 ] as const;
 export type AssetKind = (typeof KINDS)[number];
 
-export const CATEGORIES = ["props", "weapons", "architecture", "vehicles", "characters"] as const;
+export const CATEGORIES = ["props", "weapons", "architecture", "vehicles", "characters", "environments"] as const;
 export type Category = (typeof CATEGORIES)[number];
 
 export type CollisionType = "box" | "convex" | "capsule" | "sphere" | "trimesh";
@@ -139,4 +153,17 @@ export const KIND_LABEL: Record<AssetKind, string> = {
   potion: "Potion flask",
   hoverbike: "Hover bike",
   mannequin: "Hero mannequin",
+  jungle_terrain_tile_mud: "Jungle mud tile",
+  jungle_path_dirt_a: "Jungle dirt path",
+  jungle_tree_trunk_a: "Jungle trunk A",
+  jungle_tree_trunk_b: "Jungle trunk B",
+  jungle_tree_canopy_a: "Jungle canopy A",
+  jungle_tree_root_a: "Jungle root A",
+  jungle_fern_card_a: "Jungle fern card",
+  jungle_shrub_a: "Jungle shrub",
+  jungle_river_bank_a: "Jungle river bank",
+  jungle_water_plane_a: "Jungle water plane",
+  jungle_rock_scatter_a: "Jungle rock",
+  jungle_fallen_log_a: "Jungle fallen log",
+  jungle_mud_decal_a: "Jungle mud decal",
 };

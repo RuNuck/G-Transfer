@@ -1,7 +1,8 @@
 {
   "schemaVersion": 1,
   "sceneId": "scene.jungle.clearing_01",
-  "status": "scaffold",
+  "status": "kits_present",
+  "note": "layout-only checklist; ship/publish requires run-scene Godot open",
   "gates": [
     {
       "id": "schema",
@@ -18,13 +19,13 @@
     },
     {
       "id": "kits_resolve",
-      "ok": false,
-      "note": "kit GLBs may be missing — see report.kitNotes"
+      "ok": true,
+      "note": "see report.kitNotes"
     },
     {
       "id": "godot_import",
       "ok": null,
-      "note": "skipped (Godot not required for scaffold)"
+      "note": "not-yet-checked — deferred-to-run-scene ship gate (fail-closed; not skipped OK)"
     }
   ]
 }

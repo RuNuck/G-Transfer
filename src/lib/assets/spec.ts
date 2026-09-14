@@ -29,6 +29,19 @@ const KIND_ALIASES: Array<{ keys: string[]; kind: AssetKind }> = [
   { keys: ["potion", "flask", "vial", "potion flask", "bottle", "elixir"], kind: "potion" },
   { keys: ["hoverbike", "hover bike", "speeder", "speeder bike", "bike", "motorbike", "motorcycle", "vehicle"], kind: "hoverbike" },
   { keys: ["mannequin", "character", "human", "humanoid", "figure", "hero mannequin", "person"], kind: "mannequin" },
+  { keys: ["jungle mud tile", "terrain tile mud", "mud tile"], kind: "jungle_terrain_tile_mud" },
+  { keys: ["jungle dirt path", "path dirt", "dirt path"], kind: "jungle_path_dirt_a" },
+  { keys: ["jungle trunk a", "tree trunk a"], kind: "jungle_tree_trunk_a" },
+  { keys: ["jungle trunk b", "tree trunk b"], kind: "jungle_tree_trunk_b" },
+  { keys: ["jungle canopy", "tree canopy"], kind: "jungle_tree_canopy_a" },
+  { keys: ["jungle root", "tree root"], kind: "jungle_tree_root_a" },
+  { keys: ["jungle fern", "fern card"], kind: "jungle_fern_card_a" },
+  { keys: ["jungle shrub", "shrub"], kind: "jungle_shrub_a" },
+  { keys: ["jungle river bank", "river bank"], kind: "jungle_river_bank_a" },
+  { keys: ["jungle water", "water plane"], kind: "jungle_water_plane_a" },
+  { keys: ["jungle rock", "rock scatter"], kind: "jungle_rock_scatter_a" },
+  { keys: ["jungle fallen log", "fallen log"], kind: "jungle_fallen_log_a" },
+  { keys: ["jungle mud decal", "mud decal"], kind: "jungle_mud_decal_a" },
 ];
 
 const ENGINE_ALIASES: Array<{ keys: string[]; engine: Engine }> = [
@@ -201,6 +214,43 @@ function defaultMaterials(kind: AssetKind, seed: number): AssetSpec["materials"]
       ];
     case "mannequin":
       return [mat("Clay", "primary", "#c4b7a4", 0.7, 0.04)];
+    case "jungle_terrain_tile_mud":
+    case "jungle_path_dirt_a":
+    case "jungle_mud_decal_a":
+    case "jungle_river_bank_a":
+      return [
+        mat("Soil", "primary", lerpColor("#4a3a28", "#5c4630", n), 0.88, 0.0),
+        mat("Moss", "secondary", "#3d5240", 0.9, 0.0),
+        mat("Wet", "trim", "#2f3a32", 0.55, 0.0),
+      ];
+    case "jungle_tree_trunk_a":
+    case "jungle_tree_trunk_b":
+    case "jungle_tree_root_a":
+    case "jungle_fallen_log_a":
+      return [
+        mat("Bark", "primary", lerpColor("#3a2a1c", "#4a3828", n), 0.86, 0.0),
+        mat("Moss", "secondary", "#3d5240", 0.9, 0.0),
+        mat("Wet bark", "trim", "#2a2218", 0.7, 0.0),
+      ];
+    case "jungle_tree_canopy_a":
+    case "jungle_fern_card_a":
+    case "jungle_shrub_a":
+      return [
+        mat("Foliage", "primary", lerpColor("#2f4a28", "#3a5a32", n), 0.78, 0.0),
+        mat("Stem", "secondary", "#3a2a1c", 0.85, 0.0),
+        mat("Vein", "trim", "#243820", 0.7, 0.0),
+      ];
+    case "jungle_water_plane_a":
+      return [
+        mat("Water", "glass", "#3a6a72", 0.08, 0.0),
+        mat("Depth", "primary", "#1e3a42", 0.35, 0.0),
+      ];
+    case "jungle_rock_scatter_a":
+      return [
+        mat("Stone", "primary", "#6a6560", 0.82, 0.04),
+        mat("Dirt", "secondary", "#4a3a28", 0.88, 0.0),
+        mat("Wet stone", "trim", "#4a5048", 0.55, 0.0),
+      ];
     default:
       return [mat("Default", "primary", sci, 0.5, 0.0)];
   }

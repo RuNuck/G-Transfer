@@ -295,7 +295,7 @@ function buildLayout(spec) {
   return { instances, byLayer, kitNotes };
 }
 
-function writeTscn(spec, layout, outPath) {
+function writeTscn(spec, layout, outPath, anvilStatus = "scaffold") {
   const rootName = (spec.displayName || "SceneRoot")
     .replace(/[^A-Za-z0-9_]/g, "_")
     .replace(/^(\d)/, "_$1") || "SceneRoot";
@@ -305,7 +305,7 @@ function writeTscn(spec, layout, outPath) {
   lines.push(`[node name="${rootName}" type="Node3D"]`);
   lines.push(`metadata/anvil_scene_id = "${spec.id}"`);
   lines.push(`metadata/anvil_seed = ${spec.seed}`);
-  lines.push(`metadata/anvil_status = "scaffold"`);
+  lines.push(`metadata/anvil_status = "${anvilStatus}"`);
   lines.push(``);
   lines.push(`[node name="WorldEnvironment" type="WorldEnvironment" parent="."]`);
   lines.push(``);
@@ -389,8 +389,10 @@ export function composeScene(specPath, options = {}) {
   copyFileSync(abs, sceneJsonPath);
 
   const layout = buildLayout(spec);
+  const kitsResolveOkEarly = !(layout.kitNotes || []).some((k) => k.status === "missing");
+  const layoutStatus = kitsResolveOkEarly ? "kits_present" : "scaffold";
   const tscnPath = join(outDir, "scene.tscn");
-  writeTscn(spec, layout, tscnPath);
+  writeTscn(spec, layout, tscnPath, layoutStatus);
 
   const hash = contentHash(layout.instances);
   const lightSetups = spec.layers.lighting.setups.map((s) => s.id);
@@ -406,7 +408,9 @@ export function composeScene(specPath, options = {}) {
     lightSetups,
     contentHash: hash,
     megaMeshRejected: true,
-    status: "scaffold",
+    status: layoutStatus,
+    kitsPresent: (layout.kitNotes || []).filter((k) => k.status === "present").length,
+    kitsMissing: (layout.kitNotes || []).filter((k) => k.status === "missing").length,
   };
   writeFileSync(join(outDir, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
 
@@ -430,23 +434,31 @@ export function composeScene(specPath, options = {}) {
       manifest: relative(projectRoot, join(outDir, "manifest.json")).split("\\").join("/"),
       report: relative(projectRoot, join(outDir, "report.json")).split("\\").join("/"),
     },
-    notes: [
-      "Scaffold composer — placeholders only; no binary GLBs invented.",
-      "Instance kit refs when biome.jungle.* pieces are forged (Phase 3).",
-      spec.notes || null,
-    ].filter(Boolean),
+    notes: [],
   };
-  writeFileSync(join(outDir, "report.json"), JSON.stringify(report, null, 2) + "\n");
 
   // Minimal validation stub checklist (layout-only — not the ship gate)
   const kitsResolveOk = !(report.kitNotes || []).some((k) => k.status === "missing");
+  const missingCount = (report.kitNotes || []).filter((k) => k.status === "missing").length;
+  const presentCount = (report.kitNotes || []).filter((k) => k.status === "present").length;
+  report.kits_resolve = kitsResolveOk;
+  report.status = kitsResolveOk ? "kits_present" : "scaffold";
+  report.notes = [
+    kitsResolveOk
+      ? `Kit GLBs present on disk (${presentCount}/${presentCount + missingCount}) — layout can instance; not ship-ready until bake+Godot gates.`
+      : `Kit GLBs missing (${missingCount} unresolved) — placeholder Node3D only; no binary invented.`,
+    "Never fuse a mega-mesh jungle.glb; composer instances biome kits only.",
+    spec.notes || null,
+  ].filter(Boolean);
+  writeFileSync(join(outDir, "report.json"), JSON.stringify(report, null, 2) + "\n");
+
   const godotImportNote = kitsResolveOk
     ? "not-yet-checked — deferred-to-run-scene ship gate (fail-closed; not skipped OK)"
     : "N/A until kits resolve — deferred-to-run-scene (compose is layout-only)";
   const validation = {
     schemaVersion: 1,
     sceneId: spec.id,
-    status: "scaffold",
+    status: report.status,
     note: "layout-only checklist; ship/publish requires run-scene Godot open",
     gates: [
       { id: "schema", ok: true },
@@ -456,8 +468,6 @@ export function composeScene(specPath, options = {}) {
       { id: "godot_import", ok: null, note: godotImportNote },
     ],
   };
-  report.kits_resolve = kitsResolveOk;
-  if (!kitsResolveOk) report.status = "scaffold";
   writeFileSync(join(outDir, "validation.json"), JSON.stringify(validation, null, 2) + "\n");
 
   return report;

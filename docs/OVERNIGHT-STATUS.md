@@ -1,8 +1,24 @@
 # Anvil morning brief — for Kevin / Morgan
 
-**As of** Mon Sep 14, 2026 (ET) — durable job queue on `/workspace/project` (Bill). Baseline **2.9.0**.
+**As of** Mon Sep 14, 2026 ~8:50am ET — Bill on `/workspace/project`. Baseline **2.9.0**.
 
-**P1 kill-mid:** enqueue → worker → reconcile. Mid-flight kill during **real Blender** (`--kind lantern --bake`) → `failed`/`worker_interrupted`; quarantine half-written GLB; never corrupt published `ready`. Evidence: `docs/evidence/durable-jobs-blender-kill-mid-2026-09-14.md` (fake-long alone VETO'd).
+### Queue: jungle biome kits ≥12 — LANDED (smoke)
+
+After `forge_weapon` CLOSED: Phase 3 jungle kit MVP.
+
+| Metric | Value |
+|---|---|
+| Kit defs (manifest + catalog kinds) | **13 / ≥12** |
+| Compose resolve | **13 present / 0 missing** (`kits_present`) |
+| Indexed `ready` | **0** (honest: build-only smoke; `pbr_textures_resolve` without `--bake`) |
+| Part kit | `kit/jungle.py` — all 13 KINDS forge as **part kit** |
+| Commands | `npm run forge:biome:jungle` / `:smoke`; bake via G-Transfer (`docs/RUN-ON-YOUR-MACHINE.md`) |
+
+Evidence: `docs/evidence/jungle-kits-2026-09-14.md`. Kit list: `docs/scenes/JUNGLE-KITS.md`.
+
+**Not stubbed as fake ready:** GLBs are real Blender builds. **Stubbed:** studio viewport `junglePiece` preview; bake/`ready` publish deferred to Kevin long forges.
+
+---
 
 **Prior overnight** (archived context below): Sun Sep 6 / Mon Sep 7, 2026.
 

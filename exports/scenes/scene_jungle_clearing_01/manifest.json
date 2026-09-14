@@ -33,5 +33,7 @@
   ],
   "contentHash": "sha256:a41170cbe03da8fed3462cf51b92e44343cbfa0a78e4f4cd06e64fb5d497a41b",
   "megaMeshRejected": true,
-  "status": "scaffold"
+  "status": "kits_present",
+  "kitsPresent": 13,
+  "kitsMissing": 0
 }

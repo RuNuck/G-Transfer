@@ -38,7 +38,9 @@
     "forge:smoke:kill-mid:blender": "node tools/forge-run/smoke-kill-mid.mjs --blender",
     "forge:smoke:kill-mid:fake": "node tools/forge-run/smoke-kill-mid.mjs --fake-long",
     "forge:weapon": "node tools/forge-run/enqueue-weapon.mjs",
-    "forge:smoke:weapon-m4": "node tools/forge-run/smoke-weapon-m4.mjs"
+    "forge:smoke:weapon-m4": "node tools/forge-run/smoke-weapon-m4.mjs",
+    "forge:biome:jungle": "node tools/forge-run/forge-biome.mjs --manifest docs/schemas/examples/jungle.biome-kits.json --all --json",
+    "forge:biome:jungle:smoke": "node tools/forge-run/forge-biome.mjs --manifest docs/schemas/examples/jungle.biome-kits.json --all --limit 3 --json"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.0",

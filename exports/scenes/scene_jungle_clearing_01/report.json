@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "scaffold",
+  "status": "kits_present",
   "sceneId": "scene.jungle.clearing_01",
   "exportId": "scene_jungle_clearing_01",
   "seed": 20260906,
@@ -45,92 +45,79 @@
       "kitId": "biome.jungle.terrain_tile_mud",
       "role": "terrain_tile",
       "expectedPath": "exports/forge/biome/jungle/terrain_tile_mud.glb",
-      "status": "missing",
-      "note": "GLB not forged yet — placeholder Node3D only (no binary invented)"
+      "status": "present"
     },
     {
       "kitId": "biome.jungle.path_dirt_a",
       "role": "path_dirt",
       "expectedPath": "exports/forge/biome/jungle/path_dirt_a.glb",
-      "status": "missing",
-      "note": "GLB not forged yet — placeholder Node3D only (no binary invented)"
+      "status": "present"
     },
     {
       "kitId": "biome.jungle.tree_trunk_a",
       "role": "tree_trunk",
       "expectedPath": "exports/forge/biome/jungle/tree_trunk_a.glb",
-      "status": "missing",
-      "note": "GLB not forged yet — placeholder Node3D only (no binary invented)"
+      "status": "present"
     },
     {
       "kitId": "biome.jungle.tree_trunk_b",
       "role": "tree_trunk",
       "expectedPath": "exports/forge/biome/jungle/tree_trunk_b.glb",
-      "status": "missing",
-      "note": "GLB not forged yet — placeholder Node3D only (no binary invented)"
+      "status": "present"
     },
     {
       "kitId": "biome.jungle.tree_canopy_a",
       "role": "tree_canopy",
       "expectedPath": "exports/forge/biome/jungle/tree_canopy_a.glb",
-      "status": "missing",
-      "note": "GLB not forged yet — placeholder Node3D only (no binary invented)"
+      "status": "present"
     },
     {
       "kitId": "biome.jungle.tree_root_a",
       "role": "tree_root",
       "expectedPath": "exports/forge/biome/jungle/tree_root_a.glb",
-      "status": "missing",
-      "note": "GLB not forged yet — placeholder Node3D only (no binary invented)"
+      "status": "present"
     },
     {
       "kitId": "biome.jungle.fern_card_a",
       "role": "understory",
       "expectedPath": "exports/forge/biome/jungle/fern_card_a.glb",
-      "status": "missing",
-      "note": "GLB not forged yet — placeholder Node3D only (no binary invented)"
+      "status": "present"
     },
     {
       "kitId": "biome.jungle.shrub_a",
       "role": "understory",
       "expectedPath": "exports/forge/biome/jungle/shrub_a.glb",
-      "status": "missing",
-      "note": "GLB not forged yet — placeholder Node3D only (no binary invented)"
+      "status": "present"
     },
     {
       "kitId": "biome.jungle.river_bank_a",
       "role": "river_bank",
       "expectedPath": "exports/forge/biome/jungle/river_bank_a.glb",
-      "status": "missing",
-      "note": "GLB not forged yet — placeholder Node3D only (no binary invented)"
+      "status": "present"
     },
     {
       "kitId": "biome.jungle.water_plane_a",
       "role": "water_plane",
       "expectedPath": "exports/forge/biome/jungle/water_plane_a.glb",
-      "status": "missing",
-      "note": "GLB not forged yet — placeholder Node3D only (no binary invented)"
+      "status": "present"
     },
     {
       "kitId": "biome.jungle.rock_scatter_a",
       "role": "rock_scatter",
       "expectedPath": "exports/forge/biome/jungle/rock_scatter_a.glb",
-      "status": "missing",
-      "note": "GLB not forged yet — placeholder Node3D only (no binary invented)"
+      "status": "present"
     },
     {
       "kitId": "biome.jungle.fallen_log_a",
       "role": "fallen_log",
       "expectedPath": "exports/forge/biome/jungle/fallen_log_a.glb",
-      "status": "missing",
-      "note": "GLB not forged yet — placeholder Node3D only (no binary invented)"
+      "status": "present"
     },
     {
       "kitId": "biome.jungle.mud_decal_a",
       "role": "mud_decal",
       "expectedPath": "exports/forge/biome/jungle/mud_decal_a.glb",
-      "status": "missing",
-      "note": "GLB not forged yet — placeholder Node3D only (no binary invented)"
+      "status": "present"
     }
   ],
   "lightSetups": [
@@ -146,8 +133,9 @@
     "report": "exports/scenes/scene_jungle_clearing_01/report.json"
   },
   "notes": [
-    "Scaffold composer — placeholders only; no binary GLBs invented.",
-    "Instance kit refs when biome.jungle.* pieces are forged (Phase 3).",
+    "Kit GLBs present on disk (13/13) — layout can instance; not ship-ready until bake+Godot gates.",
+    "Never fuse a mega-mesh jungle.glb; composer instances biome kits only.",
     "Hand fixture for Phase 4 composer. Instances only; no fused jungle.glb."
-  ]
+  ],
+  "kits_resolve": true
 }

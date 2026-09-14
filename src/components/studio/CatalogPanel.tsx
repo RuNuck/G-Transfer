@@ -9,6 +9,7 @@ const CATS: { id: Category | "all"; label: string }[] = [
   { id: "architecture", label: "Arch" },
   { id: "vehicles", label: "Vehicles" },
   { id: "characters", label: "Chars" },
+  { id: "environments", label: "Biome" },
 ];
 
 export function CatalogPanel({

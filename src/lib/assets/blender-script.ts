@@ -658,6 +658,7 @@ function weathering(spec: AssetSpec): { wear: number; dirt: number } {
     architecture: [0.55, 0.55],
     vehicles: [0.5, 0.45],
     characters: [0.3, 0.3],
+    environments: [0.6, 0.65],
   };
   const [wear, dirt] = base[spec.category] ?? [0.45, 0.35];
   const scale = spec.style === "stylized" || spec.style === "hand_painted" ? 0.6 : spec.style === "realistic" ? 1.1 : 1;

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://anvil.local/schemas/biome-kit.schema.json",
+  "title": "Anvil BiomeKitManifest",
+  "description": "Biome kit piece list for scene-compose (Phase 3). Kit instances only — never a mega-mesh. GLB paths are convention; status must stay honest (missing/stub/forged).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "biome", "kitPrefix", "pieces"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "id": { "type": "string" },
+    "biome": { "type": "string" },
+    "kitPrefix": { "type": "string", "description": "e.g. biome.jungle" },
+    "texelDensityTarget": { "type": "number" },
+    "notes": { "type": "string" },
+    "pieces": {
+      "type": "array",
+      "minItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["piece", "kind", "role", "kitId", "glbPath", "dimensionsM", "collision"],
+        "properties": {
+          "piece": { "type": "string" },
+          "kind": { "type": "string" },
+          "role": { "type": "string" },
+          "kitId": { "type": "string" },
+          "glbPath": { "type": "string" },
+          "displayName": { "type": "string" },
+          "layer": { "type": "string", "enum": ["ground", "water", "canopy", "undergrowth", "rocks", "landmarks"] },
+          "dimensionsM": {
+            "type": "object",
+            "required": ["x", "y", "z"],
+            "properties": {
+              "x": { "type": "number" },
+              "y": { "type": "number" },
+              "z": { "type": "number" }
+            }
+          },
+          "collision": { "type": "string" },
+          "triangleBudgetLod0": { "type": "integer" },
+          "snap": { "type": "string" },
+          "forgeStatus": {
+            "type": "string",
+            "enum": ["pending", "smoke", "stub", "ready"],
+            "description": "pending=not forged; smoke=build-only GLB on box; stub=definition only; ready=validated+indexed (rare until bake gates pass)"
+          }
+        }
+      }
+    }
+  }
+}

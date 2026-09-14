@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "biome": "jungle",
+  "manifest": "docs/schemas/examples/jungle.biome-kits.json",
+  "bake": false,
+  "requested": 13,
+  "present": 13,
+  "missing": 0,
+  "kitPrefix": "biome.jungle",
+  "results": [
+    {
+      "piece": "terrain_tile_mud",
+      "kind": "jungle_terrain_tile_mud",
+      "kitId": "biome.jungle.terrain_tile_mud",
+      "glbPath": "exports/forge/biome/jungle/terrain_tile_mud.glb",
+      "exitCode": 1,
+      "elapsedMs": 944,
+      "present": true,
+      "buildSource": "part kit",
+      "jobStatus": "failed",
+      "hardFails": [
+        "pbr_textures_resolve"
+      ],
+      "stderrTail": ""
+    },
+    {
+      "piece": "path_dirt_a",
+      "kind": "jungle_path_dirt_a",
+      "kitId": "biome.jungle.path_dirt_a",
+      "glbPath": "exports/forge/biome/jungle/path_dirt_a.glb",
+      "exitCode": 1,
+      "elapsedMs": 939,
+      "present": true,
+      "buildSource": "part kit",
+      "jobStatus": "failed",
+      "hardFails": [
+        "pbr_textures_resolve"
+      ],
+      "stderrTail": ""
+    },
+    {
+      "piece": "tree_trunk_a",
+      "kind": "jungle_tree_trunk_a",
+      "kitId": "biome.jungle.tree_trunk_a",
+      "glbPath": "exports/forge/biome/jungle/tree_trunk_a.glb",
+      "exitCode": 1,
+      "elapsedMs": 924,
+      "present": true,
+      "buildSource": "part kit",
+      "jobStatus": "failed",
+      "hardFails": [
+        "pbr_textures_resolve"
+      ],
+      "stderrTail": ""
+    },
+    {
+      "piece": "tree_trunk_b",
+      "kind": "jungle_tree_trunk_b",
+      "kitId": "biome.jungle.tree_trunk_b",
+      "glbPath": "exports/forge/biome/jungle/tree_trunk_b.glb",
+      "exitCode": 1,
+      "elapsedMs": 931,
+      "present": true,
+      "buildSource": "part kit",
+      "jobStatus": "failed",
+      "hardFails": [
+        "pbr_textures_resolve"
+      ],
+      "stderrTail": ""
+    },
+    {
+      "piece": "tree_canopy_a",
+      "kind": "jungle_tree_canopy_a",
+      "kitId": "biome.jungle.tree_canopy_a",
+      "glbPath": "exports/forge/biome/jungle/tree_canopy_a.glb",
+      "exitCode": 1,
+      "elapsedMs": 984,
+      "present": true,
+      "buildSource": "part kit",
+      "jobStatus": "failed",
+      "hardFails": [
+        "pbr_textures_resolve"
+      ],
+      "stderrTail": ""
+    },
+    {
+      "piece": "tree_root_a",
+      "kind": "jungle_tree_root_a",
+      "kitId": "biome.jungle.tree_root_a",
+      "glbPath": "exports/forge/biome/jungle/tree_root_a.glb",
+      "exitCode": 1,
+      "elapsedMs": 946,
+      "present": true,
+      "buildSource": "part kit",
+      "jobStatus": "failed",
+      "hardFails": [
+        "pbr_textures_resolve"
+      ],
+      "stderrTail": ""
+    },
+    {
+      "piece": "fern_card_a",
+      "kind": "jungle_fern_card_a",
+      "kitId": "biome.jungle.fern_card_a",
+      "glbPath": "exports/forge/biome/jungle/fern_card_a.glb",
+      "exitCode": 1,
+      "elapsedMs": 959,
+      "present": true,
+      "buildSource": "part kit",
+      "jobStatus": "failed",
+      "hardFails": [
+        "pbr_textures_resolve"
+      ],
+      "stderrTail": ""
+    },
+    {
+      "piece": "shrub_a",
+      "kind": "jungle_shrub_a",
+      "kitId": "biome.jungle.shrub_a",
+      "glbPath": "exports/forge/biome/jungle/shrub_a.glb",
+      "exitCode": 1,
+      "elapsedMs": 977,
+      "present": true,
+      "buildSource": "part kit",
+      "jobStatus": "failed",
+      "hardFails": [
+        "pbr_textures_resolve"
+      ],
+      "stderrTail": ""
+    },
+    {
+      "piece": "river_bank_a",
+      "kind": "jungle_river_bank_a",
+      "kitId": "biome.jungle.river_bank_a",
+      "glbPath": "exports/forge/biome/jungle/river_bank_a.glb",
+      "exitCode": 1,
+      "elapsedMs": 941,
+      "present": true,
+      "buildSource": "part kit",
+      "jobStatus": "failed",
+      "hardFails": [
+        "pbr_textures_resolve"
+      ],
+      "stderrTail": ""
+    },
+    {
+      "piece": "water_plane_a",
+      "kind": "jungle_water_plane_a",
+      "kitId": "biome.jungle.water_plane_a",
+      "glbPath": "exports/forge/biome/jungle/water_plane_a.glb",
+      "exitCode": 1,
+      "elapsedMs": 952,
+      "present": true,
+      "buildSource": "part kit",
+      "jobStatus": "failed",
+      "hardFails": [
+        "pbr_textures_resolve"
+      ],
+      "stderrTail": ""
+    },
+    {
+      "piece": "rock_scatter_a",
+      "kind": "jungle_rock_scatter_a",
+      "kitId": "biome.jungle.rock_scatter_a",
+      "glbPath": "exports/forge/biome/jungle/rock_scatter_a.glb",
+      "exitCode": 1,
+      "elapsedMs": 960,
+      "present": true,
+      "buildSource": "part kit",
+      "jobStatus": "failed",
+      "hardFails": [
+        "pbr_textures_resolve"
+      ],
+      "stderrTail": ""
+    },
+    {
+      "piece": "fallen_log_a",
+      "kind": "jungle_fallen_log_a",
+      "kitId": "biome.jungle.fallen_log_a",
+      "glbPath": "exports/forge/biome/jungle/fallen_log_a.glb",
+      "exitCode": 1,
+      "elapsedMs": 949,
+      "present": true,
+      "buildSource": "part kit",
+      "jobStatus": "failed",
+      "hardFails": [
+        "pbr_textures_resolve"
+      ],
+      "stderrTail": ""
+    },
+    {
+      "piece": "mud_decal_a",
+      "kind": "jungle_mud_decal_a",
+      "kitId": "biome.jungle.mud_decal_a",
+      "glbPath": "exports/forge/biome/jungle/mud_decal_a.glb",
+      "exitCode": 1,
+      "elapsedMs": 911,
+      "present": true,
+      "buildSource": "part kit",
+      "jobStatus": "failed",
+      "hardFails": [
+        "pbr_textures_resolve"
+      ],
+      "stderrTail": ""
+    }
+  ],
+  "note": "GLBs gitignored; compose kits_resolve = file exists. ready/publish still needs bake+Godot gates."
+}

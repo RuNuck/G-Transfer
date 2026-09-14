@@ -80,8 +80,8 @@ export function pipelineFor(spec: AssetSpec): PipelineStage[] {
 export function qcFor(spec: AssetSpec): QcItem[] {
   const { x, y, z } = spec.dimensions;
   const hero = spec.category === "weapons" || spec.category === "characters";
-  const trisLimit = spec.category === "vehicles" || hero ? 8000 : spec.category === "architecture" ? 4000 : 3000;
-  const texelMin = spec.category === "architecture" ? 256 : hero ? 1024 : 512;
+  const trisLimit = spec.category === "vehicles" || hero ? 8000 : spec.category === "architecture" || spec.category === "environments" ? 4000 : 3000;
+  const texelMin = spec.category === "architecture" || spec.category === "environments" ? 256 : hero ? 1024 : 512;
   const sane = [x, y, z].every((d) => Number.isFinite(d) && d >= 0.02 && d <= 12);
   const expectedPivot = spec.category === "weapons" ? "center" : "bottom";
   const { lod0, lod1, lod2 } = spec.triangleBudget;

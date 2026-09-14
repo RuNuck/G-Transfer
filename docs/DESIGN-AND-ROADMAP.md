@@ -350,7 +350,7 @@ Checkboxes are the working tracker. **Exit criteria** are mandatory; demos witho
 
 ### Phase 4 — Scene composer
 
-*Progress as of 2026-09-06: SceneSpec schema/types + scene-compose scaffold + forge_scene MCP; jungle example .tscn is placeholder kit composition (not production biome kits).*
+*Progress as of 2026-09-14: SceneSpec + compose + jungle BiomeKitManifest (13) + `kit/jungle.py` + forge-biome smokes (13/13 GLBs present, not indexed ready). Phase 3 exit (ready+hand .tscn) still open until bake gates.*
 
 **Goal:** “Jungle scene” returns a composition of kits.
 

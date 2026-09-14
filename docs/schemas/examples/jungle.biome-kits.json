@@ -1,0 +1,244 @@
+{
+  "schemaVersion": 1,
+  "id": "biome.jungle.mvp",
+  "biome": "jungle",
+  "kitPrefix": "biome.jungle",
+  "texelDensityTarget": 256,
+  "notes": "Phase 3 MVP \u226512 pieces for scene.jungle.clearing_01. Matches docs/schemas/examples/jungle-clearing.scene.json kitRefs. Forge via npm run forge:biome:jungle.",
+  "pieces": [
+    {
+      "piece": "terrain_tile_mud",
+      "kind": "jungle_terrain_tile_mud",
+      "role": "terrain_tile",
+      "kitId": "biome.jungle.terrain_tile_mud",
+      "glbPath": "exports/forge/biome/jungle/terrain_tile_mud.glb",
+      "displayName": "terrain_tile_mud",
+      "layer": "ground",
+      "dimensionsM": {
+        "x": 4,
+        "y": 0.12,
+        "z": 4
+      },
+      "collision": "box",
+      "triangleBudgetLod0": 800,
+      "snap": "4m grid",
+      "forgeStatus": "smoke"
+    },
+    {
+      "piece": "path_dirt_a",
+      "kind": "jungle_path_dirt_a",
+      "role": "path_dirt",
+      "kitId": "biome.jungle.path_dirt_a",
+      "glbPath": "exports/forge/biome/jungle/path_dirt_a.glb",
+      "displayName": "path_dirt_a",
+      "layer": "ground",
+      "dimensionsM": {
+        "x": 2.2,
+        "y": 0.08,
+        "z": 4
+      },
+      "collision": "box",
+      "triangleBudgetLod0": 600,
+      "snap": "path polyline",
+      "forgeStatus": "smoke"
+    },
+    {
+      "piece": "tree_trunk_a",
+      "kind": "jungle_tree_trunk_a",
+      "role": "tree_trunk",
+      "kitId": "biome.jungle.tree_trunk_a",
+      "glbPath": "exports/forge/biome/jungle/tree_trunk_a.glb",
+      "displayName": "tree_trunk_a",
+      "layer": "canopy",
+      "dimensionsM": {
+        "x": 0.7,
+        "y": 8,
+        "z": 0.7
+      },
+      "collision": "capsule",
+      "triangleBudgetLod0": 1200,
+      "snap": "snap to tree_root",
+      "forgeStatus": "smoke"
+    },
+    {
+      "piece": "tree_trunk_b",
+      "kind": "jungle_tree_trunk_b",
+      "role": "tree_trunk",
+      "kitId": "biome.jungle.tree_trunk_b",
+      "glbPath": "exports/forge/biome/jungle/tree_trunk_b.glb",
+      "displayName": "tree_trunk_b",
+      "layer": "canopy",
+      "dimensionsM": {
+        "x": 0.55,
+        "y": 6.5,
+        "z": 0.55
+      },
+      "collision": "capsule",
+      "triangleBudgetLod0": 1000,
+      "snap": "snap to tree_root",
+      "forgeStatus": "smoke"
+    },
+    {
+      "piece": "tree_canopy_a",
+      "kind": "jungle_tree_canopy_a",
+      "role": "tree_canopy",
+      "kitId": "biome.jungle.tree_canopy_a",
+      "glbPath": "exports/forge/biome/jungle/tree_canopy_a.glb",
+      "displayName": "tree_canopy_a",
+      "layer": "canopy",
+      "dimensionsM": {
+        "x": 4.5,
+        "y": 2.8,
+        "z": 4.5
+      },
+      "collision": "box",
+      "triangleBudgetLod0": 1600,
+      "snap": "sit on trunk top",
+      "forgeStatus": "smoke"
+    },
+    {
+      "piece": "tree_root_a",
+      "kind": "jungle_tree_root_a",
+      "role": "tree_root",
+      "kitId": "biome.jungle.tree_root_a",
+      "glbPath": "exports/forge/biome/jungle/tree_root_a.glb",
+      "displayName": "tree_root_a",
+      "layer": "canopy",
+      "dimensionsM": {
+        "x": 2.2,
+        "y": 0.7,
+        "z": 2.2
+      },
+      "collision": "convex",
+      "triangleBudgetLod0": 1400,
+      "snap": "z=0 under trunk",
+      "forgeStatus": "smoke"
+    },
+    {
+      "piece": "fern_card_a",
+      "kind": "jungle_fern_card_a",
+      "role": "understory",
+      "kitId": "biome.jungle.fern_card_a",
+      "glbPath": "exports/forge/biome/jungle/fern_card_a.glb",
+      "displayName": "fern_card_a",
+      "layer": "undergrowth",
+      "dimensionsM": {
+        "x": 0.9,
+        "y": 1.0,
+        "z": 0.12
+      },
+      "collision": "box",
+      "triangleBudgetLod0": 400,
+      "snap": "card facing camera optional",
+      "forgeStatus": "smoke"
+    },
+    {
+      "piece": "shrub_a",
+      "kind": "jungle_shrub_a",
+      "role": "understory",
+      "kitId": "biome.jungle.shrub_a",
+      "glbPath": "exports/forge/biome/jungle/shrub_a.glb",
+      "displayName": "shrub_a",
+      "layer": "undergrowth",
+      "dimensionsM": {
+        "x": 1.4,
+        "y": 1.1,
+        "z": 1.4
+      },
+      "collision": "capsule",
+      "triangleBudgetLod0": 900,
+      "snap": "scatter",
+      "forgeStatus": "smoke"
+    },
+    {
+      "piece": "river_bank_a",
+      "kind": "jungle_river_bank_a",
+      "role": "river_bank",
+      "kitId": "biome.jungle.river_bank_a",
+      "glbPath": "exports/forge/biome/jungle/river_bank_a.glb",
+      "displayName": "river_bank_a",
+      "layer": "water",
+      "dimensionsM": {
+        "x": 2.5,
+        "y": 0.7,
+        "z": 1.8
+      },
+      "collision": "convex",
+      "triangleBudgetLod0": 1000,
+      "snap": "river polyline bank",
+      "forgeStatus": "smoke"
+    },
+    {
+      "piece": "water_plane_a",
+      "kind": "jungle_water_plane_a",
+      "role": "water_plane",
+      "kitId": "biome.jungle.water_plane_a",
+      "glbPath": "exports/forge/biome/jungle/water_plane_a.glb",
+      "displayName": "water_plane_a",
+      "layer": "water",
+      "dimensionsM": {
+        "x": 4,
+        "y": 0.06,
+        "z": 4
+      },
+      "collision": "box",
+      "triangleBudgetLod0": 200,
+      "snap": "river water kit segment",
+      "forgeStatus": "smoke"
+    },
+    {
+      "piece": "rock_scatter_a",
+      "kind": "jungle_rock_scatter_a",
+      "role": "rock_scatter",
+      "kitId": "biome.jungle.rock_scatter_a",
+      "glbPath": "exports/forge/biome/jungle/rock_scatter_a.glb",
+      "displayName": "rock_scatter_a",
+      "layer": "rocks",
+      "dimensionsM": {
+        "x": 0.9,
+        "y": 0.55,
+        "z": 0.7
+      },
+      "collision": "convex",
+      "triangleBudgetLod0": 800,
+      "snap": "scatter",
+      "forgeStatus": "smoke"
+    },
+    {
+      "piece": "fallen_log_a",
+      "kind": "jungle_fallen_log_a",
+      "role": "fallen_log",
+      "kitId": "biome.jungle.fallen_log_a",
+      "glbPath": "exports/forge/biome/jungle/fallen_log_a.glb",
+      "displayName": "fallen_log_a",
+      "layer": "landmarks",
+      "dimensionsM": {
+        "x": 2.8,
+        "y": 0.45,
+        "z": 0.45
+      },
+      "collision": "capsule",
+      "triangleBudgetLod0": 900,
+      "snap": "landmark / rocks layer",
+      "forgeStatus": "smoke"
+    },
+    {
+      "piece": "mud_decal_a",
+      "kind": "jungle_mud_decal_a",
+      "role": "mud_decal",
+      "kitId": "biome.jungle.mud_decal_a",
+      "glbPath": "exports/forge/biome/jungle/mud_decal_a.glb",
+      "displayName": "mud_decal_a",
+      "layer": "undergrowth",
+      "dimensionsM": {
+        "x": 1.6,
+        "y": 0.03,
+        "z": 1.6
+      },
+      "collision": "box",
+      "triangleBudgetLod0": 120,
+      "snap": "ground decal",
+      "forgeStatus": "smoke"
+    }
+  ]
+}
