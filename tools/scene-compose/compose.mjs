@@ -298,6 +298,7 @@ function buildLayout(spec) {
 }
 
 function stageKitGlbs(outDir, layout) {
+  // Stage as relative symlinks (Reed nit: absolute box paths break on copy).
   const kitsDir = join(outDir, "kits");
   mkdirSync(kitsDir, { recursive: true });
   const presentById = new Map();
@@ -321,7 +322,9 @@ function stageKitGlbs(outDir, layout) {
       /* ignore */
     }
     try {
-      symlinkSync(srcAbs, dest);
+      // Relative to kits/ so the scene folder copies without box-absolute paths.
+      const relTarget = relative(kitsDir, srcAbs).split("\\").join("/");
+      symlinkSync(relTarget, dest);
     } catch {
       copyFileSync(srcAbs, dest);
     }
