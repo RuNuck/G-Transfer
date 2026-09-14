@@ -132,19 +132,26 @@ def _canopy(X, Y, Z, leaf, bark):
 
 
 def _roots(X, Y, Z, bark, moss):
-    parts = [ops.cylinder("ball", min(X, Y) * 0.28, Z * 0.55, (0, 0, Z * 0.28), "Z", 12, bark)]
-    for i, ang in enumerate((0.0, 1.2, 2.4, 3.6, 4.8)):
-        dx = math.cos(ang) * X * 0.28
-        dy = math.sin(ang) * Y * 0.28
+    # Spec height is ~0.70m (Blender Z). Prior ball used Z*0.55 → ~0.39m (−44% Quinn HOLD).
+    ball_h = Z * 0.98
+    ball_r = min(X, Y) * 0.2
+    parts = [ops.cylinder("ball", ball_r, ball_h, (0, 0, ball_h / 2), "Z", 12, bark)]
+    half = min(X, Y) * 0.5
+    for i, ang in enumerate((0.0, 1.2566, 2.5133, 3.7699, 5.0265)):
+        tip_r = half * 0.98
+        length = tip_r * 0.9
+        dx = math.cos(ang) * (tip_r - length * 0.5)
+        dy = math.sin(ang) * (tip_r - length * 0.5)
+        root_h = Z * 0.5
         root = ops.box(
             "root_%d" % i,
-            (X * 0.4, Y * 0.14, Z * 0.22),
-            (dx, dy, Z * 0.12),
+            (length, min(X, Y) * 0.12, root_h),
+            (dx, dy, root_h / 2),
             bark,
             rotation=(0.0, 0.0, ang),
         )
         parts.append(root)
-    parts.append(ops.box("moss_pad", (X * 0.35, Y * 0.35, Z * 0.08), (0, 0, Z * 0.04), moss))
+    parts.append(ops.box("moss_pad", (X * 0.5, Y * 0.5, Z * 0.12), (0, 0, Z * 0.06), moss))
     return parts
 
 
@@ -167,11 +174,27 @@ def _fern(X, Y, Z, leaf, stem):
 
 
 def _shrub(X, Y, Z, leaf, bark):
+    # Spec footprint ~1.4×1.4m. Prior clumps underfilled → ~1.16×1.16 (−18/−31% Quinn HOLD).
+    base_r = min(X, Y) * 0.5
+    crown_r = base_r * 0.68
     return [
-        ops.cylinder("stem", min(X, Y) * 0.08, Z * 0.45, (0, 0, Z * 0.22), "Z", 10, bark),
-        ops.sphere("clump_a", min(X, Y) * 0.32, (0, 0, Z * 0.62), 12, 8, leaf, scale=(1.1, 1.0, 0.85)),
-        ops.sphere("clump_b", min(X, Y) * 0.22, (-X * 0.22, Y * 0.15, Z * 0.5), 10, 6, leaf),
-        ops.sphere("clump_c", min(X, Y) * 0.2, (X * 0.2, -Y * 0.12, Z * 0.48), 10, 6, leaf),
+        ops.cylinder("stem", min(X, Y) * 0.07, Z * 0.42, (0, 0, Z * 0.21), "Z", 10, bark),
+        ops.sphere(
+            "clump_a",
+            crown_r,
+            (0.0, 0.0, Z * 0.55),
+            12,
+            8,
+            leaf,
+            scale=(
+                (X * 0.94) / (2 * crown_r),
+                (Y * 0.94) / (2 * crown_r),
+                (Z * 0.82) / (2 * crown_r),
+            ),
+        ),
+        ops.sphere("clump_b", min(X, Y) * 0.26, (-X * 0.32, Y * 0.24, Z * 0.48), 10, 6, leaf),
+        ops.sphere("clump_c", min(X, Y) * 0.24, (X * 0.3, -Y * 0.22, Z * 0.46), 10, 6, leaf),
+        ops.sphere("clump_d", min(X, Y) * 0.2, (X * 0.08, Y * 0.34, Z * 0.4), 10, 6, leaf),
     ]
 
 
@@ -205,6 +228,8 @@ def _rock(X, Y, Z, stone, dirt):
 
 
 def _log(X, Y, Z, bark, wet):
+    # Long along X; collision must be convex hull (not vertical capsule) — capsule used
+    # max(size.x, size.y) radius and made a ~2.8×2.8 XZ pad around a ~0.43m log (Quinn HOLD).
     r = min(Y, Z) / 2
     return [
         ops.cylinder("log", r * 0.95, X, (0, 0, r), "X", 14, bark),

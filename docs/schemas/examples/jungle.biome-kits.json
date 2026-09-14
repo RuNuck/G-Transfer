@@ -217,10 +217,11 @@
         "y": 0.45,
         "z": 0.45
       },
-      "collision": "capsule",
+      "collision": "convex",
       "triangleBudgetLod0": 900,
       "snap": "landmark / rocks layer",
-      "forgeStatus": "smoke"
+      "forgeStatus": "smoke",
+      "notes": "Quinn HOLD fix: convex hull elongated along log axis (capsule made 2.8\u00d72.8 XZ pad)."
     },
     {
       "piece": "mud_decal_a",

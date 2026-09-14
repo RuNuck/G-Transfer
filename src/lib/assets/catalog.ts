@@ -410,11 +410,11 @@ export const CATALOG: CatalogItem[] = [
     name: "fallen_log_a",
     category: "environments",
     blurb: "Fallen log landmark.",
-    brief: "Jungle fallen log A, long along X, landmark / rocks layer kit piece.",
+    brief: "Jungle fallen log A, long along X, landmark / rocks layer kit piece. Convex hull (not capsule) so col matches elongated log.",
     style: "realistic",
     triangleBudget: { lod0: 900, lod1: 300, lod2: 90 },
     texelDensity: 256,
-    collision: "capsule",
+    collision: "convex",
     dimensions: { x: 2.8, y: 0.45, z: 0.45 },
   },
   {
