@@ -232,7 +232,7 @@ export const TOOLS: McpTool[] = [
   {
     name: "forge_scene",
     description:
-      "Sync (not Enqueue): Phase 4 scene compose from SceneSpec / brief / specPath. Runs compose + kits resolve + Godot ship-gate on this request and returns a terminal job (published or failed) — not durable queued. Writes exports/scenes/<id>/ (.tscn, report, manifest). Compose kit instances only; never invent missing GLBs. Optional forge_job_status on the returned jobId (already terminal).",
+      "Sync (not Enqueue): Phase 4 scene compose from SceneSpec / brief / specPath. Runs compose + kits resolve + Godot ship-gate on this request and returns a terminal job (published or failed) — not durable queued. Writes exports/scenes/<id>/ (.tscn with PackedScene kit GLB instances, report, manifest). Fail-closed: placeholders => hardFail real_instances (never published+ok). Kit-index ready is not playable jungle. Never invent missing GLBs. Optional forge_job_status on the returned jobId (already terminal).",
     inputSchema: {
       type: "object",
       properties: {
