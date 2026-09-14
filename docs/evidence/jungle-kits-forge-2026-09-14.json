@@ -3,50 +3,279 @@
   "biome": "jungle",
   "manifest": "docs/schemas/examples/jungle.biome-kits.json",
   "bake": true,
-  "requested": 3,
-  "present": 3,
+  "mode": "remaining-10-via-piece-skip-first3",
+  "skippedAlreadyReady": [
+    "terrain_tile_mud",
+    "path_dirt_a",
+    "tree_trunk_a"
+  ],
+  "bakedThisRun": [
+    "tree_trunk_b",
+    "tree_canopy_a",
+    "tree_root_a",
+    "fern_card_a",
+    "shrub_a",
+    "river_bank_a",
+    "water_plane_a",
+    "rock_scatter_a",
+    "fallen_log_a",
+    "mud_decal_a"
+  ],
+  "requested": 10,
+  "present": 10,
   "missing": 0,
-  "kitPrefix": "biome.jungle",
-  "results": [
+  "shipGateReady": 13,
+  "shipGateFail": 0,
+  "validate": {
+    "assets": 13,
+    "passed": 13,
+    "failed": 0
+  },
+  "sceneCompose": {
+    "ok": true,
+    "status": "kits_present",
+    "instanceTotal": 157
+  },
+  "indexOverall": {
+    "ready": 19,
+    "validated_glb_only": 11,
+    "blocked": 0,
+    "failed": 12
+  },
+  "jobs": [
     {
-      "piece": "terrain_tile_mud",
-      "kind": "jungle_terrain_tile_mud",
-      "kitId": "biome.jungle.terrain_tile_mud",
-      "glbPath": "exports/forge/biome/jungle/terrain_tile_mud.glb",
-      "exitCode": 0,
-      "elapsedMs": 10783,
-      "present": true,
-      "buildSource": "part kit",
-      "jobStatus": "published",
-      "hardFails": [],
-      "stderrTail": ""
+      "piece": "fallen_log_a",
+      "jobId": "job_20260914125517_d348fd",
+      "status": "published",
+      "shipGate": "ready",
+      "bytes": 124084,
+      "aabb": [
+        2.809999942779541,
+        0.4267818331718445,
+        2.809999942779541
+      ],
+      "materials": [
+        "mat_bark",
+        "mat_moss",
+        "mat_wet_bark"
+      ],
+      "hardFails": []
+    },
+    {
+      "piece": "fern_card_a",
+      "jobId": "job_20260914125446_5f2d6f",
+      "status": "published",
+      "shipGate": "ready",
+      "bytes": 152924,
+      "aabb": [
+        0.9099999666213989,
+        1.0099999904632568,
+        0.1420000046491623
+      ],
+      "materials": [
+        "mat_foliage",
+        "mat_stem",
+        "mat_vein"
+      ],
+      "hardFails": []
+    },
+    {
+      "piece": "mud_decal_a",
+      "jobId": "job_20260914125523_cc911a",
+      "status": "published",
+      "shipGate": "ready",
+      "bytes": 320272,
+      "aabb": [
+        1.6100000143051147,
+        0.0400000000372529,
+        1.6100000143051147
+      ],
+      "materials": [
+        "mat_soil",
+        "mat_moss",
+        "mat_wet"
+      ],
+      "hardFails": []
     },
     {
       "piece": "path_dirt_a",
-      "kind": "jungle_path_dirt_a",
-      "kitId": "biome.jungle.path_dirt_a",
-      "glbPath": "exports/forge/biome/jungle/path_dirt_a.glb",
-      "exitCode": 0,
-      "elapsedMs": 9397,
-      "present": true,
-      "buildSource": "part kit",
-      "jobStatus": "published",
-      "hardFails": [],
-      "stderrTail": ""
+      "jobId": "job_20260914125137_57cb02",
+      "status": "published",
+      "shipGate": "ready",
+      "bytes": 1182348,
+      "aabb": [
+        2.2100000381469727,
+        0.08999999240040779,
+        4.010000228881836
+      ],
+      "materials": [
+        "mat_soil",
+        "mat_moss",
+        "mat_wet"
+      ],
+      "hardFails": []
+    },
+    {
+      "piece": "river_bank_a",
+      "jobId": "job_20260914125457_cbb0e6",
+      "status": "published",
+      "shipGate": "ready",
+      "bytes": 112236,
+      "aabb": [
+        2.5,
+        0.699999988079071,
+        1.628999948501587
+      ],
+      "materials": [
+        "mat_soil",
+        "mat_moss",
+        "mat_wet"
+      ],
+      "hardFails": []
+    },
+    {
+      "piece": "rock_scatter_a",
+      "jobId": "job_20260914125511_f94687",
+      "status": "published",
+      "shipGate": "ready",
+      "bytes": 253060,
+      "aabb": [
+        0.8999998569488525,
+        0.5663732290267944,
+        0.7024606764316559
+      ],
+      "materials": [
+        "mat_stone",
+        "mat_dirt",
+        "mat_wet_stone"
+      ],
+      "hardFails": []
+    },
+    {
+      "piece": "shrub_a",
+      "jobId": "job_20260914125452_520ada",
+      "status": "published",
+      "shipGate": "ready",
+      "bytes": 262548,
+      "aabb": [
+        1.1572213172912598,
+        1.0782999992370605,
+        1.1572213172912598
+      ],
+      "materials": [
+        "mat_foliage",
+        "mat_stem",
+        "mat_vein"
+      ],
+      "hardFails": []
+    },
+    {
+      "piece": "terrain_tile_mud",
+      "jobId": "job_20260914125127_1d559e",
+      "status": "published",
+      "shipGate": "ready",
+      "bytes": 1600432,
+      "aabb": [
+        4.2300004959106445,
+        0.12999999895691872,
+        4.010000228881836
+      ],
+      "materials": [
+        "mat_soil",
+        "mat_moss",
+        "mat_wet"
+      ],
+      "hardFails": []
+    },
+    {
+      "piece": "tree_canopy_a",
+      "jobId": "job_20260914125430_c3ccf0",
+      "status": "published",
+      "shipGate": "ready",
+      "bytes": 1163892,
+      "aabb": [
+        4.674282073974609,
+        2.3200000524520874,
+        4.600000381469727
+      ],
+      "materials": [
+        "mat_foliage",
+        "mat_stem",
+        "mat_vein"
+      ],
+      "hardFails": []
+    },
+    {
+      "piece": "tree_root_a",
+      "jobId": "job_20260914125440_3e8caa",
+      "status": "published",
+      "shipGate": "ready",
+      "bytes": 239672,
+      "aabb": [
+        2.112049102783203,
+        0.4003724157810211,
+        2.124535083770752
+      ],
+      "materials": [
+        "mat_bark",
+        "mat_moss",
+        "mat_wet_bark"
+      ],
+      "hardFails": []
     },
     {
       "piece": "tree_trunk_a",
-      "kind": "jungle_tree_trunk_a",
-      "kitId": "biome.jungle.tree_trunk_a",
-      "glbPath": "exports/forge/biome/jungle/tree_trunk_a.glb",
-      "exitCode": 0,
-      "elapsedMs": 18088,
-      "present": true,
-      "buildSource": "part kit",
-      "jobStatus": "published",
-      "hardFails": [],
-      "stderrTail": ""
+      "jobId": "job_20260914125147_79c8b7",
+      "status": "published",
+      "shipGate": "ready",
+      "bytes": 1023584,
+      "aabb": [
+        0.7450000047683716,
+        7.37000036239624,
+        0.7450000047683716
+      ],
+      "materials": [
+        "mat_bark",
+        "mat_moss",
+        "mat_wet_bark"
+      ],
+      "hardFails": []
+    },
+    {
+      "piece": "tree_trunk_b",
+      "jobId": "job_20260914125412_cde2df",
+      "status": "published",
+      "shipGate": "ready",
+      "bytes": 1356612,
+      "aabb": [
+        0.5874999761581421,
+        5.990000247955322,
+        0.5874999761581421
+      ],
+      "materials": [
+        "mat_bark",
+        "mat_moss",
+        "mat_wet_bark"
+      ],
+      "hardFails": []
+    },
+    {
+      "piece": "water_plane_a",
+      "jobId": "job_20260914125503_5b8657",
+      "status": "published",
+      "shipGate": "ready",
+      "bytes": 722012,
+      "aabb": [
+        4.010000228881836,
+        0.06999999843537807,
+        4.010000228881836
+      ],
+      "materials": [
+        "mat_water",
+        "mat_depth"
+      ],
+      "hardFails": []
     }
   ],
-  "note": "GLBs gitignored; compose kits_resolve = file exists. ready/publish still needs bake+Godot gates."
+  "note": "GLBs gitignored; 13/13 jungle shipGate ready after remaining bake. Not full catalog exit."
 }
