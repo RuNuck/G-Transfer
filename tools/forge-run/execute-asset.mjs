@@ -8,7 +8,7 @@ import { basename, dirname, isAbsolute, join, relative, resolve } from "node:pat
 import { fileURLToPath } from "node:url";
 import { advanceStage, failJob, failJobHard, projectRoot, quarantineJobArtifacts, saveJob } from "./job-store.mjs";
 import { defaultKitDir, findBlender } from "./find-dcc.mjs";
-import { runGodotImportCheck, patchIndexShipGate } from "./ship-gate.mjs";
+import { runGodotImportCheck, patchIndexShipGate, reapplyShipGatesFromJobs } from "./ship-gate.mjs";
 import { emitKind } from "./emit-script.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -227,7 +227,19 @@ export function finishPublished(job, abs, blenderInfo = {}) {
     return { ok: false, job };
   }
 
-  const indexStatus = patchIndexShipGate(rel, ship) || ship.status;
+  // Rebuild marks validate-ok as validated_glb_only; restore published shipGate ready
+  // (incl. prior weapon jobs) then patch this mesh. Never claim ready via soft fallback.
+  reapplyShipGatesFromJobs();
+  const indexStatus = patchIndexShipGate(rel, ship);
+  if (indexStatus !== "ready") {
+    failJob(
+      job,
+      "index shipGate patch failed — entry status=" +
+        (indexStatus || "missing") +
+        " (need ready when shipGate ready; refuse dishonest validated_glb_only)",
+    );
+    return { ok: false, job };
+  }
   job.paths.indexStatus = indexStatus;
   saveJob(job);
 

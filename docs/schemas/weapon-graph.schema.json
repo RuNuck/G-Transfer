@@ -598,9 +598,9 @@
         "kind": "grip",
         "part": "grip",
         "localTranslation": [
-          0,
-          -0.02,
-          0.01
+          -0.128,
+          -0.052,
+          0
         ],
         "toleranceM": 0.02
       },

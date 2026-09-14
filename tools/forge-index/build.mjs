@@ -109,6 +109,28 @@ function collect(dir, root, depth, out) {
   }
 }
 
+
+/** Preserve Godot shipGate proof across index rebuilds (ready/blocked). */
+function loadPriorShipGates(indexPath) {
+  const map = new Map();
+  if (!existsSync(indexPath)) return map;
+  try {
+    const doc = JSON.parse(readFileSync(indexPath, "utf8"));
+    for (const e of doc.entries ?? []) {
+      if (!e || typeof e.file !== "string") continue;
+      const sg = e.shipGate;
+      if (!sg || typeof sg !== "object") continue;
+      if (sg.status !== "ready" && sg.status !== "blocked") continue;
+      const f = e.file.replace(/\\/g, "/");
+      map.set(f, sg);
+      map.set(f.startsWith("exports/") ? f.slice("exports/".length) : "exports/" + f, sg);
+    }
+  } catch {
+    // ignore corrupt prior index
+  }
+  return map;
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
   const root = resolve(projectRoot, args.root);
@@ -124,8 +146,10 @@ function main() {
   entries.sort((a, b) => b.modified - a.modified);
 
   const reportHint = args.skipValidate ? new Map() : loadLastReportMap();
+  const priorShip = args.skipValidate ? new Map() : loadPriorShipGates(outPath);
   let readyCount = 0;
   let failedCount = 0;
+  let blockedCount = 0;
   let validatedOnlyCount = 0;
   let unchecked = 0;
 
@@ -160,12 +184,30 @@ function main() {
     }
 
     // Honesty: validate-ok alone is never "ready". Ready requires Godot import
-    // proof (forge-run ship-gate patches index after check-import). Index rebuild
-    // marks validate-ok as validated_glb_only so we never fake ready.
+    // proof (forge-run ship-gate patches index after check-import). Preserve prior
+    // shipGate ready/blocked so published weapon/asset jobs do not regress to
+    // validated_glb_only on bare rebuild.
     if (ok) {
-      entry.ready = false;
-      entry.status = "validated_glb_only";
-      validatedOnlyCount++;
+      const fileKey = relFromProject.replace(/^exports\//, "");
+      const prior =
+        priorShip.get(fileKey) ||
+        priorShip.get(relFromProject) ||
+        priorShip.get("exports/" + fileKey);
+      if (prior && prior.status === "ready" && prior.godotImportOk) {
+        entry.ready = true;
+        entry.status = "ready";
+        entry.shipGate = prior;
+        readyCount++;
+      } else if (prior && prior.status === "blocked") {
+        entry.ready = false;
+        entry.status = "blocked";
+        entry.shipGate = prior;
+        blockedCount++;
+      } else {
+        entry.ready = false;
+        entry.status = "validated_glb_only";
+        validatedOnlyCount++;
+      }
     } else {
       entry.ready = false;
       entry.status = "failed";
@@ -183,6 +225,7 @@ function main() {
       assets: entries.length,
       ready: args.skipValidate ? null : readyCount,
       failed: args.skipValidate ? null : failedCount,
+      blocked: args.skipValidate ? null : blockedCount,
       validated_glb_only: args.skipValidate ? null : validatedOnlyCount,
       unchecked: args.skipValidate ? unchecked : 0,
     },
@@ -193,7 +236,7 @@ function main() {
   writeFileSync(outPath, JSON.stringify(doc, null, 2) + "\n");
   console.log(
     `wrote ${relative(projectRoot, outPath)} (${entries.length} assets` +
-      (args.skipValidate ? ", validate skipped" : `, ready=${readyCount}, validated_glb_only=${validatedOnlyCount}, failed=${failedCount}`) +
+      (args.skipValidate ? ", validate skipped" : `, ready=${readyCount}, validated_glb_only=${validatedOnlyCount}, blocked=${blockedCount}, failed=${failedCount}`) +
       `)`,
   );
 }

@@ -4,9 +4,9 @@
  * Otherwise: validated_glb_only (Godot missing) or blocked (import failed).
  * forge-run refuses published+ok unless status===ready (godot_absent/godot_import hardFail).
  */
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { resolve } from "node:path";
+import { join, resolve } from "node:path";
 import { projectRoot } from "./job-store.mjs";
 import { findGodot } from "./find-dcc.mjs";
 
@@ -139,3 +139,53 @@ export function patchIndexShipGate(relMesh, ship) {
   writeFileSync(indexPath, JSON.stringify(doc, null, 2) + "\n");
   return hit.status;
 }
+
+/**
+ * Re-apply shipGate onto index entries from durable published jobs.
+ * Index rebuild alone marks validate-ok as validated_glb_only; published jobs with
+ * shipGate===ready must keep honest ready (same as the finishPublished patch).
+ * @returns {{ patched: number, ready: number }}
+ */
+export function reapplyShipGatesFromJobs() {
+  const jobsDir = resolve(projectRoot, ".anvil/jobs");
+  if (!existsSync(jobsDir)) return { patched: 0, ready: 0 };
+  let names;
+  try {
+    names = readdirSync(jobsDir).filter((n) => n.endsWith(".json"));
+  } catch {
+    return { patched: 0, ready: 0 };
+  }
+  let patched = 0;
+  let ready = 0;
+  for (const name of names) {
+    let job;
+    try {
+      job = JSON.parse(readFileSync(join(jobsDir, name), "utf8"));
+    } catch {
+      continue;
+    }
+    if (job?.status !== "published") continue;
+    const mesh = job.paths?.mesh;
+    if (!mesh || typeof mesh !== "string") continue;
+    const ship =
+      job.godotImport && typeof job.godotImport === "object"
+        ? job.godotImport
+        : job.shipGate === "ready"
+          ? {
+              status: "ready",
+              ok: true,
+              available: true,
+              problems: [],
+              note: "reapplied from published job shipGate",
+            }
+          : null;
+    if (!ship || ship.status !== "ready") continue;
+    const st = patchIndexShipGate(mesh, ship);
+    if (st) {
+      patched++;
+      if (st === "ready") ready++;
+    }
+  }
+  return { patched, ready };
+}
+
