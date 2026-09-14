@@ -54,12 +54,14 @@ Supporting (debug / escape hatch): `forge_blender_script`, `forge_bake_plan`, `f
 
 ### Scene (jungle / environment)
 
-1. Read `anvil://schemas/scene-spec` (and `docs/scenes/JUNGLE-CONTRACT.md`)
-2. `forge_scene({ sceneSpec })` or brief (scaffold may use the jungle example fixture) — **sync**; status is on the returned job (not a durable `queued` enqueue)
-3. Optional: `forge_job_status` on that `jobId` (already terminal published or failed)
-4. Inspect `exports/scenes/<id>/` — instances only; **reject** fused mega-meshes
-5. Publish requires kits resolved **and** Godot headless-open of `scene.tscn`. Godot absent / open skipped => `status=failed`, `validation.ok=false`, hardFail `godot_absent` (never published+ok). Open fail => hardFail `godot_scene_open`.
-6. Validate kits via index / `forge_validate` on referenced GLBs when present
+1. Read `anvil://schemas/scene-spec` (and `docs/scenes/JUNGLE-CONTRACT.md` / `docs/scenes/JUNGLE-KITS.md`)
+2. **Kit forge (MCP, durable):** missing jungle pieces → `forge_run_asset({ kind: "jungle_tree_trunk_a", bake: true })` (any `jungle_*` kind from the piece list) → poll `forge_job_status` until published/failed. Repeat per missing kit. Ship-gate ready needs Godot import ok.
+3. **Kit forge (CLI-only batch):** bulk `node tools/forge-run/forge-biome.mjs --all --bake --json` / `npm run forge:biome:jungle` is **CLI-only** (not an MCP tool). Prefer MCP `forge_run_asset` for cold agent sessions; use CLI for Kevin/G-Transfer long bakes.
+4. `forge_scene({ sceneSpec })` or brief (jungle-clearing fixture if omitted) — **sync**; returns after compose + ship-gate (not durable `queued`)
+5. Optional: `forge_job_status` on that `jobId` (already terminal published or failed)
+6. Inspect `exports/scenes/<id>/` — instances only; **reject** fused mega-meshes
+7. Publish requires kits resolved **and** Godot headless-open of `scene.tscn`. Godot absent / open skipped => `status=failed`, `validation.ok=false`, hardFail `godot_absent` (never published+ok). Open fail => hardFail `godot_scene_open`.
+8. Validate kits via index / `forge_validate` on referenced GLBs when present
 
 ### Weapon (Phase 2 — cold path)
 

@@ -232,7 +232,7 @@ Fail closed: agent-facing tools return `isError` / failed job, never silent ok.
 |---|---|
 | `forge_run_asset` | Enqueue AssetSpec / brief+kind → job id. |
 | `forge_weapon` | Enqueue WeaponGraph or M4 preset + overrides. |
-| `forge_scene` | Enqueue SceneSpec (composer). |
+| `forge_scene` | **Sync** SceneSpec compose (terminal published/failed; not durable queue). |
 | `forge_job_status` | Poll job; return status, logs tail, artifact paths, validation summary. |
 | `forge_validate` | Run artifact gates on a path or job id; write ValidationReport. |
 

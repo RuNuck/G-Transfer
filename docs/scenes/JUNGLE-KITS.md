@@ -32,13 +32,15 @@
 | **pending** | Definition only; no GLB |
 | **smoke** | Real Blender part-kit GLB on disk; **not** indexed `ready` (no bake / PBR maps yet) |
 | **stub** | Explicit STUB definition — never claim ready |
-| **ready** | Validated + baked + Godot ship-gate (not claimed until Remy/Nova bars clear) |
+| **ready** | Indexed `shipGate`/`status` ready: validated + baked + Godot import ok on this box |
+
+**Current (2026-09-14):** all **13/13** `biome.jungle.*` pieces are **ready** on G-Transfer evidence (`6293905`+). Compose + `forge_scene` jungle example published/Godot-open. Phase (3) **product exit** still needs specialist clears (Quinn TA / Reed / Vale / Ori) — that is board exit, not index honesty. Ops (Remy/Nova) bars are separate from shipGate ready.
 
 ## Texel density (Quinn)
 
 Jungle env pieces intentionally target **~256 px/m** at typical bake (kit budget), not the generic env ~512 mid-prop bar. Document as kit-tier TD; raise later if Remy/Quinn want denser ground. Trunk canopy pieces may read thinner/flatter than ground tiles — style consistency check on the full set.
 
-Box smokes write **smoke** GLBs. Compose `kits_resolve` = file exists. Do **not** treat smoke as production ready.
+Unbaked / build-only CLI runs still produce **smoke** GLBs — those must not be indexed ready. Prefer `--bake` (or MCP `forge_run_asset` with `bake: true`) before claiming ready.
 
 ## Forge
 

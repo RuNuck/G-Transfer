@@ -232,7 +232,7 @@ export const TOOLS: McpTool[] = [
   {
     name: "forge_scene",
     description:
-      "Enqueue a Phase 4 scene compose job from a SceneSpec object or a brief. Scaffold writes exports/scenes/<id>/scene.tscn + report.json (placeholders; no GLBs invented). Poll with forge_job_status.",
+      "Sync (not Enqueue): Phase 4 scene compose from SceneSpec / brief / specPath. Runs compose + kits resolve + Godot ship-gate on this request and returns a terminal job (published or failed) — not durable queued. Writes exports/scenes/<id>/ (.tscn, report, manifest). Compose kit instances only; never invent missing GLBs. Optional forge_job_status on the returned jobId (already terminal).",
     inputSchema: {
       type: "object",
       properties: {
