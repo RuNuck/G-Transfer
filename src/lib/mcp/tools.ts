@@ -193,6 +193,43 @@ export const TOOLS: McpTool[] = [
     },
   },
   {
+    name: "forge_weapon",
+    description:
+      "Enqueue (not Plan): durable weapon job — preset m4_carbine or WeaponGraph JSON + overrides → jobId as queued. Worker forges via rifle kit (real GLB; kit carbine fidelity, not CAD M4). Poll forge_job_status until published/failed. Ship gate ready needs Godot import ok. Fail closed — never fake ready.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        preset: {
+          type: "string",
+          enum: ["m4_carbine", "m4_cqbr", "ar15_custom", "custom"],
+          description: "WeaponGraph preset. m4_carbine loads docs/schemas/examples/m4-carbine.weapon.json.",
+        },
+        weaponGraph: {
+          type: "object",
+          description: "Full WeaponGraph (schemaVersion 1). Preferred over preset when structured.",
+        },
+        graphPath: {
+          type: "string",
+          description: "Path to a WeaponGraph JSON under the project root.",
+        },
+        overrides: {
+          type: "object",
+          description: "Shallow overrides merged onto preset/graph (e.g. overallLengthM, displayName).",
+        },
+        engine: {
+          type: "string",
+          enum: ["godot", "unreal", "unity", "blender"],
+          description: "Target engine. Default godot.",
+        },
+        bake: {
+          type: "boolean",
+          description: "Run Cycles bake after build (default true — PBR required to publish).",
+        },
+      },
+    },
+  },
+
+  {
     name: "forge_scene",
     description:
       "Enqueue a Phase 4 scene compose job from a SceneSpec object or a brief. Scaffold writes exports/scenes/<id>/scene.tscn + report.json (placeholders; no GLBs invented). Poll with forge_job_status.",
@@ -236,7 +273,7 @@ export const TOOLS: McpTool[] = [
     inputSchema: {
       type: "object",
       properties: {
-        jobId: { type: "string", description: "Job id returned by forge_run_asset or forge_scene." },
+        jobId: { type: "string", description: "Job id returned by forge_run_asset, forge_weapon, or forge_scene." },
         id: { type: "string", description: "Alias for jobId." },
       },
     },
@@ -665,6 +702,86 @@ export function callTool(name: string, args: Record<string, unknown>) {
         ...(failed ? { isError: true } : {}),
       };
     }
+    case "forge_weapon": {
+      const preset = args.preset;
+      const weaponGraph = args.weaponGraph;
+      const graphPath = args.graphPath;
+      const overrides = args.overrides;
+      if (
+        (preset === undefined || preset === null || preset === "") &&
+        (weaponGraph === undefined || weaponGraph === null) &&
+        (graphPath === undefined || graphPath === null || graphPath === "")
+      ) {
+        throw new InvalidParams("forge_weapon requires preset, weaponGraph, or graphPath");
+      }
+      if (preset !== undefined && preset !== null && typeof preset !== "string") {
+        throw new InvalidParams("preset must be a string");
+      }
+      if (weaponGraph !== undefined && weaponGraph !== null && (typeof weaponGraph !== "object" || Array.isArray(weaponGraph))) {
+        throw new InvalidParams("weaponGraph must be an object");
+      }
+      if (graphPath !== undefined && graphPath !== null && typeof graphPath !== "string") {
+        throw new InvalidParams("graphPath must be a string");
+      }
+      if (overrides !== undefined && overrides !== null && (typeof overrides !== "object" || Array.isArray(overrides))) {
+        throw new InvalidParams("overrides must be an object");
+      }
+      if (args.bake !== undefined && args.bake !== null && typeof args.bake !== "boolean") {
+        throw new InvalidParams("bake must be a boolean");
+      }
+      const root = findAnvilRoot();
+      const enqueuer = resolve(root, "tools/forge-run/enqueue-weapon.mjs");
+      if (!existsSync(enqueuer)) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({ ok: false, error: "enqueue-weapon missing", enqueuer }, null, 2),
+            },
+          ],
+          isError: true,
+        };
+      }
+      const argv = [enqueuer, "--json", "--kick-worker"];
+      if (typeof weaponGraph === "object" && weaponGraph !== null) {
+        argv.push("--graph-json", JSON.stringify(weaponGraph));
+      } else if (typeof graphPath === "string" && graphPath.trim()) {
+        argv.push("--graph", graphPath.trim());
+      } else if (typeof preset === "string" && preset.trim()) {
+        argv.push("--preset", preset.trim());
+      }
+      if (overrides && typeof overrides === "object") {
+        argv.push("--overrides-json", JSON.stringify(overrides));
+      }
+      const engine = explicitEngine(args.engine) ?? DEFAULT_ENGINE;
+      argv.push("--engine", engine);
+      if (args.bake === false) argv.push("--no-bake");
+      else argv.push("--bake");
+      const r = spawnSync(process.execPath, argv, {
+        cwd: root,
+        encoding: "utf8",
+        maxBuffer: 4 * 1024 * 1024,
+        env: process.env,
+      });
+      const out = (r.stdout || "").trim() || (r.stderr || "").trim() || `exit ${r.status}`;
+      let payload: unknown = out;
+      try {
+        payload = JSON.parse(out);
+      } catch {
+        // keep string
+      }
+      const failed = (r.status ?? 1) !== 0;
+      return {
+        content: [
+          {
+            type: "text",
+            text: typeof payload === "string" ? payload : JSON.stringify(payload, null, 2),
+          },
+        ],
+        ...(failed ? { isError: true } : {}),
+      };
+    }
+
     case "forge_run_asset": {
       const kind = asKind(args.kind);
       const fileRaw = args.file ?? args.mesh;

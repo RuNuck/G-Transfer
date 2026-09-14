@@ -31,7 +31,7 @@ function initializeResult() {
       version: SERVER_VERSION,
     },
     instructions:
-      "Anvil forges production game assets. Read anvil://guide/agent first. Plan = forge_create_asset (spec/script only). Run = forge_run_asset / forge_scene + forge_job_status; never declare success without forge_validate (godot_prod). Scene = compose kits (anvil://schemas/scene-spec), not a mega-mesh. WeaponGraph schema: anvil://schemas/weapon-graph. blender_execute on this HTTP server never runs code — use blender_run_python on local anvil-blender (anvil://blender/addon). Also: anvil://pipeline/godot.",
+      "Anvil forges production game assets. Read anvil://guide/agent first. Plan = forge_create_asset (spec/script only). Run = forge_run_asset / forge_weapon / forge_scene + forge_job_status; never declare success without forge_validate (godot_prod). Scene = compose kits (anvil://schemas/scene-spec), not a mega-mesh. WeaponGraph schema: anvil://schemas/weapon-graph. blender_execute on this HTTP server never runs code — use blender_run_python on local anvil-blender (anvil://blender/addon). Also: anvil://pipeline/godot.",
   };
 }
 

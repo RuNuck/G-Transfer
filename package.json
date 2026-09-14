@@ -36,7 +36,9 @@
     "forge:doctor": "node tools/forge-run/worker.mjs --reconcile-only",
     "forge:smoke:kill-mid": "node tools/forge-run/smoke-kill-mid.mjs",
     "forge:smoke:kill-mid:blender": "node tools/forge-run/smoke-kill-mid.mjs --blender",
-    "forge:smoke:kill-mid:fake": "node tools/forge-run/smoke-kill-mid.mjs --fake-long"
+    "forge:smoke:kill-mid:fake": "node tools/forge-run/smoke-kill-mid.mjs --fake-long",
+    "forge:weapon": "node tools/forge-run/enqueue-weapon.mjs",
+    "forge:smoke:weapon-m4": "node tools/forge-run/smoke-weapon-m4.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.0",

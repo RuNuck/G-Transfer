@@ -18,6 +18,7 @@ import {
   writeWorkerPidFile,
 } from "./job-store.mjs";
 import { executeAssetJob } from "./execute-asset.mjs";
+import { executeWeaponJob } from "./execute-weapon.mjs";
 
 function parseArgs(argv) {
   const args = {
@@ -74,13 +75,18 @@ async function processOne() {
   if (!job) {
     return { processed: false, reason: hasInflightJob() ? "inflight_busy" : "empty" };
   }
-  const result = await executeAssetJob(job);
+  const result = await (
+    job.type === "weapon" || job.inputs?.mode === "weapon-graph"
+      ? executeWeaponJob(job)
+      : executeAssetJob(job)
+  );
   const final = loadJob(job.id) || result.job;
   return {
     processed: true,
     ok: result.ok,
     jobId: final.id,
     status: final.status,
+    type: final.type,
     hardFail: final.hardFail || null,
     paths: final.paths,
   };

@@ -11,7 +11,7 @@ Operational rules for driving Anvil over MCP. Prefer **jobs + validate** over pa
 | Mode | What it is | When |
 |---|---------|----|
 | **Plan** | Spec / script / layout only. Studio **Plan** button and `forge_create_asset` build an `AssetSpec` + Blender Python — they do **not** write a production GLB. | Exploring briefs, naming, budgets, kits. |
-| **Run** | **Asset:** durable enqueue — `forge_run_asset` returns `jobId` as `queued`; worker advances stages; poll `forge_job_status`. **Scene:** `forge_scene` is still **sync** (returns after compose/ship-gate; not queued). | Shipping artifacts an agent can hand to Godot. |
+| **Run** | **Asset / weapon:** durable enqueue — `forge_run_asset` / `forge_weapon` return `jobId` as `queued`; worker advances stages; poll `forge_job_status`. **Scene:** `forge_scene` is still **sync** (returns after compose/ship-gate; not queued). | Shipping artifacts an agent can hand to Godot. |
 
 Never treat a green Plan / `forge_qc_checklist` (spec-only) as "forged." **Ready means artifact gates passed.**
 
@@ -23,9 +23,10 @@ Never treat a green Plan / `forge_qc_checklist` (spec-only) as "forged." **Ready
 |---|---|--------|
 | `forge_create_asset` | Brief -> AssetSpec, naming, PBR/LOD notes, full Blender build script. | Run Blender; write GLB; mark ready. |
 | `forge_run_asset` | **Enqueue** durable job (returns `jobId` immediately). Kind = Blender forge; file/mesh = validate-only. Worker runs async; poll status. Ship gate ready needs Godot import ok. Kill-mid → `failed`/`worker_interrupted`. | Claim ready from Plan alone; sync publish without gates. |
+| `forge_weapon` | **Enqueue** durable weapon job (`type=weapon`). Preset `m4_carbine` or WeaponGraph + overrides → `jobId` queued. Worker: rifle kit Blender + rig clips + bake → validate (meters/grip/convcol/clips) → Godot ship gate. Poll `forge_job_status`. | Fake a ready CAD M4; claim ready without poll/gates. |
 | `forge_scene` | **Sync** job from SceneSpec / brief / `specPath` → `exports/scenes/<id>/` (.tscn, report, manifest). **Compose kit instances.** Returns after kits+Godot ship-gate (not durable `queued`). | Author one mega-mesh jungle; invent missing kit GLBs; publish when Godot absent; treat as durable enqueue. |
 | `forge_validate` | Artifact gates (`godot_prod`) on a path or folder; fail closed. CLI twin: `npm run validate -- <paths> --json`. | Rubber-stamp from the brief. |
-| `forge_job_status` | Poll job id from run/scene; status, paths, validation summary, errors. | Start work. |
+| `forge_job_status` | Poll job id from run/weapon/scene; status, paths, validation summary, errors. | Start work. |
 
 Supporting (debug / escape hatch): `forge_blender_script`, `forge_bake_plan`, `forge_engine_export`, `forge_list_prototypes`, `forge_pipeline`, `forge_qc_checklist`. HTTP `blender_execute` **never** runs code — use local **anvil-blender** stdio (`blender_run_python`) with the add-on.
 
@@ -60,11 +61,14 @@ Supporting (debug / escape hatch): `forge_blender_script`, `forge_bake_plan`, `f
 5. Publish requires kits resolved **and** Godot headless-open of `scene.tscn`. Godot absent / open skipped => `status=failed`, `validation.ok=false`, hardFail `godot_absent` (never published+ok). Open fail => hardFail `godot_scene_open`.
 6. Validate kits via index / `forge_validate` on referenced GLBs when present
 
-### Weapon (Phase 2 target)
+### Weapon (Phase 2 — cold path)
 
-1. Read `anvil://schemas/weapon-graph`
-2. Prefer future `forge_weapon`; until then Plan with rifle kit + graph JSON offline
-3. Validate meters, **grip pivot**, collision, named clips — not beauty shots
+1. Read `anvil://schemas/weapon-graph` (example: `docs/schemas/examples/m4-carbine.weapon.json`)
+2. `forge_weapon({ preset: "m4_carbine", overrides?: { … } })` **or** `{ weaponGraph }` → `{ jobId, status: "queued" }` immediately
+3. Poll `forge_job_status` until **published** or **failed** (one Blender job at a time on the durable worker)
+4. Ready = validate (`godot_prod`) + weapon gates (meters ≈ `overallLengthM`, grip/root pivot, `*-convcolonly`, claimed clips) + Godot import ok
+5. Artifact: `exports/forge/<jobId>/m4_carbine.glb` (kit carbine via rifle family — real GLB, not CAD-accurate M4 parts). Fail closed if Blender/kit absent (never fake ready).
+6. CLI twin: `npm run forge:weapon -- --preset m4_carbine --kick-worker --json` then poll `node tools/forge-run/status.mjs <jobId> --json`
 
 ---
 
