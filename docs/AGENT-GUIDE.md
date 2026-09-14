@@ -11,7 +11,7 @@ Operational rules for driving Anvil over MCP. Prefer **jobs + validate** over pa
 | Mode | What it is | When |
 |---|---------|----|
 | **Plan** | Spec / script / layout only. Studio **Plan** button and `forge_create_asset` build an `AssetSpec` + Blender Python — they do **not** write a production GLB. | Exploring briefs, naming, budgets, kits. |
-| **Run** | Job tools that touch `exports/` and the job store: `forge_run_asset`, `forge_scene`, then poll `forge_job_status`. | Shipping artifacts an agent can hand to Godot. |
+| **Run** | Durable enqueue: `forge_run_asset` / `forge_scene` return `jobId` as `queued`; worker advances stages. Poll `forge_job_status`. | Shipping artifacts an agent can hand to Godot. |
 
 Never treat a green Plan / `forge_qc_checklist` (spec-only) as "forged." **Ready means artifact gates passed.**
 
@@ -22,7 +22,7 @@ Never treat a green Plan / `forge_qc_checklist` (spec-only) as "forged." **Ready
 | Tool | Does | Does not |
 |---|---|--------|
 | `forge_create_asset` | Brief -> AssetSpec, naming, PBR/LOD notes, full Blender build script. | Run Blender; write GLB; mark ready. |
-| `forge_run_asset` | **Run**: kind (+engine/bake/brief) = real Blender forge; file/mesh = validate-only. Ship gate ready needs Godot import ok. | Claim ready from Plan alone. |
+| `forge_run_asset` | **Enqueue** durable job (returns `jobId` immediately). Kind = Blender forge; file/mesh = validate-only. Worker runs async; poll status. Ship gate ready needs Godot import ok. Kill-mid → `failed`/`worker_interrupted`. | Claim ready from Plan alone; sync publish without gates. |
 | `forge_scene` | Job from SceneSpec / brief / `specPath` → `exports/scenes/<id>/` (.tscn, report, manifest). **Compose kit instances.** Publish only after kits + Godot scene open. | Author one mega-mesh jungle; invent missing kit GLBs; publish when Godot absent. |
 | `forge_validate` | Artifact gates (`godot_prod`) on a path or folder; fail closed. CLI twin: `npm run validate -- <paths> --json`. | Rubber-stamp from the brief. |
 | `forge_job_status` | Poll job id from run/scene; status, paths, validation summary, errors. | Start work. |
@@ -35,10 +35,11 @@ Supporting (debug / escape hatch): `forge_blender_script`, `forge_bake_plan`, `f
 
 ### Kind Run (forge from catalog)
 
-1. `forge_run_asset({ kind: "lantern", bake?: true, engine?: "godot", brief?: "…" })`
-2. poll `forge_job_status` until published/failed
+1. `forge_run_asset({ kind: "lantern", bake?: true, engine?: "godot", brief?: "…" })` → `{ jobId, status: "queued" }` immediately
+2. poll `forge_job_status` until **published** or **failed** (worker runs Blender off-request)
 3. ship-gate ready = validate + godot-check when Godot present
 4. `exports/index.json` status ready
+5. CLI twin: `npm run forge:enqueue -- --kind lantern --kick-worker --json` then `npm run forge:worker -- --once` / `forge:doctor`
 
 ### File validate-only
 

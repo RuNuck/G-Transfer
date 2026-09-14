@@ -30,7 +30,11 @@
     "forge:scene": "node tools/scene-compose/run-scene.mjs",
     "forge:emit": "node tools/forge-run/emit-script.mjs",
     "dcc:smoke": "node tools/dcc-smoke.mjs",
-    "dcc:smoke:bake": "node tools/dcc-smoke.mjs --bake"
+    "dcc:smoke:bake": "node tools/dcc-smoke.mjs --bake",
+    "forge:enqueue": "node tools/forge-run/enqueue.mjs",
+    "forge:worker": "node tools/forge-run/worker.mjs",
+    "forge:doctor": "node tools/forge-run/worker.mjs --reconcile-only",
+    "forge:smoke:kill-mid": "node tools/forge-run/smoke-kill-mid.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.0",

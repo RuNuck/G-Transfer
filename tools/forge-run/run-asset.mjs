@@ -1,27 +1,25 @@
 /**
- * Phase 1 forge runner.
+ * Phase 1 forge runner (sync CLI — still valid for smokes / --force sync).
+ * Prefer durable path for agent jobs:
+ *   node tools/forge-run/enqueue.mjs ... [--kick-worker]
+ *   node tools/forge-run/worker.mjs --once|--loop
  *
  * Existing GLB:
  *   node tools/forge-run/run-asset.mjs --file|--mesh <path-to-glb> [--json]
  *
  * Real headless Blender build (when blender available):
  *   node tools/forge-run/run-asset.mjs --kind lantern [--engine godot] [--bake] [--out-dir exports/forge-smoke] [--json]
- *   node tools/forge-run/run-asset.mjs --script path/to/build.py [--bake-script path/to/bake.py] [--out exports/forge-smoke/foo.glb]
  *
  * Prefers ANVIL_BLENDER, then `which blender`. Refuses publish when Blender is missing
  * (no simulated build/bake path to published).
  */
-import { existsSync, mkdirSync, realpathSync } from "node:fs";
-import { spawnSync } from "node:child_process";
-import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createJob, advanceStage, failJob, projectRoot, saveJob } from "./job-store.mjs";
+import { createJob, projectRoot } from "./job-store.mjs";
 import { defaultKitDir, findBlender } from "./find-dcc.mjs";
-import { runGodotImportCheck, patchIndexShipGate } from "./ship-gate.mjs";
-import { emitKind } from "./emit-script.mjs";
+import { executeAssetJob, resolveMesh } from "./execute-asset.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const HEADLESS = resolve(here, "headless-run.py");
 
 function parseArgs(argv) {
   const args = {
@@ -64,228 +62,19 @@ function parseArgs(argv) {
       console.log(`usage:
   node tools/forge-run/run-asset.mjs --file|--mesh <glb> [--json]
   node tools/forge-run/run-asset.mjs --kind <kind> [--engine godot] [--bake] [--out-dir exports/forge-smoke] [--json]
-  node tools/forge-run/run-asset.mjs --script <build.py> [--bake-script <bake.py>] [--out <glb>] [--json]`);
+  node tools/forge-run/run-asset.mjs --script <build.py> [--bake-script <bake.py>] [--out <glb>] [--json]
+  (durable) node tools/forge-run/enqueue.mjs --kind <kind> --kick-worker --json`);
       process.exit(0);
     } else if (!a.startsWith("-") && !args.file && !args.kind && !args.script) args.file = a;
   }
   return args;
 }
 
-function underExports(absPath) {
-  const root = resolve(projectRoot, "exports");
-  let abs;
-  try {
-    abs = realpathSync(absPath);
-  } catch {
-    abs = resolve(absPath);
-  }
-  let rootReal = root;
-  try {
-    rootReal = realpathSync(root);
-  } catch {
-    /* exports may be absent in some hosts */
-  }
-  return abs === rootReal || abs.startsWith(rootReal + "/") || abs.startsWith(rootReal + "\\");
-}
-
-/** Resolve an existing .glb strictly under exports/. Rejects absolute/../ escape. */
-function resolveMesh(input) {
-  if (!input) return null;
-  const exportsRoot = resolve(projectRoot, "exports");
-  const candidates = [];
-  if (isAbsolute(input)) {
-    candidates.push(resolve(input));
-  } else {
-    // project-relative (e.g. exports/foo.glb) and exports-rooted names
-    candidates.push(resolve(projectRoot, input));
-    candidates.push(resolve(exportsRoot, input));
-    candidates.push(resolve(exportsRoot, "forge", input));
-    if (!input.toLowerCase().endsWith(".glb")) {
-      candidates.push(resolve(exportsRoot, "forge", input + ".glb"));
-      candidates.push(resolve(exportsRoot, input + ".glb"));
-    }
-  }
-  for (const c of candidates) {
-    const abs = resolve(c);
-    if (!underExports(abs)) continue;
-    if (!abs.toLowerCase().endsWith(".glb")) continue;
-    if (existsSync(abs)) return abs;
-  }
-  return null;
-}
-
-function runValidate(absGlb) {
-  const validate = resolve(projectRoot, "tools/validate/run.mjs");
-  const r = spawnSync(process.execPath, [validate, absGlb, "--json"], {
-    cwd: projectRoot,
-    encoding: "utf8",
-    maxBuffer: 8 * 1024 * 1024,
-  });
-  let doc = null;
-  try {
-    doc = JSON.parse(r.stdout || "{}");
-  } catch {
-    const m = (r.stdout || "").match(/\{[\s\S]*\}\s*$/);
-    if (m) {
-      try {
-        doc = JSON.parse(m[0]);
-      } catch {
-        /* ignore */
-      }
-    }
-  }
-  return { exitCode: r.status ?? 1, doc, stderr: r.stderr, stdout: r.stdout };
-}
-
-function rebuildIndex() {
-  const build = resolve(projectRoot, "tools/forge-index/build.mjs");
-  const r = spawnSync(process.execPath, [build], {
-    cwd: projectRoot,
-    encoding: "utf8",
-    maxBuffer: 16 * 1024 * 1024,
-  });
-  return { exitCode: r.status ?? 1, stdout: r.stdout, stderr: r.stderr };
-}
-
-function runHeadlessBlender({ blenderPath, buildScript, bakeScript, exportPath, kitDir }) {
-  mkdirSync(dirname(exportPath), { recursive: true });
-  const texDir = join(dirname(exportPath), "textures");
-  mkdirSync(texDir, { recursive: true });
-  const env = {
-    ...process.env,
-    ANVIL_EXPORT_PATH: exportPath,
-    ANVIL_TEXTURE_DIR: texDir,
-  };
-  if (kitDir) env.ANVIL_KIT_DIR = kitDir;
-  const pyArgs = [HEADLESS, "--", buildScript];
-  if (bakeScript) pyArgs.push(bakeScript);
-  const args = ["--background", "--python", ...pyArgs];
-  const r = spawnSync(blenderPath, args, {
-    cwd: projectRoot,
-    encoding: "utf8",
-    env,
-    maxBuffer: 32 * 1024 * 1024,
-    timeout: 600000,
-  });
-  return {
-    exitCode: r.status ?? 1,
-    stdout: r.stdout || "",
-    stderr: r.stderr || "",
-    exportPath,
-    texDir,
-    signal: r.signal,
-  };
-}
-
-function finishPublished(job, abs, args, blenderInfo) {
-  const rel = relative(projectRoot, abs).split("\\").join("/");
-  advanceStage(job, "validating", "running tools/validate godot_prod");
-  const v = runValidate(abs);
-  job.validation = {
-    ok: Boolean(v.doc?.ok) && v.exitCode === 0,
-    exitCode: v.exitCode,
-    counts: v.doc?.counts ?? null,
-    hardFails: v.doc?.results?.[0]?.hardFails ?? [],
-    report: v.doc?.results?.[0] ?? null,
-  };
-  job.blender = { ...job.blender, ...blenderInfo };
-  saveJob(job);
-
-  if (!job.validation.ok) {
-    failJob(job, "validate failed: " + (job.validation.hardFails.join(", ") || "exit " + v.exitCode));
-    if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
-    else
-      console.error(
-        JSON.stringify({ ok: false, jobId: job.id, status: job.status, validation: job.validation }, null, 2),
-      );
-    process.exit(1);
-  }
-
-  advanceStage(job, "validating", "running tools/godot-check (ship gate)");
-  const ship = runGodotImportCheck(abs);
-  job.godotImport = ship;
-  job.shipGate = ship.status;
-  saveJob(job);
-
-  // NEVER published+ok when shipGate !== ready (Godot-absent or import fail),
-  // even if glTF validate passed. Fold into validation.ok=false + hardFail.
-  if (ship.status !== "ready") {
-    const failId = ship.available ? "godot_import" : "godot_absent";
-    job.validation.ok = false;
-    job.validation.hardFails = [...new Set([...(job.validation.hardFails || []), failId])];
-    saveJob(job);
-    const idxBlocked = rebuildIndex();
-    job.paths.index = "exports/index.json";
-    if (idxBlocked.exitCode === 0) {
-      job.paths.indexStatus = patchIndexShipGate(rel, ship) || ship.status;
-    }
-    failJob(
-      job,
-      ship.available
-        ? "godot import ship gate blocked: " + ((ship.problems || []).join("; ") || ship.note)
-        : "Godot absent — shipGate validated_glb_only (refuse published+ok; hardFail godot_absent)",
-    );
-    if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
-    else
-      console.error(
-        JSON.stringify(
-          {
-            ok: false,
-            jobId: job.id,
-            status: job.status,
-            shipGate: ship.status,
-            validation: job.validation,
-            godotImport: ship,
-          },
-          null,
-          2,
-        ),
-      );
-    process.exit(1);
-  }
-
-  const idx = rebuildIndex();
-  job.paths.index = "exports/index.json";
-  if (idx.exitCode !== 0) {
-    failJob(job, "index rebuild failed: " + (idx.stderr || idx.stdout || "exit " + idx.exitCode));
-    if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
-    process.exit(1);
-  }
-
-  const indexStatus = patchIndexShipGate(rel, ship) || ship.status;
-  job.paths.indexStatus = indexStatus;
-  saveJob(job);
-
-  advanceStage(job, "published", "validated + godot import ok + index ready");
-  if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
-  else {
-    console.log(
-      JSON.stringify(
-        {
-          ok: true,
-          jobId: job.id,
-          status: job.status,
-          shipGate: ship.status,
-          mesh: rel,
-          blender: job.blender,
-          godotImport: { ok: ship.ok, available: ship.available, problems: ship.problems },
-          paths: job.paths,
-        },
-        null,
-        2,
-      ),
-    );
-  }
-  process.exit(0);
-}
-
-
 function main() {
   const args = parseArgs(process.argv.slice(2));
   const blender = findBlender();
   const kitDir = defaultKitDir(projectRoot);
 
-  // --- Real build from kind or script ---
   if (args.kind || args.script) {
     if (!blender.available) {
       console.error(
@@ -293,38 +82,15 @@ function main() {
       );
       process.exit(2);
     }
-    if (!existsSync(HEADLESS)) {
-      console.error("missing headless runner:", HEADLESS);
-      process.exit(2);
+
+    let scriptRel = null;
+    if (args.script) {
+      scriptRel = relative(projectRoot, resolve(projectRoot, args.script)).split("\\").join("/");
     }
-
-    let buildScript = args.script ? resolve(projectRoot, args.script) : null;
-    let bakeScript = args.bakeScript ? resolve(projectRoot, args.bakeScript) : null;
-    let meshName = null;
-    let emitted = null;
-
-    if (args.kind) {
-      emitted = emitKind({
-        kind: args.kind,
-        engine: args.engine,
-        outDir: join(projectRoot, "tools/blender-check/out/gen"),
-        bake: true,
-      });
-      buildScript = emitted.buildPath;
-      meshName = emitted.mesh;
-      if (args.bake) bakeScript = emitted.bakePath;
+    let bakeRel = null;
+    if (args.bakeScript) {
+      bakeRel = relative(projectRoot, resolve(projectRoot, args.bakeScript)).split("\\").join("/");
     }
-
-    if (!buildScript || !existsSync(buildScript)) {
-      console.error("build script missing:", buildScript);
-      process.exit(2);
-    }
-
-    const outDir = resolve(projectRoot, args.outDir || "exports/forge-smoke");
-    mkdirSync(outDir, { recursive: true });
-    const exportName = args.out
-      ? resolve(projectRoot, args.out)
-      : join(outDir, `${meshName || basename(buildScript, ".py")}.glb`);
 
     const job = createJob({
       type: "asset",
@@ -333,71 +99,55 @@ function main() {
         mode: args.kind ? "kind-build" : "script-build",
         kind: args.kind,
         engine: args.engine,
-        script: relative(projectRoot, buildScript).split("\\").join("/"),
+        script: scriptRel,
+        bakeScript: bakeRel,
         brief: args.brief || null,
-        bake: Boolean(bakeScript),
+        bake: Boolean(args.bake || args.bakeScript),
+        outDir: args.outDir || null,
+        out: args.out || null,
       },
-      paths: {},
+      paths: {
+        artifactDir: args.outDir
+          ? args.outDir
+          : undefined,
+      },
       blender: {
         available: true,
         path: blender.path,
         source: blender.source,
-        kitDir: kitDir,
-        note: "headless Blender build via tools/forge-run/headless-run.py",
+        kitDir,
+        note: "sync run-asset (prefer enqueue+worker for kill-mid durability)",
       },
     });
 
-    try {
-      advanceStage(job, "building", `Blender headless build: ${blender.path}`);
-      if (bakeScript) advanceStage(job, "baking", `Blender bake: ${bakeScript}`);
-      else advanceStage(job, "baking", "bake skipped (--bake not set); materials are untextured Principled BSDF");
-
-      const run = runHeadlessBlender({
-        blenderPath: blender.path,
-        buildScript,
-        bakeScript,
-        exportPath: exportName,
-        kitDir,
-      });
-      job.blender.logTail = (run.stdout + "\n" + run.stderr).slice(-4000);
-      job.blender.exitCode = run.exitCode;
-      const kitUsed = /part kit/i.test(run.stdout) || /USING_KIT|Anvil kit/i.test(run.stdout);
-      const sourceMatch = run.stdout.match(/built \((part kit|blockout)\)/i);
-      job.blender.buildSource = sourceMatch ? sourceMatch[1].toLowerCase() : kitUsed ? "kit?" : "unknown";
-      saveJob(job);
-
-      if (run.exitCode !== 0 || !existsSync(exportName)) {
-        failJob(
-          job,
-          `Blender headless failed (exit ${run.exitCode}): ` +
-            (run.stderr || run.stdout || "").split("\n").slice(-20).join(" | "),
-        );
-        if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
-        else console.error(JSON.stringify({ ok: false, jobId: job.id, blender: job.blender }, null, 2));
-        process.exit(1);
-      }
-
-      job.paths.mesh = relative(projectRoot, exportName).split("\\").join("/");
-      job.paths.textures = relative(projectRoot, run.texDir).split("\\").join("/");
-      if (emitted) {
-        job.paths.buildScript = relative(projectRoot, emitted.buildPath).split("\\").join("/");
-        if (bakeScript) job.paths.bakeScript = relative(projectRoot, bakeScript).split("\\").join("/");
-      }
-      saveJob(job);
-      finishPublished(job, exportName, args, job.blender);
-    } catch (e) {
-      failJob(job, e.message || String(e));
-      if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
-      else console.error(e);
-      process.exit(1);
+    // Sync path: claim immediately by advancing via execute (starts from queued).
+    const result = executeAssetJob(job);
+    if (args.jsonOnly) console.log(JSON.stringify(result.job, null, 2));
+    else {
+      console.log(
+        JSON.stringify(
+          {
+            ok: result.ok,
+            jobId: result.job.id,
+            status: result.job.status,
+            shipGate: result.job.shipGate,
+            mesh: result.job.paths?.mesh,
+            paths: result.job.paths,
+            validation: result.job.validation,
+          },
+          null,
+          2,
+        ),
+      );
     }
-    return;
+    process.exit(result.ok ? 0 : 1);
   }
 
-  // --- Existing GLB path (validate + index; require Blender present — no simulate publish) ---
   const abs = resolveMesh(args.file);
   if (!abs) {
-    console.error("missing --file/--mesh pointing at an existing .glb under exports/, or use --kind / --script for a real Blender build");
+    console.error(
+      "missing --file/--mesh pointing at an existing .glb under exports/, or use --kind / --script for a real Blender build",
+    );
     process.exit(2);
   }
 
@@ -419,19 +169,29 @@ function main() {
       path: blender.path,
       source: blender.source,
       kitDir,
-      note: "Blender present; existing-GLB mode does not rebuild — use --kind/--script for a real headless forge",
+      note: "sync run-asset existing-GLB",
     },
   });
 
-  try {
-    advanceStage(job, "building", "existing GLB — skip Blender rebuild (pass --kind to forge new)");
-    advanceStage(job, "baking", "existing GLB — skip Blender bake");
-    finishPublished(job, abs, args, job.blender);
-  } catch (e) {
-    failJob(job, e.message || String(e));
-    if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
-    else console.error(e);
-    process.exit(1);
+  const result = executeAssetJob(job);
+  if (args.jsonOnly) console.log(JSON.stringify(result.job, null, 2));
+  else {
+    console.log(
+      JSON.stringify(
+        {
+          ok: result.ok,
+          jobId: result.job.id,
+          status: result.job.status,
+          shipGate: result.job.shipGate,
+          mesh: result.job.paths?.mesh,
+          paths: result.job.paths,
+        },
+        null,
+        2,
+      ),
+    );
   }
+  process.exit(result.ok ? 0 : 1);
 }
+
 main();

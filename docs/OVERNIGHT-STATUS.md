@@ -1,6 +1,10 @@
-# Anvil morning brief — for Kevin at 7am
+# Anvil morning brief — for Kevin / Morgan
 
-**As of** Sun Sep 6 / Mon Sep 7, 2026 — ~11:20pm ET (overnight on `/workspace/project` only). Baseline **2.9.0**.
+**As of** Mon Sep 14, 2026 (ET) — durable job queue on `/workspace/project` (Bill). Baseline **2.9.0**.
+
+**P1 kill-mid:** enqueue → worker → reconcile. Mid-flight kill → `failed`/`worker_interrupted`; never corrupt `ready`. See `docs/evidence/durable-jobs-kill-mid-2026-09-14.md`.
+
+**Prior overnight** (archived context below): Sun Sep 6 / Mon Sep 7, 2026.
 
 ---
 
@@ -23,7 +27,7 @@
 |---|---|
 | `npm run validate` / `forge_validate` | Godot-first GLB artifact gates (GLB JSON + naming heuristics without Godot); fail closed. Fixtures expect fail. |
 | `npm run forge:index` | Rebuilds `exports/index.json` (~10 ready / 4 failed on last build). |
-| `npm run forge:run` / `forge_run_asset` | Job store under `.anvil/jobs/` over an **existing** exports GLB. |
+| `npm run forge:enqueue` / `forge:worker` / `forge_run_asset` | Durable enqueue (jobId immediately) + single worker; sync `forge:run` still available. |
 | `npm run forge:scene` / `forge_scene` | SceneSpec/brief → `exports/scenes/<id>/  .tscn + report (jungle example scaffold). |
 | `forge_job_status` | Poll job id. |
 | `forge_create_asset` | Plan: AssetSpec + Blender script (does not forge a GLB). |
@@ -40,7 +44,7 @@ MCP resources (HTTP `/api/mcp`): `anvil://guide/agent`, `anvil://schemas/weapon-
 |---|---|
 | GLB validate (glTF parse + godot_prod heuristics) | Real on this box |
 | Index builder | Real |
-| Job store + run/scene status | Real (sync scaffold worker; not a durable queue) |
+| Job store + run/scene status | **Durable** filesystem queue (`enqueue` + `worker` + reconcile); sync `forge:run` kept for smokes |
 | `forge_run_asset` Blender build/bake | **Real** headless part-kit via `--kind` / `dcc:smoke` (file-only mode still skips rebuild) |
 | Scene compose jungle example | **Scaffold** — instances .tscn + report; placeholder kit refs, no mega-mesh (good), but not full biome kits |
 | WeaponGraph | Schema + **M4 example** + check:weapon-graph (Phase 2 forge_weapon still not implemented) |

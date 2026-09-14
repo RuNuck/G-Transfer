@@ -159,7 +159,7 @@ export const TOOLS: McpTool[] = [
   {
     name: "forge_run_asset",
     description:
-      "Run (not Plan): forge via catalog kind (real headless Blender: ANVIL_BLENDER / PATH) or validate-only an existing exports GLB via file/mesh. Plan-only = forge_create_asset. Poll forge_job_status; confirm forge_validate. When Godot is present, ship gate requires import ok for index ready.",
+      "Enqueue (not Plan): durable job — returns jobId immediately as queued; worker runs Blender/validate. Kind = real headless Blender; file/mesh = validate-only existing exports GLB. Poll forge_job_status until published/failed. Plan-only = forge_create_asset. Ship gate ready needs Godot import ok. Kill-mid → failed/worker_interrupted (never corrupt ready).",
     inputSchema: {
       type: "object",
       properties: {
@@ -368,6 +368,7 @@ function findAnvilRoot(): string {
   const cwd = process.cwd();
   if (
     existsSync(resolve(cwd, "tools/forge-run/run-asset.mjs")) ||
+    existsSync(resolve(cwd, "tools/forge-run/enqueue.mjs")) ||
     existsSync(resolve(cwd, "tools/scene-compose/compose.mjs"))
   ) {
     return cwd;
@@ -680,19 +681,20 @@ export function callTool(name: string, args: Record<string, unknown>) {
         throw new InvalidParams("bake must be a boolean");
       }
       const root = findAnvilRoot();
-      const runner = resolve(root, "tools/forge-run/run-asset.mjs");
-      if (!existsSync(runner)) {
+      const enqueuer = resolve(root, "tools/forge-run/enqueue.mjs");
+      if (!existsSync(enqueuer)) {
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify({ ok: false, error: "forge-run runner missing", runner }, null, 2),
+              text: JSON.stringify({ ok: false, error: "forge-run enqueue missing", enqueuer }, null, 2),
             },
           ],
           isError: true,
         };
       }
-      const argv = [runner, "--json"];
+      // Durable path: enqueue queued job + kick worker --once (returns jobId immediately).
+      const argv = [enqueuer, "--json", "--kick-worker"];
       if (kind) {
         argv.push("--kind", kind);
         const engine = explicitEngine(args.engine) ?? DEFAULT_ENGINE;
@@ -707,7 +709,7 @@ export function callTool(name: string, args: Record<string, unknown>) {
       const r = spawnSync(process.execPath, argv, {
         cwd: root,
         encoding: "utf8",
-        maxBuffer: 16 * 1024 * 1024,
+        maxBuffer: 4 * 1024 * 1024,
         env: process.env,
       });
       const out = (r.stdout || "").trim() || (r.stderr || "").trim() || `exit ${r.status}`;
