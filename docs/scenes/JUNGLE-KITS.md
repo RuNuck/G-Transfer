@@ -34,6 +34,10 @@
 | **stub** | Explicit STUB definition — never claim ready |
 | **ready** | Validated + baked + Godot ship-gate (not claimed until Remy/Nova bars clear) |
 
+## Texel density (Quinn)
+
+Jungle env pieces intentionally target **~256 px/m** at typical bake (kit budget), not the generic env ~512 mid-prop bar. Document as kit-tier TD; raise later if Remy/Quinn want denser ground. Trunk canopy pieces may read thinner/flatter than ground tiles — style consistency check on the full set.
+
 Box smokes write **smoke** GLBs. Compose `kits_resolve` = file exists. Do **not** treat smoke as production ready.
 
 ## Forge
