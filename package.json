@@ -40,7 +40,7 @@
     "forge:weapon": "node tools/forge-run/enqueue-weapon.mjs",
     "forge:smoke:weapon-m4": "node tools/forge-run/smoke-weapon-m4.mjs",
     "forge:biome:jungle": "node tools/forge-run/forge-biome.mjs --manifest docs/schemas/examples/jungle.biome-kits.json --all --json",
-    "forge:biome:jungle:smoke": "node tools/forge-run/forge-biome.mjs --manifest docs/schemas/examples/jungle.biome-kits.json --all --limit 3 --json"
+    "forge:biome:jungle:smoke": "node tools/forge-run/forge-biome.mjs --manifest docs/schemas/examples/jungle.biome-kits.json --all --limit 3 --bake --json"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.0",
