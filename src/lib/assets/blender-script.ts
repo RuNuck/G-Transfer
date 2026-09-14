@@ -534,6 +534,41 @@ def make_lod(body, name, budget):
     return ob
 
 
+
+def make_sockets(body, finishing):
+    """Emit intentional socket Empties (FPS grip / hand_socket) that survive part join.
+
+    Kit families declare build-space locations in finishing["sockets"]. Weapon kinds without
+    a declared grip still get a mesh-local fallback Empty so pivot_weapon_or_rigged can pass
+    without any post-export GLB patch.
+    """
+    declared = list((finishing or {}).get("sockets") or [])
+    has_grip = any(
+        (s.get("name") or "").lower() in ("grip", "hand_socket", "ik_hand", "weapon_root")
+        for s in declared
+    )
+    if KIND in ("rifle", "shotgun", "pistol", "sword", "dagger") and not has_grip:
+        declared.append({"name": "grip", "location": [0.0, 0.0, -abs(float(DIM.z)) * 0.12], "space": "mesh"})
+    if not declared:
+        return []
+    shift = Vector(body.get("anvil_origin_shift", (0.0, 0.0, 0.0)))
+    out = []
+    for spec in declared:
+        name = spec.get("name") or "grip"
+        raw = Vector(spec.get("location") or (0.0, 0.0, 0.0))
+        # Kit sockets are build coordinates; convert to mesh-local after set_pivot.
+        local = raw if spec.get("space") == "mesh" else (raw - shift)
+        empty = D.objects.new(name, None)
+        empty.empty_display_type = "SPHERE"
+        empty.empty_display_size = 0.02
+        COLL.objects.link(empty)
+        empty.parent = body
+        empty.location = local
+        empty["anvil_socket"] = name
+        out.append(empty)
+    return out
+
+
 # --- build ---------------------------------------------------------------------
 
 COLL = prepare_collection()
@@ -542,9 +577,11 @@ C.scene.unit_settings.scale_length = 1.0
 MATS = [make_material(m) for m in MATERIALS]
 
 kit = kit_parts()
+kit_finishing = {}
 if kit:
     USING_KIT = True
-    hints = kit.get("finishing", {})
+    hints = kit.get("finishing", {}) or {}
+    kit_finishing = hints
     if hints.get("bevel") and BEVEL is not None:
         BEVEL = tuple(hints["bevel"])
     if hints.get("smooth_angle"):
@@ -574,12 +611,15 @@ body["anvil_folder"] = ${py(folderHint(spec))}
 body["anvil_pivot"] = PIVOT
 body["anvil_source"] = "kit" if USING_KIT else "blockout"
 
+sockets = make_sockets(body, kit_finishing)
+
 # Godot generates its own LODs at import and has no notion of an exported LOD chain, so shipping
 # LOD1 and LOD2 as sibling nodes just draws three copies of the asset on top of each other. They
 # stay in the .blend for anyone who wants them; the other engines read them from the file.
 export_set = [body, collision] if ENGINE == "godot" else [body, lod1, lod2, collision]
 if rig is not None:
     export_set.append(rig)
+export_set.extend(sockets)
 select_none()
 for ob in export_set:
     ob.select_set(True)
@@ -600,6 +640,8 @@ summary = "{} built ({}) in collection {}: LOD0 {} tris (budget {}), {} {} tris,
 )
 if rig is not None:
     summary += "; rigged: {} bones, clips {}".format(len(rig.data.bones) - 1, ", ".join(t.name for t in rig.animation_data.nla_tracks) or "none")
+if sockets:
+    summary += "; sockets: {}".format(", ".join(s.name for s in sockets))
 result = summary
 print("Anvil built", summary)
 print("Export: File > Export > glTF 2.0 · GLB · selected objects · apply modifiers · +Y up (the export set is selected)")
@@ -857,7 +899,7 @@ if surfaced and EXPORT_PATH:  # the GLB written by the build script has no textu
     select_none()
     lod_names = {low.name + "_LOD1", low.name + "_LOD2"}
     for ob in low.users_collection[0].objects:
-        if ob.type not in ("MESH", "ARMATURE"):  # the rig too, when the build made one
+        if ob.type not in ("MESH", "ARMATURE", "EMPTY"):  # rig + intentional grip/hand sockets
             continue
         if ENGINE == "godot" and ob.name in lod_names:
             continue  # see the build script: Godot makes its own LODs

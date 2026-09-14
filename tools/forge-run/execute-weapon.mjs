@@ -10,7 +10,6 @@ import { fileURLToPath } from "node:url";
 import { advanceStage, failJob, failJobHard, projectRoot, saveJob } from "./job-store.mjs";
 import { defaultKitDir, findBlender } from "./find-dcc.mjs";
 import { finishPublished, runHeadlessBlender } from "./execute-asset.mjs";
-import { ensureGripPivotInGlb } from "./ensure-grip-pivot.mjs";
 import { readGlb, summarizeGlb } from "../validate/glb-parse.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -60,7 +59,7 @@ export function emitWeaponBuild(graph, { engine = "godot", outDir, bake = true }
     y: Math.min(0.28, Math.max(0.18, lengthM * 0.26)),
     z: Math.min(0.09, Math.max(0.06, lengthM * 0.085)),
   };
-  // Weapons: center pivot; grip gate also accepts rootNearOrigin / grip node names.
+  // Weapons: center mesh pivot; kit emits intentional grip Empty (see finishing.sockets).
   spec.pivot = "center";
   if (graph.collision?.style === "godot_convcolonly" || graph.collision?.style === "godot_colonly") {
     spec.collision = graph.collision.style.includes("conv") ? "convex" : "box";
@@ -113,8 +112,9 @@ export function weaponArtifactGates(absGlb, graph) {
   const hardFails = [];
   const details = {};
   let summary;
+  let parsed;
   try {
-    const parsed = readGlb(absGlb);
+    parsed = readGlb(absGlb);
     summary = summarizeGlb(parsed, absGlb);
   } catch (e) {
     return { ok: false, hardFails: ["weapon_glb_parse"], details: { error: String(e.message || e) } };
@@ -140,14 +140,72 @@ export function weaponArtifactGates(absGlb, graph) {
   }
 
   const pivot = summary.pivot || {};
-  const gripOk = Boolean(pivot.gripNode) || pivot.rootNearOrigin === true;
+  const gripName = pivot.gripNode || null;
+  let gripTranslation = null;
+  let gripWorld = null;
+  let gripDistOrigin = null;
+  let gripAabbFrac = null;
+  let gripPlacementOk = false;
+  try {
+    const nodes = parsed.json?.nodes || [];
+    const idx = nodes.findIndex((n) => ((n && n.name) || "") === gripName);
+    const gNode = idx >= 0 ? nodes[idx] : null;
+    // Resolve local translation; if parented, accumulate parent translations (weapon Empty under mesh).
+    const worldOf = (i) => {
+      const n = nodes[i];
+      if (!n) return [0, 0, 0];
+      const t = Array.isArray(n.translation) ? n.translation.map(Number) : [0, 0, 0];
+      // find parent
+      let parent = -1;
+      for (let p = 0; p < nodes.length; p++) {
+        if (Array.isArray(nodes[p].children) && nodes[p].children.includes(i)) {
+          parent = p;
+          break;
+        }
+      }
+      if (parent < 0) return t;
+      const pt = worldOf(parent);
+      return [pt[0] + t[0], pt[1] + t[1], pt[2] + t[2]];
+    };
+    if (gNode) {
+      gripTranslation = Array.isArray(gNode.translation) ? gNode.translation.map(Number) : [0, 0, 0];
+      gripWorld = worldOf(idx);
+      gripDistOrigin = Math.hypot(gripWorld[0], gripWorld[1], gripWorld[2]);
+      if (summary.bounds?.min && summary.bounds?.size) {
+        const { min, size } = summary.bounds;
+        gripAabbFrac = gripWorld.map((v, i) => (size[i] > 1e-9 ? (v - min[i]) / size[i] : 0.5));
+      }
+      // Quinn bar: intentional pistol-grip — away from origin, lower-rear of centered AABB
+      // (reject inject scaffold ~[0,-0.02,0.01] / AABB frac ~0.50,0.41,0.64).
+      const distOk = gripDistOrigin >= 0.08;
+      const frac = gripAabbFrac || [];
+      const rearOk = frac.length >= 1 && frac[0] >= 0.22 && frac[0] <= 0.45;
+      const lowOk = frac.length >= 2 && frac[1] >= 0.05 && frac[1] <= 0.38;
+      gripPlacementOk = distOk && rearOk && lowOk;
+    }
+  } catch {
+    gripPlacementOk = false;
+  }
+  const gripPresent = Boolean(gripName) || pivot.rootNearOrigin === true;
+  const gripOk = gripPresent && (gripName ? gripPlacementOk : true);
   details.pivot = {
-    gripNode: pivot.gripNode || null,
+    gripNode: gripName,
     rootNearOrigin: pivot.rootNearOrigin,
+    gripTranslation,
+    gripWorld,
+    gripDistOriginM: gripDistOrigin,
+    gripAabbFrac,
+    placementOk: gripPlacementOk,
     ok: gripOk,
     claimed: graph.pivot || null,
+    note: gripName
+      ? gripPlacementOk
+        ? "kit/Blender Empty at pistol-grip (trigger/mag region)"
+        : "grip present but placement fails Quinn bar (need lower-rear pistol-grip, not near origin)"
+      : null,
   };
-  if (!gripOk) hardFails.push("weapon_grip_pivot");
+  if (!gripPresent) hardFails.push("weapon_grip_pivot");
+  else if (gripName && !gripPlacementOk) hardFails.push("weapon_grip_placement");
 
   const nodes = summary.nodes || [];
   const hasCol = nodes.some((n) => /-(?:conv)?col(?:only)?$/i.test(n || ""));
@@ -308,18 +366,9 @@ export async function executeWeaponJob(job) {
     job.paths.textures = relative(projectRoot, run.texDir).split("\\").join("/");
     saveJob(job);
 
-    try {
-      const gripPatch = ensureGripPivotInGlb(exportName, graph);
-      job.notes.push(
-        gripPatch.patched
-          ? `injected grip pivot node @ [${(gripPatch.translation || []).join(", ")}]`
-          : `grip pivot: ${gripPatch.reason || "ok"}`,
-      );
-      saveJob(job);
-    } catch (e) {
-      failJobHard(job, "weapon_grip_inject", "failed to inject grip pivot: " + (e.message || e));
-      return { ok: false, job };
-    }
+    // Grip pivot must come from Blender/kit Empty emit (no post-export GLB inject).
+    job.notes.push("grip pivot: kit/Blender Empty emit (no post-export GLB inject)");
+    saveJob(job);
 
     // Weapon-specific gates before ship publish.
     advanceStage(job, "validating", "weapon artifact gates (meters/pivot/collision/clips)");

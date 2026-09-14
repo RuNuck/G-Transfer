@@ -103,7 +103,8 @@ def build(kind, dim, roles, variant=None):
 
     # --- grip, trigger group and selector -------------------------------------------------------------
     grip_x = rx0 + rlen * 0.22
-    grip = add(ops.rounded_box("grip", (L * 0.045, receiver_w * 0.55, H * 0.40), (grip_x - L * 0.02, 0, z_bore - H * 0.38), 0.006, polymer, corner_segments=2))
+    grip_loc = (grip_x - L * 0.02, 0.0, z_bore - H * 0.38)
+    grip = add(ops.rounded_box("grip", (L * 0.045, receiver_w * 0.55, H * 0.40), grip_loc, 0.006, polymer, corner_segments=2))
     ops.rotate_about_center(grip, (0.0, math.radians(-18), 0.0))
     add(ops.ribs("grip_serrations", grip_x - L * 0.045, grip_x - L * 0.005, receiver_w * 0.29, z_bore - H * 0.42, 4, (0.003, 0.004, H * 0.18), polymer))
     tx0, tx1 = grip_x + L * 0.01, grip_x + L * 0.075
@@ -177,4 +178,17 @@ def build(kind, dim, roles, variant=None):
 
     present = {b["bone"] for b in bones}
     actions = [a for a in ACTIONS if all(p in present for p in a["parts"])]
-    return parts, dict(FINISHING), {"bones": bones, "actions": actions}
+    # Intentional FPS hand socket in build-space: palm on pistol-grip body, aft of trigger /
+    # beside mag well. Mesh "grip" is joined away; build script emits Empty from
+    # finishing["sockets"]. Must sit in lower-rear of centered AABB — NOT near origin
+    # (inject scaffold was ~[0,-0.02,0.01] / AABB frac ~0.50,0.41,0.64 = mid-receiver).
+    finishing = dict(FINISHING)
+    grip_hand = (
+        float(grip_x - L * 0.01),           # grip column, slight bias toward trigger
+        0.0,
+        float(z_bore - H * 0.36),           # palm mid-grip (below receiver, above mag floor)
+    )
+    finishing["sockets"] = [
+        {"name": "grip", "location": [grip_hand[0], grip_hand[1], grip_hand[2]]},
+    ]
+    return parts, finishing, {"bones": bones, "actions": actions}

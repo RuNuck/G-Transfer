@@ -29,7 +29,10 @@ def build(kind, dim, roles, variant=None):
   their origin at the world origin. Never scale objects; build geometry at size.
 - `finishing` is a dict of hints: `{"bevel": (width_m, segments), "smooth_angle": degrees}`.
   The script bevels every edge sharper than 30 degrees with these values, which is what
-  turns boxes into believable hard-surface parts.
+  turns boxes into believable hard-surface parts. Optional `sockets`: a list of
+  `{"name": "grip", "location": [x, y, z]}` in **build coordinates**. The build script
+  emits Empty objects (parented after re-pivot) so weapon GLBs keep an intentional grip /
+  hand_socket node after parts are joined — never patch the GLB after export.
 - `rig` is `{"bones": [...], "actions": [...]}` (see Moving parts) or `{"bones": [], "actions": []}`.
 - `variant` is an optional dict for options a brief may select later (`{"stock": "fixed"}`).
 

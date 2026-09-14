@@ -1,23 +1,80 @@
-# forge_weapon M4 smoke — 2026-09-14 ET
+# forge_weapon M4 — no post-export grip inject — 2026-09-14 ET
 
 **Box:** `/workspace/project` (Bill)  
-**When:** 9/14/2026, 8:39:04 AM ET  
-**Job:** `job_20260914123843_4bd62b`
+**When:** 9/14/2026, 8:39:26 AM ET  
+**Job:** `job_20260914123843_4bd62b`  
+**Commit target:** Vale (no inject) + Quinn (intentional pistol-grip placement)
 
 ## Goal
 
-Agent cold path: `forge_weapon` preset `m4_carbine` → `jobId` → poll `forge_job_status` → ready GLB (~0.84 m, grip pivot, convcol, clips, Godot import ok).
+Kit/Blender **emits** a `grip` Empty at the real pistol-grip (trigger/mag region). Finish path must **not** patch the GLB via `ensureGripPivotInGlb`. Gates: published + Godot ok + meters ~0.84 + grip present with Quinn placement + clips + convcol.
 
 ## Commands
 
 ```bash
+npm run forge:smoke:weapon-m4
+# or:
 node tools/forge-run/enqueue-weapon.mjs --preset m4_carbine --bake --json
 node tools/forge-run/worker.mjs --once --json
-# or:
-npm run forge:smoke:weapon-m4
 ```
 
-## Result
+## Inject removed (Vale)
+
+```bash
+rg ensureGripPivotInGlb tools src public/downloads/anvil_blender_addon
+# → no matches
+test ! -f tools/forge-run/ensure-grip-pivot.mjs && echo FILE_GONE
+```
+
+- `tools/forge-run/ensure-grip-pivot.mjs` **deleted**
+- `execute-weapon.mjs` no longer imports or calls inject
+- Job notes contain **`grip pivot: kit/Blender Empty emit (no post-export GLB inject)`** — do **not** say "injected grip"
+
+## Grip origin (Quinn)
+
+| Source | Detail |
+|---|---|
+| Kit family | `public/downloads/anvil_blender_addon/kit/rifle.py` → `finishing["sockets"]` palm on pistol-grip (`grip_x`, `z_bore - H*0.36`) |
+| Blender emit | `src/lib/assets/blender-script.ts` `make_sockets()` → Empty parented after re-pivot; bake re-export includes `EMPTY` |
+| Finish path | note only — **no** GLB byte patch |
+
+### Placement vs inject scaffold
+
+| | Inject (VETO'd) | This GLB |
+|---|---|---|
+| Local/world (glTF Y-up) | `[0, -0.02, 0.01]` | `[-0.12835198640823364, -0.05241600051522255, 0]` |
+| Distance from origin | ~0.022 m | **0.1386 m** |
+| AABB frac (min→max) | ~(0.50, 0.41, 0.64) mid-receiver | **[0.347, 0.26, 0.5]** lower-rear |
+| Near trigger/mag bones | no (origin) | grip≈trigger/mag cluster (trigger ~[-0.087,-0.043,0], mag ~[-0.048,-0.046,0]) |
+| `placementOk` | would FAIL new gate | **True** |
+
+Mesh AABB (centered): size ≈ [0.8401352167129517, 0.21844924241304398, 0.0714000016450882] m (length **0.8401352167129517** vs overallLengthM 0.84).
+
+## Smoke result
+
+- **status:** `published` · **shipGate:** `ready` · **buildSource:** `part kit`
+- **mesh:** `exports/forge/job_20260914123843_4bd62b/m4_carbine.glb`
+- **weaponGates.ok:** True
+- **clips:** cock_back, trigger_pull, magazine_release, selector_toggle, stock_collapse
+- **collision:** `m4_carbine_col-convcolonly`
+- Job notes (no inject wording):
+
+```json
+[
+  "weapon enqueue source=preset:m4_carbine preset=m4_carbine lengthM=0.84",
+  "claimed by worker pid 402554",
+  "forge path: rifle kit \u2192 m4_carbine.glb @ 0.84m (kit carbine, not CAD M4 parts)",
+  "weapon Blender build: /home/box/tools/blender-5.2.1-linux-x64/blender",
+  "weapon bake (pid 402568): /workspace/project/tools/blender-check/out/gen/weapon_m4_carbine_godot.bake.py",
+  "grip pivot: kit/Blender Empty emit (no post-export GLB inject)",
+  "weapon artifact gates (meters/pivot/collision/clips)",
+  "running tools/validate godot_prod",
+  "running tools/godot-check (ship gate)",
+  "validated + godot import ok + index ready"
+]
+```
+
+## Full smoke payload
 
 ```json
 {
@@ -145,7 +202,7 @@ npm run forge:smoke:weapon-m4
   "notes": [
     "weapon enqueue source=preset:m4_carbine preset=m4_carbine lengthM=0.84",
     "claimed by worker pid 402554",
-    "forge path: rifle kit → m4_carbine.glb @ 0.84m (kit carbine, not CAD M4 parts)",
+    "forge path: rifle kit \u2192 m4_carbine.glb @ 0.84m (kit carbine, not CAD M4 parts)",
     "weapon Blender build: /home/box/tools/blender-5.2.1-linux-x64/blender",
     "weapon bake (pid 402568): /workspace/project/tools/blender-check/out/gen/weapon_m4_carbine_godot.bake.py",
     "grip pivot: kit/Blender Empty emit (no post-export GLB inject)",
@@ -161,21 +218,7 @@ npm run forge:smoke:weapon-m4
 
 | Piece | Status |
 |---|---|
-| Durable enqueue `type=weapon` | **Real** — `.anvil/jobs/<id>.json` queued → worker claim |
-| MCP `forge_weapon` | **Real** — calls enqueue-weapon + `--kick-worker` |
-| WeaponGraph preset `m4_carbine` | **Real** — example JSON + `check:weapon-graph` |
-| Mesh forge | **Real** — parametric rifle-family kit sized to `overallLengthM` (kit carbine; **not** CAD-accurate M4 parts) |
-| Clips / rig | `ANVIL_RIG=1` + kit demo actions; gated when graph claims clips |
-| Validate + Godot ship gate | Fail closed (same as asset forge; never published+ok without Godot import when Godot present) |
-| Kill-mid queue | Unchanged (shared single-worker claim / reconcile / quarantine) |
-| CAD-accurate M4 part kit | **Stubbed / out of scope** — WeaponGraph parts/sockets drive validation intent; mesh is rifle kit assembly |
-
-## GLB
-
-- `exports/forge/job_20260914123843_4bd62b/m4_carbine.glb`
-
-## Agent path
-
-1. `forge_weapon({ preset: "m4_carbine" })` → `{ jobId, status: "queued" }`
-2. Poll `forge_job_status` until `published` or `failed`
-3. Ready only after weapon gates + Godot import ok
+| Grip Empty | **Real** — rifle kit socket + Blender Empty emit |
+| Post-export GLB inject | **Removed** |
+| Mesh | kit carbine via rifle family (not CAD M4) |
+| Kill-mid / lantern | Untouched |
