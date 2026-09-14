@@ -1,7 +1,8 @@
 /**
  * Resolve Blender / Godot binaries for forge runners.
- * Prefer absolute env paths (ANVIL_BLENDER / ANVIL_GODOT), then PATH via `which`.
+ * Prefer absolute env paths (ANVIL_BLENDER / ANVIL_GODOT, from the shell or the project .env), then PATH via `which`.
  */
+import "../load-env.mjs";
 import { existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 

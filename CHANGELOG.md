@@ -5,6 +5,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [2.9.2] - 2026-09-14
+
+### Fixed
+
+- The inspector's LOD row counts the forged GLB when the viewport is showing one. It rebuilt the spec's blockout and printed that mesh's triangles next to a forged preview, so the forged oil lantern read `LOD0 · 392 / 3000` while the viewport drew 2,856. The viewport now reports the triangles per LOD of the file it loaded, and a level the file does not carry, such as LOD1 and LOD2 of a Godot export (Godot builds its own on import), shows `—` instead of borrowing a blockout number. Back on the blockout, the row shows the blockout's counts again. `tools/studio-check/test-forged.mjs` checks both directions.
+
+## [2.9.1] - 2026-09-14
+
+### Added
+
+- The Node tools read machine-specific settings (`ANVIL_BLENDER`, `ANVIL_GODOT`, `ANVIL_KIT_DIR`) from a `.env` at the project root, so Blender and Godot are found on a machine where neither is on the PATH without setting anything user- or system-wide. `tools/load-env.mjs` loads it for the forge runners (through `tools/forge-run/find-dcc.mjs`) and for `tools/godot-check/check-import.mjs` and `open-project.mjs`; the processes they spawn inherit the values. A value already set in the shell wins and a missing file is ignored. `.env` stays gitignored and `.env.example` lists the keys. It is a module rather than npm config because Node refuses `--env-file` in `NODE_OPTIONS`.
+
 ## [2.9.0] - 2026-09-05
 
 ### Added

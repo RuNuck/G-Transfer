@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import type { ForgedLods } from "./assets/forged";
 import { specFromBrief, specFromKind } from "./assets/spec";
 import {
   CATEGORIES,
@@ -30,6 +31,8 @@ type ForgeState = {
   forging: boolean;
   logs: McpLogEntry[];
   origin: string;
+  /** Per-LOD triangles of the forged GLB the viewport is drawing, or null on the blockout. Session only. */
+  forgedLods: ForgedLods | null;
   setEngine: (engine: Engine) => void;
   setBrief: (brief: string) => void;
   setPanel: (panel: Panel) => void;
@@ -42,6 +45,7 @@ type ForgeState = {
   loadFromLibrary: (id: string) => void;
   pushLog: (entry: Omit<McpLogEntry, "id" | "at">) => void;
   setForging: (on: boolean) => void;
+  setForgedLods: (lods: ForgedLods | null) => void;
 };
 
 /** The slice that survives reloads. Everything else is session state. */
@@ -168,6 +172,7 @@ export const useForge = create<ForgeState>()(
         },
       ],
       origin: "",
+      forgedLods: null,
       setEngine: (engine) =>
         set((state) => {
           // The header engine is authoritative: re-target the current asset so naming,
@@ -214,6 +219,7 @@ export const useForge = create<ForgeState>()(
           ].slice(0, 80),
         }),
       setForging: (forging) => set({ forging }),
+      setForgedLods: (forgedLods) => set({ forgedLods }),
     }),
     {
       name: STORAGE_KEY,

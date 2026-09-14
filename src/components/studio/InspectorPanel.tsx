@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { blenderScript } from "@/lib/assets/blender-script";
 import { downloadGlb, downloadText, exportGlb } from "@/lib/assets/export-gltf";
+import type { ForgedLods } from "@/lib/assets/forged";
 import { collisionName, folderHint, meshName, textureSet } from "@/lib/assets/naming";
 import { qcFor, texelSheet } from "@/lib/assets/pipeline";
 import type { AssetSpec, LodLevel, ViewMode } from "@/lib/assets/types";
@@ -11,12 +12,15 @@ export function InspectorPanel({
   spec,
   lod,
   viewMode,
+  forgedLods = null,
   onLod,
   onView,
 }: {
   spec: AssetSpec;
   lod: LodLevel;
   viewMode: ViewMode;
+  /** Set while the viewport shows a forged GLB: the file's own triangle counts replace the blockout's. */
+  forgedLods?: ForgedLods | null;
   onLod: (lod: LodLevel) => void;
   onView: (mode: ViewMode) => void;
 }) {
@@ -71,20 +75,29 @@ export function InspectorPanel({
           ))}
         </div>
         <div className="mt-2 flex gap-1">
-          {([0, 1, 2] as LodLevel[]).map((level) => (
-            <button
-              key={level}
-              type="button"
-              onClick={() => onLod(level)}
-              className={cn(
-                "h-10 flex-1 rounded-sm text-xs font-mono lg:h-8",
-                lod === level ? "bg-accent text-accent-fg" : "bg-surface-2 text-muted",
-              )}
-            >
-              LOD{level} · {lodTris ? lodTris[level].toLocaleString() : "…"} / {spec.triangleBudget[`lod${level}` as const]}
-            </button>
-          ))}
+          {([0, 1, 2] as LodLevel[]).map((level) => {
+            // A forged file counts its own meshes; a level it does not carry is a dash, never the blockout's count.
+            const count = forgedLods ? (forgedLods.triangles[level] ?? null) : lodTris ? lodTris[level] : undefined;
+            return (
+              <button
+                key={level}
+                type="button"
+                onClick={() => onLod(level)}
+                title={forgedLods && count === null ? `No LOD${level} in ${forgedLods.file}` : undefined}
+                className={cn(
+                  "h-10 flex-1 rounded-sm text-xs font-mono lg:h-8",
+                  lod === level ? "bg-accent text-accent-fg" : "bg-surface-2 text-muted",
+                )}
+              >
+                LOD{level} · {count === undefined ? "…" : count === null ? "—" : count.toLocaleString()} /{" "}
+                {spec.triangleBudget[`lod${level}` as const]}
+              </button>
+            );
+          })}
         </div>
+        {forgedLods ? (
+          <p className="mt-1.5 truncate font-mono text-[10px] text-subtle">triangles from {forgedLods.file}</p>
+        ) : null}
       </section>
 
       <section className="border-b border-border px-4 py-3">

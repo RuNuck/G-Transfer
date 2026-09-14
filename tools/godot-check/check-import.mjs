@@ -4,7 +4,8 @@
 //
 //   node tools/godot-check/check-import.mjs <file-or-dir.glb> [more...] [--keep]
 //
-// Finds the Godot binary from ANVIL_GODOT, the PATH, or the usual WinGet package folder.
+// Finds the Godot binary from ANVIL_GODOT (shell or project .env), the PATH, or the usual WinGet package folder.
+import "../load-env.mjs";
 import { spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";

@@ -1,6 +1,6 @@
 export const PROTOCOL_VERSION = "2025-03-26";
 export const SERVER_NAME = "anvil";
-export const SERVER_VERSION = "2.9.0";
+export const SERVER_VERSION = "2.9.2";
 
 export type JsonRpcId = string | number | null;
 export type JsonRpcMessage = {

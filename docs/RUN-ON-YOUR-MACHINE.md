@@ -4,6 +4,8 @@ Handoff repo: https://github.com/RuNuck/G-Transfer (`main`).
 
 Generated GLBs/PNGs are gitignored — clone, `npm install`, then forge locally. Point env at **your** Blender 4.2+ / Godot 4.x (Windows paths are fine).
 
+Easiest: copy `.env.example` to `.env` at the project root and fill in the paths. The tools load it themselves (`tools/load-env.mjs`), it stays gitignored, and nothing is set user- or system-wide. A value set in the shell, as below, still wins.
+
 ```bat
 set ANVIL_BLENDER=C:\Path\To\blender.exe
 set ANVIL_GODOT=C:\Path\To\Godot.exe

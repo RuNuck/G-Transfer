@@ -60,12 +60,43 @@ const tris = Number((picked.tris ?? "0").replace(/[^0-9]/g, "").slice(0, -1) || 
 expect(picked.picked === forgedFile.file, `picker shows ${picked.picked}`);
 expect(tris > 100, `forged preview reported ${picked.tris}`);
 
+// The inspector's LOD row must count the forged file, not the blockout the spec would build, and a
+// level the file does not carry (a Godot export has no LOD chain) must not borrow a blockout count.
+// The label reads "forged" before the file has loaded, so wait until the file's counts have landed
+// (the "triangles from" caption) and compare with the overlay at that moment. The middle dot, em dash
+// and ellipsis are written as escapes so re-encoding this file cannot break the matches.
+const lodButtons = () => page.evaluate(() => [...document.querySelectorAll("button")].map((b) => b.textContent.trim()).filter((t) => /^LOD[012] ·/.test(t)));
+const overlayTris = () => page.evaluate(() => [...document.querySelectorAll("div.pointer-events-none span")].map((s) => s.textContent.trim()).find((t) => t.includes("tris")) ?? null);
+const hasForgedCaption = () => [...document.querySelectorAll("p")].some((p) => p.textContent.trim().startsWith("triangles from "));
+const inspectorCountsForged = await page
+  .waitForFunction(() => {
+    const caption = [...document.querySelectorAll("p")].some((p) => p.textContent.trim().startsWith("triangles from "));
+    const overlay = ([...document.querySelectorAll("div.pointer-events-none span")].map((s) => s.textContent.trim()).find((t) => t.includes("tris")) ?? "").split(" tris")[0];
+    const lod0 = [...document.querySelectorAll("button")].map((b) => b.textContent.trim()).find((t) => t.startsWith("LOD0 · ")) ?? "";
+    return caption && overlay !== "" && overlay !== "0" && lod0.startsWith(`LOD0 · ${overlay} /`);
+  }, null, { timeout: 30000 })
+  .then(() => true, () => false);
+expect(inspectorCountsForged, `inspector LOD row ${JSON.stringify(await lodButtons())} does not match the forged preview's ${await overlayTris()}`);
+if (!forgedFile.mesh.startsWith("SM_")) {
+  const [, lod1] = await lodButtons();
+  expect(/^LOD1 · — \//.test(lod1 ?? ""), `LOD1 of ${forgedFile.mesh} (no LOD chain in the file) shows ${lod1}`);
+}
+
 // Back to the blockout on request.
 await page.selectOption("#anvil-forged-pick", "");
 await page.waitForFunction(
   () => [...document.querySelectorAll("div.pointer-events-none span")].some((s) => s.textContent.trim() === "blockout preview"),
   { timeout: 30000 },
 );
+// ...and the inspector goes back to the blockout's counts, which exist for every level.
+const inspectorBackToBlockout = await page
+  .waitForFunction(() => {
+    const row = [...document.querySelectorAll("button")].map((b) => b.textContent.trim()).filter((t) => /^LOD[012] ·/.test(t));
+    const caption = [...document.querySelectorAll("p")].some((p) => p.textContent.trim().startsWith("triangles from "));
+    return !caption && row.length === 3 && row.every((t) => !t.includes("—") && !t.includes("…"));
+  }, null, { timeout: 15000 })
+  .then(() => true, () => false);
+expect(inspectorBackToBlockout, `inspector kept forged counts on the blockout: ${JSON.stringify(await lodButtons())} caption=${await page.evaluate(hasForgedCaption)}`);
 
 // A file that carries a LOD chain must switch meshes with the LOD buttons; one that does not
 // (a Godot export, where the engine builds its own) must say so and keep showing LOD0.
