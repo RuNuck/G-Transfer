@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "id": "job_20260914130925_22ae18",
+  "type": "asset",
+  "status": "published",
+  "createdAt": "2026-09-14T13:09:25.419Z",
+  "updatedAt": "2026-09-14T13:09:34.937Z",
+  "startedAt": "2026-09-14T13:09:25.495Z",
+  "finishedAt": "2026-09-14T13:09:34.937Z",
+  "inputs": {
+    "mode": "kind-build",
+    "kind": "jungle_tree_root_a",
+    "engine": "godot",
+    "script": null,
+    "bakeScript": null,
+    "brief": null,
+    "bake": true,
+    "outDir": "exports\\forge\\biome\\jungle",
+    "out": null
+  },
+  "paths": {
+    "artifactDir": "exports/forge/biome/jungle",
+    "mesh": "exports/forge/biome/jungle/tree_root_a.glb",
+    "textures": "exports/forge/biome/jungle/textures",
+    "buildScript": "tools/blender-check/out/gen/jungle_tree_root_a_godot.py",
+    "bakeScript": "tools/blender-check/out/gen/jungle_tree_root_a_godot.bake.py",
+    "index": "exports/index.json",
+    "indexStatus": "ready"
+  },
+  "stages": [
+    {
+      "status": "building",
+      "at": "2026-09-14T13:09:25.495Z",
+      "note": "Blender headless build: C:/Program Files/Blender Foundation/Blender 5.2/blender.exe"
+    },
+    {
+      "status": "baking",
+      "at": "2026-09-14T13:09:25.515Z",
+      "note": "Blender bake (pid 17036): C:\\Users\\RuNuc\\Desktop\\AI-Pipeline\\G-Transfer-main\\tools\\blender-check\\out\\gen\\jungle_tree_root_a_godot.bake.py"
+    },
+    {
+      "status": "validating",
+      "at": "2026-09-14T13:09:30.257Z",
+      "note": "running tools/validate godot_prod"
+    },
+    {
+      "status": "validating",
+      "at": "2026-09-14T13:09:30.339Z",
+      "note": "running tools/godot-check (ship gate)"
+    },
+    {
+      "status": "published",
+      "at": "2026-09-14T13:09:34.937Z",
+      "note": "validated + godot import ok + index ready"
+    }
+  ],
+  "notes": [
+    "Blender headless build: C:/Program Files/Blender Foundation/Blender 5.2/blender.exe",
+    "Blender bake (pid 17036): C:\\Users\\RuNuc\\Desktop\\AI-Pipeline\\G-Transfer-main\\tools\\blender-check\\out\\gen\\jungle_tree_root_a_godot.bake.py",
+    "running tools/validate godot_prod",
+    "running tools/godot-check (ship gate)",
+    "validated + godot import ok + index ready"
+  ],
+  "errors": [],
+  "validation": {
+    "ok": true,
+    "exitCode": 0,
+    "counts": {
+      "assets": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "hardFails": [],
+    "report": {
+      "file": "exports/forge/biome/jungle/tree_root_a.glb",
+      "absPath": "C:\\Users\\RuNuc\\Desktop\\AI-Pipeline\\G-Transfer-main\\exports\\forge\\biome\\jungle\\tree_root_a.glb",
+      "profile": "godot_prod",
+      "ok": true,
+      "hardFails": [],
+      "gates": [
+        {
+          "id": "file_exists",
+          "severity": "hard",
+          "ok": true,
+          "detail": "exports/forge/biome/jungle/tree_root_a.glb"
+        },
+        {
+          "id": "extension",
+          "severity": "hard",
+          "ok": true,
+          "detail": ".glb"
+        },
+        {
+          "id": "readable_glb",
+          "severity": "hard",
+          "ok": true,
+          "detail": "glTF 2, 230232 bytes"
+        },
+        {
+          "id": "has_meshes",
+          "severity": "hard",
+          "ok": true,
+          "detail": "2 mesh(es): tree_root_a, tree_root_a_col-convcolonly"
+        },
+        {
+          "id": "has_materials",
+          "severity": "hard",
+          "ok": true,
+          "detail": "3 material(s)"
+        },
+        {
+          "id": "has_nodes",
+          "severity": "hard",
+          "ok": true,
+          "detail": "2 node(s)"
+        },
+        {
+          "id": "collision_godot_suffix",
+          "severity": "hard",
+          "ok": true,
+          "detail": "Godot collision node(s): tree_root_a_col-convcolonly"
+        },
+        {
+          "id": "meters_bounds",
+          "severity": "hard",
+          "ok": true,
+          "detail": "AABB size ≈ 2.057×0.690×2.132 m (from POSITION min/max)"
+        },
+        {
+          "id": "pbr_textures_resolve",
+          "severity": "hard",
+          "ok": true,
+          "detail": "12 PBR texture ref(s) resolve (3 image(s))"
+        }
+      ],
+      "soft": [
+        {
+          "id": "rigged_clips",
+          "severity": "soft",
+          "ok": true,
+          "detail": "no clips (path does not suggest rigged)"
+        },
+        {
+          "id": "pivot_weapon_or_rigged",
+          "severity": "soft",
+          "ok": true,
+          "detail": "path does not suggest weapon/rigged — pivot not gated"
+        }
+      ],
+      "summary": {
+        "bytes": 230232,
+        "meshes": [
+          "tree_root_a",
+          "tree_root_a_col-convcolonly"
+        ],
+        "materials": [
+          "mat_bark",
+          "mat_moss",
+          "mat_wet_bark"
+        ],
+        "animations": [],
+        "skins": 0,
+        "godotCollisionNodes": [
+          "tree_root_a_col-convcolonly"
+        ],
+        "bounds": {
+          "min": [
+            -1.013860821723938,
+            0,
+            -1.0660302639007568
+          ],
+          "max": [
+            1.0429950952529907,
+            0.6902891397476196,
+            1.0663384199142456
+          ],
+          "size": [
+            2.0568559169769287,
+            0.6902891397476196,
+            2.1323686838150024
+          ]
+        },
+        "suggestsRigged": false,
+        "suggestsWeapon": false,
+        "textures": {
+          "claimedPbr": 3,
+          "missing": 0
+        },
+        "pivot": {
+          "gripNode": null,
+          "rootNearOrigin": null
+        }
+      }
+    }
+  },
+  "blender": {
+    "available": true,
+    "path": "C:/Program Files/Blender Foundation/Blender 5.2/blender.exe",
+    "source": "ANVIL_BLENDER",
+    "kitDir": "C:/Users/RuNuc/Desktop/AI-Pipeline/G-Transfer-main/public/downloads",
+    "note": "headless Blender build via tools/forge-run/headless-run.py",
+    "logTail": "oot_a built (part kit) in collection Anvil_tree_root_a: LOD0 116 tris (budget 1400), tree_root_a_LOD1 116 tris, tree_root_a_LOD2 116 tris, collision tree_root_a_col-convcolonly (convex), pivot bottom -> exported C:\\Users\\RuNuc\\Desktop\\AI-Pipeline\\G-Transfer-main\\exports\\forge\\biome\\jungle\\tree_root_a.glb\r\nExport: File > Export > glTF 2.0 · GLB · selected objects · apply modifiers · +Y up (the export set is selected)\r\nTextures: tex_tree_root_a_albedo tex_tree_root_a_normal tex_tree_root_a_orm\r\nGodot ORM: R=AO, G=Roughness, B=Metallic. Import as StandardMaterial3D.\r\nANVIL_BUILD_RESULT tree_root_a built (part kit) in collection Anvil_tree_root_a: LOD0 116 tris (budget 1400), tree_root_a_LOD1 116 tris, tree_root_a_LOD2 116 tris, collision tree_root_a_col-convcolonly (convex), pivot bottom -> exported C:\\Users\\RuNuc\\Desktop\\AI-Pipeline\\G-Transfer-main\\exports\\forge\\biome\\jungle\\tree_root_a.glb\r\nANVIL_HEADLESS bake C:\\Users\\RuNuc\\Desktop\\AI-Pipeline\\G-Transfer-main\\tools\\blender-check\\out\\gen\\jungle_tree_root_a_godot.bake.py\r\nInfo: Baking map saved to internal image, save it externally or pack it\r\nAnvil surfacing: ao 0.2s\r\nInfo: Baking map saved to internal image, save it externally or pack it\r\nAnvil surfacing: edges 0.1s\r\nInfo: Baking map saved to internal image, save it externally or pack it\r\nAnvil surfacing: color 0.1s\r\nInfo: Baking map saved to internal image, save it externally or pack it\r\nAnvil surfacing: rough 0.1s\r\nInfo: Baking map saved to internal image, save it externally or pack it\r\nAnvil surfacing: metal 0.1s\r\nInfo: Baking map saved to internal image, save it externally or pack it\r\nAnvil surfacing: normal 0.1s\r\nAnvil surfacing: repaired 1.31% of the normal map where parts interpenetrate\r\nAnvil surfacing: tree_root_a at 512px in 0.9s: mat_bark=generic, mat_moss=moss, mat_wet_bark=generic\r\n09:09:30 | INFO: Starting glTF 2.0 export\r\n09:09:30 | INFO: Extracting primitive: tree_root_a\r\n09:09:30 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.\r\n09:09:30 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.\r\n09:09:30 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.\r\n09:09:30 | INFO: Primitives created: 3\r\n09:09:30 | INFO: Extracting primitive: tree_root_a_col-convcolonly\r\n09:09:30 | INFO: Primitives created: 2\r\n09:09:30 | INFO: Finished glTF 2.0 export in 0.026960134506225586 s\r\n\r\nAnvil Surfaced tree_root_a at 512px (mat_bark=generic, mat_moss=moss, mat_wet_bark=generic) in 0.9s and wrote C:\\Users\\RuNuc\\Desktop\\AI-Pipeline\\G-Transfer-main\\exports\\forge\\biome\\jungle\\textures\\tex_tree_root_a_albedo.png, C:\\Users\\RuNuc\\Desktop\\AI-Pipeline\\G-Transfer-main\\exports\\forge\\biome\\jungle\\textures\\tex_tree_root_a_normal.png, C:\\Users\\RuNuc\\Desktop\\AI-Pipeline\\G-Transfer-main\\exports\\forge\\biome\\jungle\\textures\\tex_tree_root_a_orm.png -> exported C:\\Users\\RuNuc\\Desktop\\AI-Pipeline\\G-Transfer-main\\exports\\forge\\biome\\jungle\\tree_root_a.glb\r\nGodot ORM: R=AO, G=Roughness, B=Metallic. Import as StandardMaterial3D.\r\nANVIL_BAKE_RESULT Surfaced tree_root_a at 512px (mat_bark=generic, mat_moss=moss, mat_wet_bark=generic) in 0.9s and wrote C:\\Users\\RuNuc\\Desktop\\AI-Pipeline\\G-Transfer-main\\exports\\forge\\biome\\jungle\\textures\\tex_tree_root_a_albedo.png, C:\\Users\\RuNuc\\Desktop\\AI-Pipeline\\G-Transfer-main\\exports\\forge\\biome\\jungle\\textures\\tex_tree_root_a_normal.png, C:\\Users\\RuNuc\\Desktop\\AI-Pipeline\\G-Transfer-main\\exports\\forge\\biome\\jungle\\textures\\tex_tree_root_a_orm.png -> exported C:\\Users\\RuNuc\\Desktop\\AI-Pipeline\\G-Transfer-main\\exports\\forge\\biome\\jungle\\tree_root_a.glb\r\nANVIL_EXPORT_OK C:\\Users\\RuNuc\\Desktop\\AI-Pipeline\\G-Transfer-main\\exports\\forge\\biome\\jungle\\tree_root_a.glb 230232\r\nBlender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)\n\nBlender quit\n\n",
+    "exitCode": 0,
+    "buildSource": "part kit"
+  },
+  "worker": {
+    "blenderSpawnPending": false,
+    "blenderPath": "C:/Program Files/Blender Foundation/Blender 5.2/blender.exe",
+    "blenderPid": 17036,
+    "blenderStartedAt": "2026-09-14T13:09:25.510Z"
+  },
+  "godotImport": {
+    "ran": true,
+    "available": true,
+    "ok": true,
+    "status": "ready",
+    "exitCode": 0,
+    "source": "ANVIL_GODOT",
+    "path": "C:/Users/RuNuc/AppData/Local/Microsoft/WinGet/Packages/GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe/Godot_v4.7.2-stable_win64_console.exe",
+    "problems": [],
+    "godotVersion": "4.7.2.stable.official.ed1daf0bf",
+    "note": "Godot headless import ok"
+  },
+  "shipGate": "ready"
+}
