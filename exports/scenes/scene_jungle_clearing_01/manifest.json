@@ -33,7 +33,25 @@
   ],
   "contentHash": "sha256:a41170cbe03da8fed3462cf51b92e44343cbfa0a78e4f4cd06e64fb5d497a41b",
   "megaMeshRejected": true,
-  "status": "kits_present",
+  "status": "instanced",
   "kitsPresent": 13,
-  "kitsMissing": 0
+  "kitsMissing": 0,
+  "realInstances": 157,
+  "placeholderInstances": 0,
+  "extResourceCount": 13,
+  "kitsStaged": [
+    "exports/scenes/scene_jungle_clearing_01/kits/terrain_tile_mud.glb",
+    "exports/scenes/scene_jungle_clearing_01/kits/path_dirt_a.glb",
+    "exports/scenes/scene_jungle_clearing_01/kits/water_plane_a.glb",
+    "exports/scenes/scene_jungle_clearing_01/kits/river_bank_a.glb",
+    "exports/scenes/scene_jungle_clearing_01/kits/tree_trunk_a.glb",
+    "exports/scenes/scene_jungle_clearing_01/kits/tree_trunk_b.glb",
+    "exports/scenes/scene_jungle_clearing_01/kits/tree_canopy_a.glb",
+    "exports/scenes/scene_jungle_clearing_01/kits/tree_root_a.glb",
+    "exports/scenes/scene_jungle_clearing_01/kits/fern_card_a.glb",
+    "exports/scenes/scene_jungle_clearing_01/kits/shrub_a.glb",
+    "exports/scenes/scene_jungle_clearing_01/kits/mud_decal_a.glb",
+    "exports/scenes/scene_jungle_clearing_01/kits/rock_scatter_a.glb",
+    "exports/scenes/scene_jungle_clearing_01/kits/fallen_log_a.glb"
+  ]
 }

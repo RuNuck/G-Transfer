@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "sceneId": "scene.jungle.clearing_01",
-  "status": "kits_present",
-  "note": "layout-only checklist; ship/publish requires run-scene Godot open",
+  "status": "published",
+  "note": "forge_scene finish — godot_import rewritten after headless open",
   "gates": [
     {
       "id": "schema",
@@ -20,12 +20,20 @@
     {
       "id": "kits_resolve",
       "ok": true,
-      "note": "see report.kitNotes"
+      "note": "kit GLBs present"
+    },
+    {
+      "id": "real_instances",
+      "ok": true,
+      "note": "157 PackedScene instances; 0 placeholders"
     },
     {
       "id": "godot_import",
-      "ok": null,
-      "note": "not-yet-checked — deferred-to-run-scene ship gate (fail-closed; not skipped OK)"
+      "ok": true,
+      "note": "ANVIL_SCENE_OK res://scene.tscn root=Node3D name=Jungle_clearing_with_river_and_dirt_path",
+      "godotVersion": "4.7.2.stable.official.ed1daf0bf",
+      "path": "/home/box/tools/godot-4.7.2/Godot_v4.7.2-stable_linux.x86_64"
     }
-  ]
+  ],
+  "jobId": "job_20260914134228_51a6ed"
 }

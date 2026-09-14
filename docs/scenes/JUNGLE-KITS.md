@@ -34,7 +34,7 @@
 | **stub** | Explicit STUB definition — never claim ready |
 | **ready** | Indexed `shipGate`/`status` ready: validated + baked + Godot import ok on this box |
 
-**Current (2026-09-14):** all **13/13** `biome.jungle.*` pieces are **ready** on G-Transfer evidence (`6293905`+). Compose + `forge_scene` jungle example published/Godot-open. Phase (3) **product exit** still needs specialist clears (Quinn TA / Reed / Vale / Ori) — that is board exit, not index honesty. Ops (Remy/Nova) bars are separate from shipGate ready.
+**Current (2026-09-14):** all **13/13** `biome.jungle.*` pieces are **ready** on G-Transfer evidence (`6293905`+). **Kit exit ≠ playable jungle** until compose emits real PackedScene instances (no `anvil_placeholder`) and `forge_scene` publishes with Godot open + honest `validation.json` `godot_import`. Phase (3) **product exit** still needs specialist clears (Quinn TA / Reed / Vale / Ori) — that is board exit, not index honesty. Ops (Remy/Nova) bars are separate from shipGate ready.
 
 ## Texel density (Quinn)
 

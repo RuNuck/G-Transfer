@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "kits_present",
+  "status": "instanced",
   "sceneId": "scene.jungle.clearing_01",
   "exportId": "scene_jungle_clearing_01",
   "seed": 20260906,
@@ -25,6 +25,9 @@
     "landmarks": 1
   },
   "instanceTotal": 157,
+  "realInstances": 157,
+  "placeholderInstances": 0,
+  "extResourceCount": 13,
   "kitRefsRequested": [
     "biome.jungle.terrain_tile_mud",
     "biome.jungle.path_dirt_a",
@@ -133,9 +136,11 @@
     "report": "exports/scenes/scene_jungle_clearing_01/report.json"
   },
   "notes": [
-    "Kit GLBs present on disk (13/13) — layout can instance; not ship-ready until bake+Godot gates.",
+    "Emitted 157 PackedScene kit instances (13 ExtResources); 0 anvil_placeholder.",
     "Never fuse a mega-mesh jungle.glb; composer instances biome kits only.",
+    "Compose layout-only godot_import stays null until run-scene / forge_scene finish rewrites it.",
     "Hand fixture for Phase 4 composer. Instances only; no fused jungle.glb."
   ],
-  "kits_resolve": true
+  "kits_resolve": true,
+  "real_instances": true
 }

@@ -4,10 +4,11 @@
  *   node tools/godot-check/check-scene.mjs <path/to/scene.tscn|scene-dir> [--keep]
  *
  * Exit 0 + JSON ok:true when Godot loads/instantiates the scene.
+ * Copies sibling kits/ into the throwaway project so ExtResource PackedScenes resolve.
  * When Godot binary is missing, exits 2 with available:false (caller decides policy).
  */
 import { spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { copyFileSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readlinkSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -64,6 +65,32 @@ writeFileSync(
 );
 copyFileSync(scenePath, join(project, "scene.tscn"));
 copyFileSync(join(here, "open-scene.gd"), join(project, "open_scene.gd"));
+
+// Stage kits/ next to scene.tscn so PackedScene ExtResources (res://kits/*.glb) resolve.
+const kitsSrc = join(dirname(scenePath), "kits");
+if (existsSync(kitsSrc) && statSync(kitsSrc).isDirectory()) {
+  const kitsDst = join(project, "kits");
+  mkdirSync(kitsDst, { recursive: true });
+  for (const name of readdirSync(kitsSrc)) {
+    const src = join(kitsSrc, name);
+    const dst = join(kitsDst, name);
+    try {
+      const st = lstatSync(src);
+      if (st.isSymbolicLink()) {
+        // Materialize symlink target so the throwaway project is self-contained.
+        const target = readlinkSync(src);
+        const absTarget = target.startsWith("/") ? target : join(kitsSrc, target);
+        if (existsSync(absTarget)) copyFileSync(absTarget, dst);
+      } else if (st.isFile()) {
+        copyFileSync(src, dst);
+      } else if (st.isDirectory()) {
+        cpSync(src, dst, { recursive: true });
+      }
+    } catch (e) {
+      // Best-effort; Godot open will fail closed if a kit is missing.
+    }
+  }
+}
 
 const version = spawnSync(godot.path, ["--version"], { encoding: "utf8" }).stdout.trim();
 spawnSync(godot.path, ["--headless", "--path", project, "--import"], {

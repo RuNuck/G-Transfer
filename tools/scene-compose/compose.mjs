@@ -1,13 +1,15 @@
 /**
- * Phase 4 scene composer scaffold (layout-only; no Blender/Godot).
+ * Phase 4 scene composer — kit instance emitter (no Blender).
  *
  *   node tools/scene-compose/compose.mjs <SceneSpec.json> [--json]
  *
- * Writes exports/scenes/<id>/scene.tscn + report.json (+ scene.json copy, manifest stub).
- * Kit GLBs are NOT invented — missing kits are noted in report.kitNotes.
+ * Writes exports/scenes/<id>/scene.tscn + report.json (+ scene.json, manifest, validation).
+ * Present kit GLBs are staged under kits/ and instanced as PackedScene ExtResources.
+ * Missing kits stay placeholder Node3D (anvil_placeholder) and fail kits_resolve.
+ * Kit binaries are NOT invented.
  */
 import { createHash } from "node:crypto";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -295,13 +297,77 @@ function buildLayout(spec) {
   return { instances, byLayer, kitNotes };
 }
 
-function writeTscn(spec, layout, outPath, anvilStatus = "scaffold") {
+function stageKitGlbs(outDir, layout) {
+  const kitsDir = join(outDir, "kits");
+  mkdirSync(kitsDir, { recursive: true });
+  const presentById = new Map();
+  for (const note of layout.kitNotes || []) {
+    if (note.status === "present" && note.expectedPath) {
+      presentById.set(note.kitId, note.expectedPath);
+    }
+  }
+  const usedKits = [...new Set((layout.instances || []).map((i) => i.kitId))];
+  const resourceMap = new Map();
+  for (const kitId of usedKits) {
+    const srcRel = presentById.get(kitId);
+    if (!srcRel) continue;
+    const srcAbs = resolve(projectRoot, srcRel);
+    if (!existsSync(srcAbs)) continue;
+    const fileName = `${shortKit(kitId)}.glb`;
+    const dest = join(kitsDir, fileName);
+    try {
+      if (existsSync(dest)) rmSync(dest);
+    } catch {
+      /* ignore */
+    }
+    try {
+      symlinkSync(srcAbs, dest);
+    } catch {
+      copyFileSync(srcAbs, dest);
+    }
+    resourceMap.set(kitId, {
+      extId: `kit_${shortKit(kitId)}`,
+      resPath: `res://kits/${fileName}`,
+      srcRel: srcRel.split("\\").join("/"),
+      stagedRel: relative(projectRoot, dest).split("\\").join("/"),
+    });
+  }
+  return resourceMap;
+}
+
+function writeSceneProjectGodot(outDir) {
+  const body = [
+    "config_version=5",
+    "",
+    "[application]",
+    "",
+    'config/name="Anvil composed scene"',
+    'run/main_scene="res://scene.tscn"',
+    'config/features=PackedStringArray("4.4")',
+    "",
+  ].join("\n");
+  writeFileSync(join(outDir, "project.godot"), body + "\n");
+}
+
+function writeTscn(spec, layout, outPath, anvilStatus = "scaffold", resourceMap = new Map()) {
   const rootName = (spec.displayName || "SceneRoot")
     .replace(/[^A-Za-z0-9_]/g, "_")
     .replace(/^(\d)/, "_$1") || "SceneRoot";
+  const uniqueResources = [];
+  const seenExt = new Set();
+  for (const r of resourceMap.values()) {
+    if (seenExt.has(r.extId)) continue;
+    seenExt.add(r.extId);
+    uniqueResources.push(r);
+  }
+  const loadSteps = 1 + uniqueResources.length;
   const lines = [];
-  lines.push(`[gd_scene load_steps=1 format=3]`);
+  lines.push(`[gd_scene load_steps=${loadSteps} format=3]`);
   lines.push(``);
+  for (const r of uniqueResources) {
+    lines.push(`[ext_resource type="PackedScene" path="${r.resPath}" id="${r.extId}"]`);
+  }
+  if (uniqueResources.length) lines.push(``);
   lines.push(`[node name="${rootName}" type="Node3D"]`);
   lines.push(`metadata/anvil_scene_id = "${spec.id}"`);
   lines.push(`metadata/anvil_seed = ${spec.seed}`);
@@ -326,14 +392,26 @@ function writeTscn(spec, layout, outPath, anvilStatus = "scaffold") {
     landmarks: "Landmarks",
   };
 
+  let realInstances = 0;
+  let placeholderInstances = 0;
   for (const inst of layout.instances) {
     const parent = layerParent[inst.layer] || "Ground";
-    const nodeType = inst.kind === "landmark" ? "MeshInstance3D" : "Node3D";
-    lines.push(`[node name="${inst.name}" type="${nodeType}" parent="${parent}"]`);
-    lines.push(`transform = ${transformLine(inst.x, inst.y, inst.z, inst.yaw, inst.scale)}`);
-    lines.push(`metadata/kit_id = "${inst.kitId}"`);
-    lines.push(`metadata/anvil_placeholder = true`);
-    lines.push(``);
+    const res = resourceMap.get(inst.kitId);
+    if (res) {
+      lines.push(`[node name="${inst.name}" parent="${parent}" instance=ExtResource("${res.extId}")]`);
+      lines.push(`transform = ${transformLine(inst.x, inst.y, inst.z, inst.yaw, inst.scale)}`);
+      lines.push(`metadata/kit_id = "${inst.kitId}"`);
+      lines.push(``);
+      realInstances++;
+    } else {
+      const nodeType = inst.kind === "landmark" ? "MeshInstance3D" : "Node3D";
+      lines.push(`[node name="${inst.name}" type="${nodeType}" parent="${parent}"]`);
+      lines.push(`transform = ${transformLine(inst.x, inst.y, inst.z, inst.yaw, inst.scale)}`);
+      lines.push(`metadata/kit_id = "${inst.kitId}"`);
+      lines.push(`metadata/anvil_placeholder = true`);
+      lines.push(``);
+      placeholderInstances++;
+    }
   }
 
   // ≥2 named light setups
@@ -344,7 +422,6 @@ function writeTscn(spec, layout, outPath, anvilStatus = "scaffold") {
     const elev = setup.sunElevationDeg ?? 45;
     const az = setup.sunAzimuthDeg ?? 180;
     const energy = setup.energy ?? 1;
-    // Approximate sun direction from elev/az into a Transform3D (placeholder)
     const elevR = (elev * Math.PI) / 180;
     const azR = (az * Math.PI) / 180;
     const dx = Math.cos(elevR) * Math.sin(azR);
@@ -364,6 +441,7 @@ function writeTscn(spec, layout, outPath, anvilStatus = "scaffold") {
   }
 
   writeFileSync(outPath, lines.join("\n") + "\n");
+  return { realInstances, placeholderInstances, extResourceCount: uniqueResources.length };
 }
 
 function contentHash(instances) {
@@ -390,9 +468,15 @@ export function composeScene(specPath, options = {}) {
 
   const layout = buildLayout(spec);
   const kitsResolveOkEarly = !(layout.kitNotes || []).some((k) => k.status === "missing");
-  const layoutStatus = kitsResolveOkEarly ? "kits_present" : "scaffold";
+  const resourceMap = stageKitGlbs(outDir, layout);
+  const allInstanced =
+    kitsResolveOkEarly &&
+    layout.instances.length > 0 &&
+    layout.instances.every((inst) => resourceMap.has(inst.kitId));
+  const layoutStatus = allInstanced ? "instanced" : kitsResolveOkEarly ? "kits_present" : "scaffold";
   const tscnPath = join(outDir, "scene.tscn");
-  writeTscn(spec, layout, tscnPath, layoutStatus);
+  const emitStats = writeTscn(spec, layout, tscnPath, layoutStatus, resourceMap);
+  writeSceneProjectGodot(outDir);
 
   const hash = contentHash(layout.instances);
   const lightSetups = spec.layers.lighting.setups.map((s) => s.id);
@@ -411,6 +495,10 @@ export function composeScene(specPath, options = {}) {
     status: layoutStatus,
     kitsPresent: (layout.kitNotes || []).filter((k) => k.status === "present").length,
     kitsMissing: (layout.kitNotes || []).filter((k) => k.status === "missing").length,
+    realInstances: emitStats.realInstances,
+    placeholderInstances: emitStats.placeholderInstances,
+    extResourceCount: emitStats.extResourceCount,
+    kitsStaged: [...resourceMap.values()].map((r) => r.stagedRel),
   };
   writeFileSync(join(outDir, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
 
@@ -423,6 +511,9 @@ export function composeScene(specPath, options = {}) {
     bounds: spec.aabb,
     instanceCounts: layout.byLayer,
     instanceTotal: layout.instances.length,
+    realInstances: emitStats.realInstances,
+    placeholderInstances: emitStats.placeholderInstances,
+    extResourceCount: emitStats.extResourceCount,
     kitRefsRequested: (spec.kitRefs || []).map((k) => k.id),
     kitNotes: layout.kitNotes,
     lightSetups,
@@ -442,12 +533,16 @@ export function composeScene(specPath, options = {}) {
   const missingCount = (report.kitNotes || []).filter((k) => k.status === "missing").length;
   const presentCount = (report.kitNotes || []).filter((k) => k.status === "present").length;
   report.kits_resolve = kitsResolveOk;
-  report.status = kitsResolveOk ? "kits_present" : "scaffold";
+  report.real_instances = emitStats.placeholderInstances === 0 && emitStats.realInstances > 0;
+  report.status = report.real_instances ? "instanced" : kitsResolveOk ? "kits_present" : "scaffold";
   report.notes = [
-    kitsResolveOk
-      ? `Kit GLBs present on disk (${presentCount}/${presentCount + missingCount}) — layout can instance; not ship-ready until bake+Godot gates.`
-      : `Kit GLBs missing (${missingCount} unresolved) — placeholder Node3D only; no binary invented.`,
+    report.real_instances
+      ? `Emitted ${emitStats.realInstances} PackedScene kit instances (${emitStats.extResourceCount} ExtResources); 0 anvil_placeholder.`
+      : kitsResolveOk
+        ? `Kit GLBs present (${presentCount}) but emitter left ${emitStats.placeholderInstances} placeholders — not playable.`
+        : `Kit GLBs missing (${missingCount} unresolved) — placeholder Node3D only; no binary invented.`,
     "Never fuse a mega-mesh jungle.glb; composer instances biome kits only.",
+    "Compose layout-only godot_import stays null until run-scene / forge_scene finish rewrites it.",
     spec.notes || null,
   ].filter(Boolean);
   writeFileSync(join(outDir, "report.json"), JSON.stringify(report, null, 2) + "\n");
@@ -459,12 +554,19 @@ export function composeScene(specPath, options = {}) {
     schemaVersion: 1,
     sceneId: spec.id,
     status: report.status,
-    note: "layout-only checklist; ship/publish requires run-scene Godot open",
+    note: "compose checklist; ship/publish requires run-scene Godot open + godot_import rewrite",
     gates: [
       { id: "schema", ok: true },
       { id: "lights_gte_2", ok: lightSetups.length >= 2 },
       { id: "mega_mesh", ok: true, note: "no fused jungle.glb produced" },
       { id: "kits_resolve", ok: kitsResolveOk, note: "see report.kitNotes" },
+      {
+        id: "real_instances",
+        ok: report.real_instances,
+        note: report.real_instances
+          ? `${emitStats.realInstances} PackedScene instances; 0 placeholders`
+          : `${emitStats.placeholderInstances} anvil_placeholder Node3Ds remain`,
+      },
       { id: "godot_import", ok: null, note: godotImportNote },
     ],
   };
@@ -496,14 +598,16 @@ function main() {
       console.log(
         JSON.stringify(
           {
-            ok: Boolean(report.kits_resolve),
+            ok: Boolean(report.kits_resolve) && Boolean(report.real_instances),
             layoutOnly: true,
-            note: "exit 0 = kits layout resolve; not ship — run-scene owns Godot gate",
+            note: "exit 0 = kits resolve + real PackedScene instances; not ship — run-scene owns Godot gate",
             status: report.status,
             sceneId: report.sceneId,
             exportId: report.exportId,
             seed: report.seed,
             instanceTotal: report.instanceTotal,
+            realInstances: report.realInstances,
+            placeholderInstances: report.placeholderInstances,
             paths: report.paths,
           },
           null,
@@ -511,7 +615,7 @@ function main() {
         ),
       );
     }
-    process.exit(report.kits_resolve ? 0 : 1);
+    process.exit(report.kits_resolve && report.real_instances ? 0 : 1);
   } catch (e) {
     console.error(JSON.stringify({ ok: false, error: e.message || String(e) }, null, 2));
     process.exit(1);

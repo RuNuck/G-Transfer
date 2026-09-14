@@ -1,14 +1,15 @@
 /**
- * Phase 4 forge_scene runner (scaffold).
+ * Phase 4 forge_scene runner (sync).
  *
  *   node tools/scene-compose/run-scene.mjs --spec <SceneSpec.json> [--json]
  *   node tools/scene-compose/run-scene.mjs --brief "jungle clearing…" [--json]
  *
- * Creates a type=scene job, runs compose scaffold.
- * Publish only when kits resolve AND Godot headless-opens scene.tscn.
+ * Creates a type=scene job, runs compose (PackedScene kit instances).
+ * Publish only when kits resolve, 0 anvil_placeholder, AND Godot headless-opens scene.tscn.
+ * Rewrites exports/scenes/<id>/validation.json godot_import honestly on finish.
  * Godot absent / open skipped => validation.ok=false, hardFail godot_absent, status failed.
  */
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join, relative, resolve } from "node:path";
 import { createJob, advanceStage, failJob, projectRoot, saveJob } from "../forge-run/job-store.mjs";
@@ -116,6 +117,42 @@ function runGodotSceneOpen(absTscn) {
   };
 }
 
+
+function countPlaceholders(absTscn) {
+  if (!existsSync(absTscn)) return -1;
+  const body = readFileSync(absTscn, "utf8");
+  const placeholders = (body.match(/metadata\/anvil_placeholder\s*=\s*true/g) || []).length;
+  const instances = (body.match(/instance=ExtResource\(/g) || []).length;
+  return { placeholders, instances };
+}
+
+/** Rewrite compose-time validation.json godot_import (and related) after ship gate. */
+function rewriteValidationJson(sceneDirRel, patch) {
+  const abs = resolve(projectRoot, sceneDirRel, "validation.json");
+  if (!existsSync(abs)) return null;
+  let doc;
+  try {
+    doc = JSON.parse(readFileSync(abs, "utf8"));
+  } catch {
+    return null;
+  }
+  const gates = Array.isArray(doc.gates) ? doc.gates.map((g) => ({ ...g })) : [];
+  function upsert(id, fields) {
+    const i = gates.findIndex((g) => g.id === id);
+    if (i >= 0) gates[i] = { ...gates[i], ...fields, id };
+    else gates.push({ id, ...fields });
+  }
+  if (patch.godotImport) upsert("godot_import", patch.godotImport);
+  if (patch.realInstances) upsert("real_instances", patch.realInstances);
+  if (patch.kitsResolve) upsert("kits_resolve", patch.kitsResolve);
+  doc.gates = gates;
+  if (patch.status != null) doc.status = patch.status;
+  if (patch.note != null) doc.note = patch.note;
+  if (patch.jobId != null) doc.jobId = patch.jobId;
+  writeFileSync(abs, JSON.stringify(doc, null, 2) + "\n");
+  return doc;
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
   if (!args.spec && !args.brief && !args.sceneSpecJson) {
@@ -170,6 +207,20 @@ function main() {
 
     // Honesty: never mark published/ok when kits unresolved — scaffold/failed only.
     if (!kitsResolve) {
+      rewriteValidationJson(report.paths.dir, {
+        status: "scaffold",
+        note: "kits unresolved — godot_import not run",
+        jobId: job.id,
+        kitsResolve: { ok: false, note: "see report.kitNotes" },
+        realInstances: {
+          ok: false,
+          note: `${report.placeholderInstances ?? "?"} anvil_placeholder remain`,
+        },
+        godotImport: {
+          ok: false,
+          note: "skipped — kits_resolve false (fail-closed)",
+        },
+      });
       failJob(job, "kits_resolve false — scene remains scaffold (kit GLBs missing); not published");
       if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
       else {
@@ -194,9 +245,64 @@ function main() {
       process.exit(1);
     }
 
+    // Real PackedScene instances required — refuse publish on anvil_placeholder leftovers.
+    const absTscn = resolve(projectRoot, report.paths.sceneTscn);
+    const ph = countPlaceholders(absTscn);
+    const realOk =
+      Boolean(report.real_instances) &&
+      ph.placeholders === 0 &&
+      ph.instances > 0;
+    job.validation.report.placeholderInstances = ph.placeholders;
+    job.validation.report.packedSceneInstances = ph.instances;
+    job.validation.report.real_instances = realOk;
+    if (!realOk) {
+      job.validation.ok = false;
+      job.validation.hardFails = [...new Set([...(job.validation.hardFails || []), "real_instances"])];
+      saveJob(job);
+      rewriteValidationJson(report.paths.dir, {
+        status: "failed",
+        note: "emitter left placeholders — refuse published+ok",
+        jobId: job.id,
+        kitsResolve: { ok: true, note: "kit GLBs present" },
+        realInstances: {
+          ok: false,
+          note: `placeholders=${ph.placeholders} packedSceneInstances=${ph.instances}`,
+        },
+        godotImport: {
+          ok: false,
+          note: "skipped — real_instances false (fail-closed)",
+        },
+      });
+      failJob(
+        job,
+        `real_instances false — placeholders=${ph.placeholders} packedSceneInstances=${ph.instances}; not published`,
+      );
+      if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
+      else {
+        console.log(
+          JSON.stringify(
+            {
+              ok: false,
+              jobId: job.id,
+              status: job.status,
+              type: job.type,
+              sceneId: report.sceneId,
+              shipStatus: "failed",
+              paths: job.paths,
+              placeholderInstances: ph.placeholders,
+              packedSceneInstances: ph.instances,
+              error: "real_instances false",
+            },
+            null,
+            2,
+          ),
+        );
+      }
+      process.exit(1);
+    }
+
     // NEVER published+ok unless Godot headless-opens scene.tscn (parity with forge-run).
     // Godot absent / open skipped => hardFail godot_absent; open fail => godot_scene_open.
-    const absTscn = resolve(projectRoot, report.paths.sceneTscn);
     advanceStage(job, "validating", "Godot headless open scene.tscn (required for publish)");
     const sceneOpen = runGodotSceneOpen(absTscn);
     job.godotScene = sceneOpen;
@@ -209,6 +315,22 @@ function main() {
       job.validation.ok = false;
       job.validation.hardFails = [...new Set([...(job.validation.hardFails || []), failId])];
       saveJob(job);
+      rewriteValidationJson(report.paths.dir, {
+        status: "failed",
+        note: "Godot ship gate failed — godot_import rewritten honestly",
+        jobId: job.id,
+        kitsResolve: { ok: true, note: "kit GLBs present" },
+        realInstances: {
+          ok: true,
+          note: `${ph.instances} PackedScene instances; 0 placeholders`,
+        },
+        godotImport: {
+          ok: false,
+          note: sceneOpen.available
+            ? `Godot scene open failed: ${(sceneOpen.problems || []).join("; ") || sceneOpen.note}`
+            : "Godot absent — scene open skipped (refuse published+ok; hardFail godot_absent)",
+        },
+      });
       failJob(
         job,
         sceneOpen.available
@@ -243,7 +365,24 @@ function main() {
     }
 
     const publishNote =
-      "scene kits resolved + Godot opened scene.tscn; written to " + report.paths.dir;
+      "scene kits resolved + real PackedScene instances + Godot opened scene.tscn; written to " +
+      report.paths.dir;
+    rewriteValidationJson(report.paths.dir, {
+      status: "published",
+      note: "forge_scene finish — godot_import rewritten after headless open",
+      jobId: job.id,
+      kitsResolve: { ok: true, note: "kit GLBs present" },
+      realInstances: {
+        ok: true,
+        note: `${ph.instances} PackedScene instances; 0 placeholders`,
+      },
+      godotImport: {
+        ok: true,
+        note: sceneOpen.note || "Godot headless scene open ok",
+        godotVersion: sceneOpen.godotVersion || null,
+        path: sceneOpen.path || null,
+      },
+    });
     advanceStage(job, "published", publishNote);
 
     if (args.jsonOnly) console.log(JSON.stringify(job, null, 2));
@@ -265,6 +404,8 @@ function main() {
             paths: job.paths,
             seed: report.seed,
             instanceTotal: report.instanceTotal,
+            realInstances: ph.instances,
+            placeholderInstances: ph.placeholders,
           },
           null,
           2,
