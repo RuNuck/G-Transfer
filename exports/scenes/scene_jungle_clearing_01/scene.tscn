@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="PackedScene" path="res://kits/terrain_tile_mud.glb" id="kit_terrain_tile_mud"]
 [ext_resource type="PackedScene" path="res://kits/path_dirt_a.glb" id="kit_path_dirt_a"]
@@ -14,12 +14,41 @@
 [ext_resource type="PackedScene" path="res://kits/rock_scatter_a.glb" id="kit_rock_scatter_a"]
 [ext_resource type="PackedScene" path="res://kits/fallen_log_a.glb" id="kit_fallen_log_a"]
 
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_anvil"]
+sky_top_color = Color(0.32, 0.48, 0.52, 1)
+sky_horizon_color = Color(0.58, 0.64, 0.55, 1)
+ground_bottom_color = Color(0.12, 0.14, 0.09, 1)
+ground_horizon_color = Color(0.38, 0.4, 0.28, 1)
+
+[sub_resource type="Sky" id="Sky_anvil"]
+sky_material = SubResource("ProceduralSkyMaterial_anvil")
+
+[sub_resource type="Environment" id="Environment_anvil"]
+background_mode = 2
+sky = SubResource("Sky_anvil")
+ambient_light_source = 3
+ambient_light_energy = 0.65
+tonemap_mode = 3
+ssao_enabled = true
+glow_enabled = true
+fog_enabled = true
+fog_light_color = Color(0.55, 0.62, 0.5, 1)
+fog_density = 0.004
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.018
+volumetric_fog_albedo = Color(0.72, 0.76, 0.64, 1)
+volumetric_fog_anisotropy = 0.35
+
 [node name="Jungle_clearing_with_river_and_dirt_path" type="Node3D"]
 metadata/anvil_scene_id = "scene.jungle.clearing_01"
 metadata/anvil_seed = 20260906
 metadata/anvil_status = "instanced"
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_anvil")
+metadata/anvil_env = "procedural_sky"
+metadata/anvil_default_setup = "overcast"
+metadata/anvil_lightmaps = false
 
 [node name="Ground" type="Node3D" parent="."]
 [node name="Water" type="Node3D" parent="."]
@@ -657,18 +686,63 @@ transform = Transform3D(0.819, 0, 0.574, 0, 1, 0, -0.574, 0, 0.819, 2, 0, -4)
 metadata/kit_id = "biome.jungle.fallen_log_a"
 
 [node name="Lighting_overcast" type="Node3D" parent="."]
-[node name="Sun" type="DirectionalLight3D" parent="Lighting_overcast"]
-light_energy = 0.85
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.687, 20, -4.394)
 metadata/kind = "overcast"
+metadata/anvil_light_setup = true
 metadata/notes = "Diffuse canopy fill; primary gameplay light"
 
+[node name="Key" type="DirectionalLight3D" parent="Lighting_overcast"]
+transform = Transform3D(-0.766, 0.527, -0.369, 0, 0.574, 0.819, 0.643, 0.628, -0.439, -8.849, 19.66, -10.545)
+light_color = Color(0.9, 0.93, 1, 1)
+light_energy = 0.85
+light_indirect_energy = 1.15
+light_volumetric_fog_energy = 0.35
+light_angular_distance = 2.5
+shadow_enabled = true
+shadow_blur = 1.6
+directional_shadow_max_distance = 80
+metadata/role = "key"
+
+[node name="Fill" type="DirectionalLight3D" parent="Lighting_overcast"]
+transform = Transform3D(0.574, -0.73, 0.372, 0, 0.454, 0.891, -0.819, -0.511, 0.26, 8.925, 21.384, 6.25)
+light_color = Color(0.52, 0.68, 0.5, 1)
+light_energy = 0.272
+light_indirect_energy = 1
+light_volumetric_fog_energy = 0.12
+metadata/role = "fill"
+
+[node name="Rim" type="DirectionalLight3D" parent="Lighting_overcast"]
+transform = Transform3D(0.866, 0.301, -0.399, 0, 0.799, 0.602, 0.5, -0.521, 0.692, -9.584, 14.444, 16.599)
+light_color = Color(0.82, 0.78, 0.68, 1)
+light_energy = 0.153
+light_indirect_energy = 0.6
+light_volumetric_fog_energy = 0.2
+metadata/role = "rim"
+
 [node name="Lighting_god_rays" type="Node3D" parent="."]
-[node name="Sun" type="DirectionalLight3D" parent="Lighting_god_rays"]
-light_energy = 1.4
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.415, 20, -7.647)
+visible = false
 metadata/kind = "god_rays"
+metadata/anvil_light_setup = true
 metadata/notes = "Low sun shafts through canopy gaps; validation second setup"
+
+[node name="Key" type="DirectionalLight3D" parent="Lighting_god_rays"]
+transform = Transform3D(-0.866, -0.235, 0.441, 0, 0.883, 0.469, -0.5, 0.407, -0.765, 10.595, 11.267, -18.352)
+light_color = Color(1, 0.86, 0.58, 1)
+light_energy = 1.4
+light_indirect_energy = 0.9
+light_volumetric_fog_energy = 1.8
+light_angular_distance = 0.5
+shadow_enabled = true
+shadow_blur = 0.8
+directional_shadow_max_distance = 80
+metadata/role = "key"
+
+[node name="Fill" type="DirectionalLight3D" parent="Lighting_god_rays"]
+transform = Transform3D(0.906, 0.304, -0.294, 0, 0.695, 0.719, 0.423, -0.652, 0.63, -7.046, 17.264, 15.11)
+light_color = Color(0.42, 0.55, 0.72, 1)
+light_energy = 0.252
+light_indirect_energy = 0.8
+light_volumetric_fog_energy = 0.15
+metadata/role = "fill"
 
 [node name="Navigation" type="NavigationRegion3D" parent="."]
 

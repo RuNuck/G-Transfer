@@ -6,7 +6,9 @@
  * Writes exports/scenes/<id>/scene.tscn + report.json (+ scene.json, manifest, validation).
  * Present kit GLBs are staged under kits/ and instanced as PackedScene ExtResources.
  * Missing kits stay placeholder Node3D (anvil_placeholder) and fail kits_resolve.
- * Kit binaries are NOT invented.
+ * Lighting: WorldEnvironment (ProceduralSky + Environment) + SceneSpec light setups
+ * as oriented key/fill/rim or god_rays shafts — not empty env / identity DirectionalLights.
+ * Authored realtime environment; not baked lightmaps. Kit binaries are NOT invented.
  */
 import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
@@ -122,6 +124,281 @@ function transformLine(x, y, z, yawDeg = 0, scale = 1) {
   // Basis columns: X, Y, Z, origin — yaw around Y
   const sx = scale;
   return `Transform3D(${round3(c * sx)}, 0, ${round3(s * sx)}, 0, ${sx}, 0, ${round3(-s * sx)}, 0, ${round3(c * sx)}, ${round3(x)}, ${round3(y)}, ${round3(z)})`;
+}
+
+
+function colorTscn(rgb, a = 1) {
+  const [r, g, b] = rgb;
+  return `Color(${round3(r)}, ${round3(g)}, ${round3(b)}, ${round3(a)})`;
+}
+
+function wrapDeg(d) {
+  let x = d % 360;
+  if (x < 0) x += 360;
+  return x;
+}
+
+/** Godot Node3D Euler YXZ → Transform3D (light shines along -Z). */
+function eulerYxzTransform(pitchDeg, yawDeg, ox, oy, oz) {
+  const pitch = (pitchDeg * Math.PI) / 180;
+  const yaw = (yawDeg * Math.PI) / 180;
+  const cp = Math.cos(pitch);
+  const sp = Math.sin(pitch);
+  const cy = Math.cos(yaw);
+  const sy = Math.sin(yaw);
+  const Xx = cy;
+  const Xy = 0;
+  const Xz = -sy;
+  const Yx = sy * sp;
+  const Yy = cp;
+  const Yz = cy * sp;
+  const Zx = sy * cp;
+  const Zy = -sp;
+  const Zz = cy * cp;
+  return `Transform3D(${round3(Xx)}, ${round3(Yx)}, ${round3(Zx)}, ${round3(Xy)}, ${round3(Yy)}, ${round3(Zy)}, ${round3(Xz)}, ${round3(Yz)}, ${round3(Zz)}, ${round3(ox)}, ${round3(oy)}, ${round3(oz)})`;
+}
+
+function sunGizmoOrigin(pitchDeg, yawDeg, distance = 24) {
+  const pitch = (pitchDeg * Math.PI) / 180;
+  const yaw = (yawDeg * Math.PI) / 180;
+  const cp = Math.cos(pitch);
+  const sp = Math.sin(pitch);
+  const cy = Math.cos(yaw);
+  const sy = Math.sin(yaw);
+  const Zx = sy * cp;
+  const Zy = -sp;
+  const Zz = cy * cp;
+  return { x: Zx * distance, y: Math.max(6, Zy * distance), z: Zz * distance };
+}
+
+/** Elevation/azimuth (deg) → DirectionalLight3D transform. Matches Godot rotation_degrees=(-elev, -az, 0). */
+function directionalTransform(elevDeg, azDeg, distance = 24) {
+  const pitch = -elevDeg;
+  const yaw = -azDeg;
+  const o = sunGizmoOrigin(pitch, yaw, distance);
+  return eulerYxzTransform(pitch, yaw, o.x, o.y, o.z);
+}
+
+function environmentPalette(kind) {
+  switch (kind) {
+    case "god_rays":
+      return {
+        skyTop: [0.3, 0.42, 0.62],
+        skyHorizon: [0.82, 0.66, 0.42],
+        groundBottom: [0.1, 0.11, 0.07],
+        groundHorizon: [0.42, 0.36, 0.22],
+        ambientEnergy: 0.45,
+        fogColor: [0.72, 0.58, 0.38],
+        fogDensity: 0.003,
+        volDensity: 0.022,
+        volAlbedo: [0.85, 0.72, 0.48],
+        volAnisotropy: 0.45,
+      };
+    case "night_moon":
+      return {
+        skyTop: [0.04, 0.06, 0.14],
+        skyHorizon: [0.1, 0.12, 0.2],
+        groundBottom: [0.03, 0.04, 0.04],
+        groundHorizon: [0.08, 0.1, 0.09],
+        ambientEnergy: 0.22,
+        fogColor: [0.12, 0.14, 0.22],
+        fogDensity: 0.006,
+        volDensity: 0.03,
+        volAlbedo: [0.18, 0.22, 0.32],
+        volAnisotropy: 0.2,
+      };
+    case "sun_sky":
+      return {
+        skyTop: [0.22, 0.45, 0.78],
+        skyHorizon: [0.72, 0.8, 0.88],
+        groundBottom: [0.12, 0.14, 0.1],
+        groundHorizon: [0.42, 0.46, 0.38],
+        ambientEnergy: 0.5,
+        fogColor: [0.62, 0.7, 0.78],
+        fogDensity: 0.002,
+        volDensity: 0.01,
+        volAlbedo: [0.78, 0.82, 0.88],
+        volAnisotropy: 0.25,
+      };
+    case "overcast":
+    default:
+      return {
+        skyTop: [0.32, 0.48, 0.52],
+        skyHorizon: [0.58, 0.64, 0.55],
+        groundBottom: [0.12, 0.14, 0.09],
+        groundHorizon: [0.38, 0.4, 0.28],
+        ambientEnergy: 0.65,
+        fogColor: [0.55, 0.62, 0.5],
+        fogDensity: 0.004,
+        volDensity: 0.018,
+        volAlbedo: [0.72, 0.76, 0.64],
+        volAnisotropy: 0.35,
+      };
+  }
+}
+
+function emitEnvironmentSubresources(lines, spec) {
+  const setups = spec.layers.lighting.setups || [];
+  const defaultId = spec.layers.lighting.defaultSetup || setups[0]?.id || "overcast";
+  const defaultSetup = setups.find((s) => s.id === defaultId) || setups[0] || { kind: "overcast", id: defaultId };
+  const pal = environmentPalette(defaultSetup.kind || "overcast");
+  lines.push(`[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_anvil"]`);
+  lines.push(`sky_top_color = ${colorTscn(pal.skyTop)}`);
+  lines.push(`sky_horizon_color = ${colorTscn(pal.skyHorizon)}`);
+  lines.push(`ground_bottom_color = ${colorTscn(pal.groundBottom)}`);
+  lines.push(`ground_horizon_color = ${colorTscn(pal.groundHorizon)}`);
+  lines.push(``);
+  lines.push(`[sub_resource type="Sky" id="Sky_anvil"]`);
+  lines.push(`sky_material = SubResource("ProceduralSkyMaterial_anvil")`);
+  lines.push(``);
+  lines.push(`[sub_resource type="Environment" id="Environment_anvil"]`);
+  lines.push(`background_mode = 2`);
+  lines.push(`sky = SubResource("Sky_anvil")`);
+  lines.push(`ambient_light_source = 3`);
+  lines.push(`ambient_light_energy = ${pal.ambientEnergy}`);
+  lines.push(`tonemap_mode = 3`);
+  lines.push(`ssao_enabled = true`);
+  lines.push(`glow_enabled = true`);
+  lines.push(`fog_enabled = true`);
+  lines.push(`fog_light_color = ${colorTscn(pal.fogColor)}`);
+  lines.push(`fog_density = ${pal.fogDensity}`);
+  lines.push(`volumetric_fog_enabled = true`);
+  lines.push(`volumetric_fog_density = ${pal.volDensity}`);
+  lines.push(`volumetric_fog_albedo = ${colorTscn(pal.volAlbedo)}`);
+  lines.push(`volumetric_fog_anisotropy = ${pal.volAnisotropy}`);
+  lines.push(``);
+  return {
+    defaultId,
+    defaultKind: defaultSetup.kind || "overcast",
+    subResourceCount: 3,
+  };
+}
+
+function emitDirectionalLight(lines, p) {
+  lines.push(`[node name="${p.name}" type="DirectionalLight3D" parent="${p.parent}"]`);
+  lines.push(`transform = ${directionalTransform(p.elev, p.az, p.distance ?? 24)}`);
+  lines.push(`light_color = ${colorTscn(p.color)}`);
+  lines.push(`light_energy = ${round3(p.energy)}`);
+  if (p.indirect != null) lines.push(`light_indirect_energy = ${round3(p.indirect)}`);
+  if (p.volumetric != null) lines.push(`light_volumetric_fog_energy = ${round3(p.volumetric)}`);
+  if (p.angular != null) lines.push(`light_angular_distance = ${round3(p.angular)}`);
+  if (p.shadow) {
+    lines.push(`shadow_enabled = true`);
+    if (p.shadowBlur != null) lines.push(`shadow_blur = ${round3(p.shadowBlur)}`);
+    if (p.shadowDistance != null) lines.push(`directional_shadow_max_distance = ${round3(p.shadowDistance)}`);
+  }
+  lines.push(`metadata/role = "${String(p.name).toLowerCase()}"`);
+  lines.push(``);
+}
+
+function emitLightRig(lines, setup, isDefault) {
+  const group = `Lighting_${setup.id}`;
+  const kind = setup.kind || "custom";
+  const elev = setup.sunElevationDeg ?? 45;
+  const az = setup.sunAzimuthDeg ?? 180;
+  const energy = setup.energy ?? 1;
+  lines.push(`[node name="${group}" type="Node3D" parent="."]`);
+  if (!isDefault) lines.push(`visible = false`);
+  lines.push(`metadata/kind = "${kind}"`);
+  lines.push(`metadata/anvil_light_setup = true`);
+  if (setup.notes) lines.push(`metadata/notes = "${String(setup.notes).replace(/"/g, '\\"')}"`);
+  lines.push(``);
+
+  if (kind === "god_rays") {
+    emitDirectionalLight(lines, {
+      name: "Key",
+      parent: group,
+      elev,
+      az,
+      energy,
+      color: [1.0, 0.86, 0.58],
+      shadow: true,
+      angular: 0.5,
+      volumetric: 1.8,
+      indirect: 0.9,
+      shadowBlur: 0.8,
+      shadowDistance: 80,
+    });
+    emitDirectionalLight(lines, {
+      name: "Fill",
+      parent: group,
+      elev: Math.min(70, elev + 18),
+      az: wrapDeg(az + 175),
+      energy: energy * 0.18,
+      color: [0.42, 0.55, 0.72],
+      shadow: false,
+      volumetric: 0.15,
+      indirect: 0.8,
+    });
+    return;
+  }
+
+  if (kind === "night_moon") {
+    emitDirectionalLight(lines, {
+      name: "Key",
+      parent: group,
+      elev,
+      az,
+      energy,
+      color: [0.55, 0.65, 0.95],
+      shadow: true,
+      angular: 0.4,
+      volumetric: 0.6,
+      indirect: 0.7,
+      shadowBlur: 1.2,
+      shadowDistance: 70,
+    });
+    emitDirectionalLight(lines, {
+      name: "Fill",
+      parent: group,
+      elev: Math.min(80, elev + 25),
+      az: wrapDeg(az + 160),
+      energy: energy * 0.22,
+      color: [0.18, 0.22, 0.35],
+      shadow: false,
+      volumetric: 0.2,
+      indirect: 0.9,
+    });
+    return;
+  }
+
+  const overcast = kind === "overcast";
+  emitDirectionalLight(lines, {
+    name: "Key",
+    parent: group,
+    elev,
+    az,
+    energy,
+    color: overcast ? [0.9, 0.93, 1.0] : [1.0, 0.96, 0.88],
+    shadow: true,
+    angular: overcast ? 2.5 : 0.8,
+    volumetric: overcast ? 0.35 : 0.7,
+    indirect: overcast ? 1.15 : 1.0,
+    shadowBlur: overcast ? 1.6 : 1.0,
+    shadowDistance: 80,
+  });
+  emitDirectionalLight(lines, {
+    name: "Fill",
+    parent: group,
+    elev: Math.min(75, elev + 8),
+    az: wrapDeg(az + 165),
+    energy: energy * (overcast ? 0.32 : 0.25),
+    color: overcast ? [0.52, 0.68, 0.5] : [0.55, 0.65, 0.85],
+    shadow: false,
+    volumetric: 0.12,
+    indirect: 1.0,
+  });
+  emitDirectionalLight(lines, {
+    name: "Rim",
+    parent: group,
+    elev: Math.max(12, elev - 18),
+    az: wrapDeg(az - 110),
+    energy: energy * 0.18,
+    color: overcast ? [0.82, 0.78, 0.68] : [1.0, 0.85, 0.65],
+    shadow: false,
+    volumetric: 0.2,
+    indirect: 0.6,
+  });
 }
 
 function pickKits(kitRefs, roles) {
@@ -348,6 +625,10 @@ function writeSceneProjectGodot(outDir) {
     'run/main_scene="res://scene.tscn"',
     'config/features=PackedStringArray("4.4")',
     "",
+    "[rendering]",
+    "",
+    'renderer/rendering_method="forward_plus"',
+    "",
   ].join("\n");
   writeFileSync(join(outDir, "project.godot"), body + "\n");
 }
@@ -363,20 +644,28 @@ function writeTscn(spec, layout, outPath, anvilStatus = "scaffold", resourceMap 
     seenExt.add(r.extId);
     uniqueResources.push(r);
   }
-  const loadSteps = 1 + uniqueResources.length;
   const lines = [];
-  lines.push(`[gd_scene load_steps=${loadSteps} format=3]`);
+  const envInfo = { defaultId: null, defaultKind: null, subResourceCount: 0 };
+  // subresources counted after ext_resources; load_steps patched below
+  lines.push(`[gd_scene load_steps=0 format=3]`);
   lines.push(``);
   for (const r of uniqueResources) {
     lines.push(`[ext_resource type="PackedScene" path="${r.resPath}" id="${r.extId}"]`);
   }
   if (uniqueResources.length) lines.push(``);
+  Object.assign(envInfo, emitEnvironmentSubresources(lines, spec));
+  const loadSteps = 1 + uniqueResources.length + envInfo.subResourceCount;
+  lines[0] = `[gd_scene load_steps=${loadSteps} format=3]`;
   lines.push(`[node name="${rootName}" type="Node3D"]`);
   lines.push(`metadata/anvil_scene_id = "${spec.id}"`);
   lines.push(`metadata/anvil_seed = ${spec.seed}`);
   lines.push(`metadata/anvil_status = "${anvilStatus}"`);
   lines.push(``);
   lines.push(`[node name="WorldEnvironment" type="WorldEnvironment" parent="."]`);
+  lines.push(`environment = SubResource("Environment_anvil")`);
+  lines.push(`metadata/anvil_env = "procedural_sky"`);
+  lines.push(`metadata/anvil_default_setup = "${envInfo.defaultId}"`);
+  lines.push(`metadata/anvil_lightmaps = false`);
   lines.push(``);
   lines.push(`[node name="Ground" type="Node3D" parent="."]`);
   lines.push(`[node name="Water" type="Node3D" parent="."]`);
@@ -417,25 +706,11 @@ function writeTscn(spec, layout, outPath, anvilStatus = "scaffold", resourceMap 
     }
   }
 
-  // ≥2 named light setups
+  // Named light setups from SceneSpec (≥2). Default visible; others hidden so they do not double-light.
   const setups = spec.layers.lighting.setups;
+  const defaultId = envInfo.defaultId || setups[0]?.id;
   for (const setup of setups) {
-    const group = `Lighting_${setup.id}`;
-    lines.push(`[node name="${group}" type="Node3D" parent="."]`);
-    const elev = setup.sunElevationDeg ?? 45;
-    const az = setup.sunAzimuthDeg ?? 180;
-    const energy = setup.energy ?? 1;
-    const elevR = (elev * Math.PI) / 180;
-    const azR = (az * Math.PI) / 180;
-    const dx = Math.cos(elevR) * Math.sin(azR);
-    const dy = -Math.sin(elevR);
-    const dz = Math.cos(elevR) * Math.cos(azR);
-    lines.push(`[node name="Sun" type="DirectionalLight3D" parent="${group}"]`);
-    lines.push(`light_energy = ${energy}`);
-    lines.push(`transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, ${round3(dx * 10)}, ${round3(20)}, ${round3(dz * 10)})`);
-    lines.push(`metadata/kind = "${setup.kind}"`);
-    if (setup.notes) lines.push(`metadata/notes = "${String(setup.notes).replace(/"/g, '\\"')}"`);
-    lines.push(``);
+    emitLightRig(lines, setup, setup.id === defaultId);
   }
 
   if (spec.layers.nav?.bakeHint === "godot_navigation_region") {
@@ -444,7 +719,18 @@ function writeTscn(spec, layout, outPath, anvilStatus = "scaffold", resourceMap 
   }
 
   writeFileSync(outPath, lines.join("\n") + "\n");
-  return { realInstances, placeholderInstances, extResourceCount: uniqueResources.length };
+  return {
+    realInstances,
+    placeholderInstances,
+    extResourceCount: uniqueResources.length,
+    lighting: {
+      environment: "procedural_sky",
+      lightmaps: false,
+      defaultSetup: envInfo.defaultId,
+      defaultKind: envInfo.defaultKind,
+      setups: setups.map((s) => s.id),
+    },
+  };
 }
 
 function contentHash(instances) {
@@ -493,6 +779,7 @@ export function composeScene(specPath, options = {}) {
     byLayer: layout.byLayer,
     kitRefsUsed: [...new Set(layout.instances.map((i) => i.kitId))],
     lightSetups,
+    lighting: emitStats.lighting || null,
     contentHash: hash,
     megaMeshRejected: true,
     status: layoutStatus,
@@ -520,6 +807,7 @@ export function composeScene(specPath, options = {}) {
     kitRefsRequested: (spec.kitRefs || []).map((k) => k.id),
     kitNotes: layout.kitNotes,
     lightSetups,
+    lighting: emitStats.lighting || null,
     contentHash: hash,
     paths: {
       dir: relative(projectRoot, outDir).split("\\").join("/"),
@@ -545,6 +833,7 @@ export function composeScene(specPath, options = {}) {
         ? `Kit GLBs present (${presentCount}) but emitter left ${emitStats.placeholderInstances} placeholders — not playable.`
         : `Kit GLBs missing (${missingCount} unresolved) — placeholder Node3D only; no binary invented.`,
     "Never fuse a mega-mesh jungle.glb; composer instances biome kits only.",
+    "WorldEnvironment uses ProceduralSky + Environment (ambient/fog/volumetric); light setups are key/fill/rim (overcast) or key+fill shafts (god_rays). Authored realtime environment — not baked lightmaps.",
     "Compose layout-only godot_import stays null until run-scene / forge_scene finish rewrites it.",
     spec.notes || null,
   ].filter(Boolean);

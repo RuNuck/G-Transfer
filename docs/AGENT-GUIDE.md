@@ -98,6 +98,8 @@ A jungle is trunk/canopy/root, understory, bank, path, rocks, lights — placed 
 
 **Kit exit ≠ scene / playable jungle.** Having ≥12 biome kits `ready` on disk/index does **not** mean the jungle is playable until `forge_scene` emits instanced `.tscn`, Godot opens it fail-closed, and `validation.json` `godot_import` is rewritten honestly. Do not claim product exit without specialist re-clears.
 
+**Lighting:** compose emits a usable `WorldEnvironment` (ProceduralSky + Environment: ambient, ACES, SSAO, fog, volumetric fog) plus SceneSpec light setups as oriented **key/fill/rim** (overcast) or **key+fill shafts** (god_rays). Default setup is visible; the other is present but hidden so they do not double-light. Helper identity-transform `DirectionalLight3D`s and empty WorldEnvironment are gone. This is **authored realtime environment**, not baked lightmaps / GI, and **not** AAA product exit.
+
 ---
 
 ## Schemas & resources

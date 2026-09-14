@@ -127,6 +127,16 @@
     "overcast",
     "god_rays"
   ],
+  "lighting": {
+    "environment": "procedural_sky",
+    "lightmaps": false,
+    "defaultSetup": "overcast",
+    "defaultKind": "overcast",
+    "setups": [
+      "overcast",
+      "god_rays"
+    ]
+  },
   "contentHash": "sha256:a41170cbe03da8fed3462cf51b92e44343cbfa0a78e4f4cd06e64fb5d497a41b",
   "paths": {
     "dir": "exports/scenes/scene_jungle_clearing_01",
@@ -138,6 +148,7 @@
   "notes": [
     "Emitted 157 PackedScene kit instances (13 ExtResources); 0 anvil_placeholder.",
     "Never fuse a mega-mesh jungle.glb; composer instances biome kits only.",
+    "WorldEnvironment uses ProceduralSky + Environment (ambient/fog/volumetric); light setups are key/fill/rim (overcast) or key+fill shafts (god_rays). Authored realtime environment — not baked lightmaps.",
     "Compose layout-only godot_import stays null until run-scene / forge_scene finish rewrites it.",
     "Hand fixture for Phase 4 composer. Instances only; no fused jungle.glb."
   ],

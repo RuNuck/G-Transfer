@@ -47,7 +47,7 @@ npm run forge:scene -- --spec docs/schemas/examples/jungle-clearing.scene.json -
 
 - **Product / board exit** still needs Reed/Quinn/Vale/Ori specialist re-clears — do not claim playable-jungle product exit from this land alone.
 - Cold MCP HTTP `forge_scene` not re-probed this run (CLI twin `npm run forge:scene`); tool remains **sync**.
-- Lighting setups remain DirectionalLight helpers (not kit meshes).
+- Lighting setups were DirectionalLight helpers at snap time; follow-on authored environment pass: `docs/evidence/jungle-lighting-pass-2026-09-14.md` (not a kit-exit reopen).
 - Kit symlinks are absolute paths on this box; check-scene materializes file copies for headless open.
 
 ## Follow-on: relative kits/ (Reed nit)

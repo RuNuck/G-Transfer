@@ -35,7 +35,8 @@ Hard rules:
    - `Ground` — terrain tile / path instances + ground collision proxies
    - `Water` — river bank + water plane kit instances (no fused river mesh)
    - `Canopy` / `Undergrowth` / `Rocks` / `Landmarks` — one `Node3D` per layer
-   - `Lighting_overcast`, `Lighting_god_rays` (or equivalent) — **at least two** named setups
+   - `WorldEnvironment` — **must** bind a ProceduralSky (or equivalent) `Environment` sub-resource (ambient + tonemap + fog). Empty WorldEnvironment is not a production lighting setup.
+   - `Lighting_overcast`, `Lighting_god_rays` (or equivalent) — **at least two** named setups. Overcast = key/fill/rim DirectionalLights with sun-oriented transforms; god_rays = key+fill + volumetric-fog energy. Default setup visible; others `visible = false`. Not identity-transform helper suns. Authored realtime lights — **not** baked lightmaps unless the pipeline already bakes them (it does not today).
    - `Navigation` — optional `NavigationRegion3D` stub
 3. **Every visual prop** is a Godot scene/GLB instance referencing a kit piece (`biome.jungle.*`). Inline unique meshes that are not kit pieces are **forbidden** except collision proxies and thin helpers.
 4. **Transforms** in meters; scale `(1,1,1)` unless SceneSpec landmark sets uniform scale in `[0.5, 2]`.

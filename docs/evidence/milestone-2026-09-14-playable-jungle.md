@@ -15,7 +15,7 @@ Honest bar: **prototype / open-in-Godot with real kits**, not AAA product exit.
 
 ## Soft honesty still open
 
-- Helper DirectionalLights / empty WorldEnvironment → **real lights pass in flight**
+- Helper DirectionalLights / empty WorldEnvironment → authored ProceduralSky + key/fill/rim (`docs/evidence/jungle-lighting-pass-2026-09-14.md`); still not baked lightmaps / not AAA
 - Kit carbine ≠ CAD M4; TOOLS surface still fat; MCP HTTP cold transcript optional
 - Not claiming Claude/Codex → AAA zero-babysit yet
 

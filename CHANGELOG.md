@@ -5,6 +5,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+### Changed
+
+- Jungle compose emits a ProceduralSky `WorldEnvironment` plus oriented key/fill/rim (overcast) or key+fill volumetric shafts (god_rays) from SceneSpec light setups, instead of an empty environment and identity-transform helper suns. Authored realtime lighting, not baked lightmaps.
+
 ## [2.9.2] - 2026-09-14
 
 ### Fixed
