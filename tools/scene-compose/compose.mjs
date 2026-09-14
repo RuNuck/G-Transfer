@@ -1,5 +1,5 @@
 /**
- * Phase 4 scene composer scaffold (no Blender/Godot required).
+ * Phase 4 scene composer scaffold (layout-only; no Blender/Godot).
  *
  *   node tools/scene-compose/compose.mjs <SceneSpec.json> [--json]
  *
@@ -438,20 +438,24 @@ export function composeScene(specPath, options = {}) {
   };
   writeFileSync(join(outDir, "report.json"), JSON.stringify(report, null, 2) + "\n");
 
-  // Minimal validation stub checklist
+  // Minimal validation stub checklist (layout-only — not the ship gate)
+  const kitsResolveOk = !(report.kitNotes || []).some((k) => k.status === "missing");
+  const godotImportNote = kitsResolveOk
+    ? "not-yet-checked — deferred-to-run-scene ship gate (fail-closed; not skipped OK)"
+    : "N/A until kits resolve — deferred-to-run-scene (compose is layout-only)";
   const validation = {
     schemaVersion: 1,
     sceneId: spec.id,
     status: "scaffold",
+    note: "layout-only checklist; ship/publish requires run-scene Godot open",
     gates: [
       { id: "schema", ok: true },
       { id: "lights_gte_2", ok: lightSetups.length >= 2 },
       { id: "mega_mesh", ok: true, note: "no fused jungle.glb produced" },
-      { id: "kits_resolve", ok: !(report.kitNotes || []).some((k) => k.status === "missing"), note: "see report.kitNotes" },
-      { id: "godot_import", ok: null, note: "skipped (Godot not required for scaffold)" },
+      { id: "kits_resolve", ok: kitsResolveOk, note: "see report.kitNotes" },
+      { id: "godot_import", ok: null, note: godotImportNote },
     ],
   };
-  const kitsResolveOk = validation.gates.find((g) => g.id === "kits_resolve")?.ok === true;
   report.kits_resolve = kitsResolveOk;
   if (!kitsResolveOk) report.status = "scaffold";
   writeFileSync(join(outDir, "validation.json"), JSON.stringify(validation, null, 2) + "\n");
@@ -483,6 +487,8 @@ function main() {
         JSON.stringify(
           {
             ok: Boolean(report.kits_resolve),
+            layoutOnly: true,
+            note: "exit 0 = kits layout resolve; not ship — run-scene owns Godot gate",
             status: report.status,
             sceneId: report.sceneId,
             exportId: report.exportId,

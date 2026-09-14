@@ -160,3 +160,49 @@ Docs: `docs/DCC-SETUP.md`.
 - C: MCP forge_run_asset accepts kind/bake/brief/engine; file/mesh validate-only; AGENT-GUIDE DCC truth.
 - D: scene compose/run-scene do not publish/ok when kits unresolved (scaffold/failed).
 
+
+---
+
+## Decision log — Pack A–C gate (`a9f99fe`) — Mon Sep 7, 2026 ~9:05am ET — Sy (Scribe)
+
+**Decision:** Pack A–C **NOT CLOSED** / **HOLD SHIP**. Owner of close: Bill (re-open when veto remediations smoke green).  
+**Commit gated:** `a9f99fe` (tree later at `2bba0f2` AGENT-GUIDE follow-up; gate evidence below is against `a9f99fe` artifacts + current sources that still show the holes).
+
+| Gate | Owner | Outcome | Evidence link |
+|---|---|---|---|
+| Security path jail / MCP file | Sage (Dex reproduced) | **VETO** — `resolveMesh` accepts absolute + `../` / repo-root paths; not exports-only | `tools/forge-run/run-asset.mjs` `resolveMesh`; probe: `package.json` → `/workspace/project/package.json` (`insideExports: false`); `/etc/passwd` resolves. MCP `forge_run_asset` file/mesh still hits runner. |
+| Implementer tsc/test / kind wiring | Dex | **Partial clear** — `npx tsc --noEmit` 0; stdio protocol ok; `validate:fixtures` expect-fail 4/4 harness 0; kind+handler/doc wired. File/mesh path **still stubbed** until jail fix + reject smoke | Dex gate notes + same `resolveMesh` probe |
+| Render ready/publish PBR | Remy | **VETO** — `exports/forge-smoke/oil_lantern.glb` indexed `ready` / job `published` with `bake: false`, untextured Principled BSDF, no albedo+normal+ORM / multi-light proof | `exports/forge-smoke/dcc-smoke-report.json` (`bake: false`, bake stage note, `paths.indexStatus: ready`, `status: published`); `exports/index.json` entry `forge-smoke.oil_lantern` `status: ready` |
+| DevOps headless / fail-closed | Nova | **Partial clear host** (Blender 5.2.1 / Godot 4.7.2 absolute `ANVIL_*`; lantern used real headless import). **VETO soft paths** — `dcc-smoke` can `SKIP godot-check` when Godot missing; `run-asset` simulates build/bake without Blender; publish can advance on `validated_glb_only` | `tools/dcc-smoke.mjs` SKIP line; `tools/forge-run/run-asset.mjs` simulate + `validated_glb_only` notes; `tools/forge-run/ship-gate.mjs` |
+
+**Clears that stand (narrow):** `blender_execute` refuse-only; addon bind `127.0.0.1`+token untouched; no Kevin-PC creep in pack; `/api/forged` still jails to `exports/` + `.glb` (Sage); host binaries present (Nova).
+
+**Not locked:** ready/publish/MCP file-path clear, or pack A–C checkbox. Re-log only after Dex jail patch + Remy hard-gate maps/lights + Nova fail-closed smokes land with linked smoke command **and** result.
+
+Evidence mirror: `docs/evidence/pack-ac-gate-2026-09-07.md`.
+
+### Amendment — mesh jail (`8978d20`) — Mon Sep 7, 2026 ~9:10am ET — Sy
+
+**Decision:** Sage path-jail **VETO remediated in tree** (pending Sage re-clear). Pack A–C remains **HOLD SHIP** (Remy ready/PBR + Nova fail-closed still open).  
+**Evidence:** commit `8978d20`; smoke `node tools/forge-run/smoke-mesh-jail.mjs` → exit 0 (`package.json`, `../package.json`, absolute outside `exports/` all exit 2). Sy re-ran smoke same day. Positive `exports/forge-smoke/oil_lantern.glb` still resolves per Dex. Mirror: `docs/evidence/pack-ac-gate-2026-09-07.md`.
+
+### Decision — Pack A–C re-clear + must-fix `3bbb854` — Mon Sep 7, 2026 ~9:25am ET — Sy
+
+**Decision:** Pack A–C remains **HOLD SHIP**. Owner of close: Bill (after Remy + Nova bars clear).
+
+| Item | Owner | Outcome | Evidence |
+|---|---|---|---|
+| MCP `file`/`mesh` jail (abs/`../`) | Sage | **CLEARED** | `8978d20`; `node tools/forge-run/smoke-mesh-jail.mjs` exit 0 (Sage + Sy) |
+| Symlink realpath residual | Dex → Sage re-probe | **Closed in tree** at `ea3b3f4`; smoke includes `exports/_jail-smoke/escape.glb` → exit 2 (Sy re-ran full jail smoke exit 0) | Pending Sage verbal re-clear of trap; Sy evidence green |
+| Must-fix Vale fixtures / scene | Bill | **Landed** (not an A–C close) | `3bbb854` (+ tip `c4560fc` forge_scene Godot-absent) |
+| Godot-absent shipGate refuse publish | Nova | **Partial clear** | Sy probe: `ANVIL_GODOT=/no/such/godot PATH=/usr/bin:/bin node tools/forge-run/run-asset.mjs --file exports/forge-smoke/oil_lantern.glb --json` → job `status: failed`, note `hardFail godot_absent`, `indexStatus: validated_glb_only` |
+| `dcc-smoke` SKIP + Blender-absent simulate publish | Nova | **VETO HOLDS** | `tools/dcc-smoke.mjs` still SKIP; Sy probe `ANVIL_BLENDER=/no/such/blender` existing-GLB → `status: published`, notes simulated build/bake, exit 0 |
+| Ready/publish without packed maps / ≥2 lights | Remy | **VETO HOLDS** | Index still `ready` on `forge-smoke.oil_lantern`; validate `ok` / empty `hardFails`; bake-skip path still in `run-asset.mjs`; `3bbb854` is meters/pivot fixtures not maps/lights |
+
+**Not locked:** pack A–C checkbox, ready/publish clear. Re-log only when Remy hard-gates + Nova fail-closed DCC smokes land with command+result.
+
+Mirror: `docs/evidence/pack-ac-gate-2026-09-07.md`.
+
+### Amendment — Sage symlink clear — Mon Sep 7, 2026 ~9:30am ET — Sy
+
+**Decision:** Mesh-jail bar **CLOSED** on Sage’s side (`8978d20` + `ea3b3f4`). Sage re-probed trap `exports/_sage_probe/escape.glb` → exit 2 at resolve; smoke exit 0. Pack A–C still **HOLD** (Remy + Nova; Dex in-flight must-fixes, no commit hash yet — Remy NO EVIDENCE until hash+smoke).
