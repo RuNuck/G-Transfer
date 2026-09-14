@@ -11,7 +11,7 @@ Operational rules for driving Anvil over MCP. Prefer **jobs + validate** over pa
 | Mode | What it is | When |
 |---|---------|----|
 | **Plan** | Spec / script / layout only. Studio **Plan** button and `forge_create_asset` build an `AssetSpec` + Blender Python — they do **not** write a production GLB. | Exploring briefs, naming, budgets, kits. |
-| **Run** | Durable enqueue: `forge_run_asset` / `forge_scene` return `jobId` as `queued`; worker advances stages. Poll `forge_job_status`. | Shipping artifacts an agent can hand to Godot. |
+| **Run** | **Asset:** durable enqueue — `forge_run_asset` returns `jobId` as `queued`; worker advances stages; poll `forge_job_status`. **Scene:** `forge_scene` is still **sync** (returns after compose/ship-gate; not queued). | Shipping artifacts an agent can hand to Godot. |
 
 Never treat a green Plan / `forge_qc_checklist` (spec-only) as "forged." **Ready means artifact gates passed.**
 
@@ -23,7 +23,7 @@ Never treat a green Plan / `forge_qc_checklist` (spec-only) as "forged." **Ready
 |---|---|--------|
 | `forge_create_asset` | Brief -> AssetSpec, naming, PBR/LOD notes, full Blender build script. | Run Blender; write GLB; mark ready. |
 | `forge_run_asset` | **Enqueue** durable job (returns `jobId` immediately). Kind = Blender forge; file/mesh = validate-only. Worker runs async; poll status. Ship gate ready needs Godot import ok. Kill-mid → `failed`/`worker_interrupted`. | Claim ready from Plan alone; sync publish without gates. |
-| `forge_scene` | Job from SceneSpec / brief / `specPath` → `exports/scenes/<id>/` (.tscn, report, manifest). **Compose kit instances.** Publish only after kits + Godot scene open. | Author one mega-mesh jungle; invent missing kit GLBs; publish when Godot absent. |
+| `forge_scene` | **Sync** job from SceneSpec / brief / `specPath` → `exports/scenes/<id>/` (.tscn, report, manifest). **Compose kit instances.** Returns after kits+Godot ship-gate (not durable `queued`). | Author one mega-mesh jungle; invent missing kit GLBs; publish when Godot absent; treat as durable enqueue. |
 | `forge_validate` | Artifact gates (`godot_prod`) on a path or folder; fail closed. CLI twin: `npm run validate -- <paths> --json`. | Rubber-stamp from the brief. |
 | `forge_job_status` | Poll job id from run/scene; status, paths, validation summary, errors. | Start work. |
 
@@ -54,8 +54,8 @@ Supporting (debug / escape hatch): `forge_blender_script`, `forge_bake_plan`, `f
 ### Scene (jungle / environment)
 
 1. Read `anvil://schemas/scene-spec` (and `docs/scenes/JUNGLE-CONTRACT.md`)
-2. `forge_scene({ sceneSpec })` or brief (scaffold may use the jungle example fixture)
-3. Poll `forge_job_status` until **published** or **failed**
+2. `forge_scene({ sceneSpec })` or brief (scaffold may use the jungle example fixture) — **sync**; status is on the returned job (not a durable `queued` enqueue)
+3. Optional: `forge_job_status` on that `jobId` (already terminal published or failed)
 4. Inspect `exports/scenes/<id>/` — instances only; **reject** fused mega-meshes
 5. Publish requires kits resolved **and** Godot headless-open of `scene.tscn`. Godot absent / open skipped => `status=failed`, `validation.ok=false`, hardFail `godot_absent` (never published+ok). Open fail => hardFail `godot_scene_open`.
 6. Validate kits via index / `forge_validate` on referenced GLBs when present
