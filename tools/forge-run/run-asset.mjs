@@ -70,7 +70,7 @@ function parseArgs(argv) {
   return args;
 }
 
-function main() {
+async function main() {
   const args = parseArgs(process.argv.slice(2));
   const blender = findBlender();
   const kitDir = defaultKitDir(projectRoot);
@@ -121,7 +121,7 @@ function main() {
     });
 
     // Sync path: claim immediately by advancing via execute (starts from queued).
-    const result = executeAssetJob(job);
+    const result = await executeAssetJob(job);
     if (args.jsonOnly) console.log(JSON.stringify(result.job, null, 2));
     else {
       console.log(
@@ -173,7 +173,7 @@ function main() {
     },
   });
 
-  const result = executeAssetJob(job);
+  const result = await executeAssetJob(job);
   if (args.jsonOnly) console.log(JSON.stringify(result.job, null, 2));
   else {
     console.log(
@@ -194,4 +194,7 @@ function main() {
   process.exit(result.ok ? 0 : 1);
 }
 
-main();
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

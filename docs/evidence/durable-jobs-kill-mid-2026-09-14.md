@@ -79,3 +79,7 @@ Also re-ran `node tools/forge-run/smoke-mesh-jail.mjs` → ok (no mesh-jail regr
 ## Tip context
 
 Prior tip included Quinn `23224ed`, Nova `f5b2d76`, Reed compose nit already on main as Bill `cddfd94`.
+
+## Vale follow-up (same day)
+
+Fake-long-only proof was **VETO'd** — Blender must be in the process tree. See **`docs/evidence/durable-jobs-blender-kill-mid-2026-09-14.md`** and `npm run forge:smoke:kill-mid:blender`.

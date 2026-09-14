@@ -74,7 +74,7 @@ async function processOne() {
   if (!job) {
     return { processed: false, reason: hasInflightJob() ? "inflight_busy" : "empty" };
   }
-  const result = executeAssetJob(job);
+  const result = await executeAssetJob(job);
   const final = loadJob(job.id) || result.job;
   return {
     processed: true,

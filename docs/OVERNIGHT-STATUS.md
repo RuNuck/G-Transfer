@@ -2,7 +2,7 @@
 
 **As of** Mon Sep 14, 2026 (ET) — durable job queue on `/workspace/project` (Bill). Baseline **2.9.0**.
 
-**P1 kill-mid:** enqueue → worker → reconcile. Mid-flight kill → `failed`/`worker_interrupted`; never corrupt `ready`. See `docs/evidence/durable-jobs-kill-mid-2026-09-14.md`.
+**P1 kill-mid:** enqueue → worker → reconcile. Mid-flight kill during **real Blender** (`--kind lantern --bake`) → `failed`/`worker_interrupted`; quarantine half-written GLB; never corrupt published `ready`. Evidence: `docs/evidence/durable-jobs-blender-kill-mid-2026-09-14.md` (fake-long alone VETO'd).
 
 **Prior overnight** (archived context below): Sun Sep 6 / Mon Sep 7, 2026.
 

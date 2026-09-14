@@ -3,7 +3,7 @@
  * Ship gates unchanged: Godot absent fail-close, PBR validate, mesh under exports/.
  */
 import { existsSync, mkdirSync, realpathSync, writeFileSync } from "node:fs";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { advanceStage, failJob, failJobHard, projectRoot, quarantineJobArtifacts, saveJob } from "./job-store.mjs";
@@ -89,7 +89,7 @@ function rebuildIndex() {
   return { exitCode: r.status ?? 1, stdout: r.stdout, stderr: r.stderr };
 }
 
-function runHeadlessBlender({ blenderPath, buildScript, bakeScript, exportPath, kitDir }) {
+export function runHeadlessBlender({ blenderPath, buildScript, bakeScript, exportPath, kitDir, extraEnv = {}, onSpawn }) {
   mkdirSync(dirname(exportPath), { recursive: true });
   const texDir = join(dirname(exportPath), "textures");
   mkdirSync(texDir, { recursive: true });
@@ -97,26 +97,70 @@ function runHeadlessBlender({ blenderPath, buildScript, bakeScript, exportPath, 
     ...process.env,
     ANVIL_EXPORT_PATH: exportPath,
     ANVIL_TEXTURE_DIR: texDir,
+    ...extraEnv,
   };
   if (kitDir) env.ANVIL_KIT_DIR = kitDir;
   const pyArgs = [HEADLESS, "--", buildScript];
   if (bakeScript) pyArgs.push(bakeScript);
   const args = ["--background", "--python", ...pyArgs];
-  const r = spawnSync(blenderPath, args, {
-    cwd: projectRoot,
-    encoding: "utf8",
-    env,
-    maxBuffer: 32 * 1024 * 1024,
-    timeout: 600000,
+
+  // Async spawn so durable worker / kill-mid smoke can observe Blender PID in-tree.
+  return new Promise((resolve) => {
+    const child = spawn(blenderPath, args, {
+      cwd: projectRoot,
+      env,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    if (typeof onSpawn === "function") {
+      try {
+        onSpawn(child.pid);
+      } catch {
+        /* ignore */
+      }
+    }
+    let stdout = "";
+    let stderr = "";
+    const cap = 32 * 1024 * 1024;
+    child.stdout.on("data", (d) => {
+      stdout += d;
+      if (stdout.length > cap) stdout = stdout.slice(-cap / 2);
+    });
+    child.stderr.on("data", (d) => {
+      stderr += d;
+      if (stderr.length > cap) stderr = stderr.slice(-cap / 2);
+    });
+    const timer = setTimeout(() => {
+      try {
+        child.kill("SIGKILL");
+      } catch {
+        /* */
+      }
+    }, 600000);
+    child.on("error", (err) => {
+      clearTimeout(timer);
+      resolve({
+        exitCode: 1,
+        stdout,
+        stderr: String(stderr || "") + "\n" + String(err?.message || err),
+        exportPath,
+        texDir,
+        signal: null,
+        pid: child.pid,
+      });
+    });
+    child.on("close", (code, signal) => {
+      clearTimeout(timer);
+      resolve({
+        exitCode: code ?? 1,
+        stdout: stdout || "",
+        stderr: stderr || "",
+        exportPath,
+        texDir,
+        signal: signal || null,
+        pid: child.pid,
+      });
+    });
   });
-  return {
-    exitCode: r.status ?? 1,
-    stdout: r.stdout || "",
-    stderr: r.stderr || "",
-    exportPath,
-    texDir,
-    signal: r.signal,
-  };
 }
 
 function sleepSync(ms) {
@@ -195,7 +239,7 @@ export function finishPublished(job, abs, blenderInfo = {}) {
  * Run a claimed/created asset job to terminal status.
  * Supports inputs.mode: kind-build | script-build | existing-glb | fake-long
  */
-export function executeAssetJob(job) {
+export async function executeAssetJob(job) {
   const blender = findBlender();
   const kitDir = defaultKitDir(projectRoot);
   const mode = job.inputs?.mode;
@@ -282,16 +326,40 @@ export function executeAssetJob(job) {
         job.notes.push(`Blender headless build: ${blender.path}`);
         saveJob(job);
       }
-      if (bakeScript) advanceStage(job, "baking", `Blender bake: ${bakeScript}`);
-      else advanceStage(job, "baking", "bake skipped (--bake not set); materials are untextured Principled BSDF");
 
-      const run = runHeadlessBlender({
+      // Stay in building until Blender is live; record PID for kill-mid.
+      // With --bake, advance to baking once Blender PID is known (same spawn runs bake).
+      job.worker = {
+        ...(job.worker || {}),
+        blenderSpawnPending: true,
+        blenderPath: blender.path,
+      };
+      saveJob(job);
+
+      const run = await runHeadlessBlender({
         blenderPath: blender.path,
         buildScript,
         bakeScript,
         exportPath: exportName,
         kitDir,
+        onSpawn(pid) {
+          job.worker = {
+            ...(job.worker || {}),
+            blenderSpawnPending: false,
+            blenderPid: pid,
+            blenderStartedAt: new Date().toISOString(),
+          };
+          saveJob(job);
+          if (bakeScript && job.status !== "baking") {
+            advanceStage(job, "baking", `Blender bake (pid ${pid}): ${bakeScript}`);
+          }
+        },
       });
+      if (!bakeScript) {
+        job.notes = job.notes || [];
+        job.notes.push("bake skipped (--bake not set); materials are untextured Principled BSDF");
+        saveJob(job);
+      }
       job.blender.logTail = (run.stdout + "\n" + run.stderr).slice(-4000);
       job.blender.exitCode = run.exitCode;
       const kitUsed = /part kit/i.test(run.stdout) || /USING_KIT|Anvil kit/i.test(run.stdout);
