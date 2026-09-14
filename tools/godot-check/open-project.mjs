@@ -4,8 +4,9 @@
 //   node tools/godot-check/open-project.mjs <project-dir> <file-or-dir.glb> [more...] [--no-open]
 //
 // Creates (or refreshes) the project, copies the assets in, imports them headlessly, builds a
-// showcase scene as the main scene, then launches the editor. Godot comes from ANVIL_GODOT, the
-// PATH, or the WinGet package folder.
+// showcase scene as the main scene, then launches the editor. Godot comes from ANVIL_GODOT (shell
+// or project .env), the PATH, or the WinGet package folder.
+import "../load-env.mjs";
 import { spawn, spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, join, resolve } from "node:path";

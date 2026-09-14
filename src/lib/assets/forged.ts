@@ -23,6 +23,13 @@ export type ForgedListing = {
   assets: ForgedAsset[];
 };
 
+/** Triangles per LOD in the forged file on screen, LOD0 first; null where the file has no such level
+ * (a Godot export carries no LOD chain, the engine builds its own on import). */
+export type ForgedLods = {
+  file: string;
+  triangles: Array<number | null>;
+};
+
 export const FORGED_ENDPOINT = "/api/forged";
 
 export function forgedUrl(asset: ForgedAsset) {

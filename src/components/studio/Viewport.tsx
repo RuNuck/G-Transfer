@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { buildAsset, countTriangles, disposeGroup } from "@/lib/assets/builders";
-import { fetchForged, forgedUrl, matchForged, type ForgedAsset, type ForgedListing } from "@/lib/assets/forged";
+import { fetchForged, forgedUrl, matchForged, type ForgedAsset, type ForgedListing, type ForgedLods } from "@/lib/assets/forged";
 import { meshName } from "@/lib/assets/naming";
 import type { AssetSpec, LodLevel, ViewMode } from "@/lib/assets/types";
 
@@ -117,19 +117,36 @@ function nodeNameOf(mesh: THREE.Object3D) {
   return mesh.name;
 }
 
-/** Show the requested LOD, or the base mesh when the file has no LOD chain (Godot builds its own). */
-function selectLod(root: THREE.Object3D, wanted: LodLevel) {
+function meshesIn(root: THREE.Object3D) {
   const meshes: THREE.Mesh[] = [];
   root.traverse((obj) => {
     if (obj instanceof THREE.Mesh) meshes.push(obj);
   });
-  const renderable = meshes.filter((m) => !isCollisionNode(nodeNameOf(m)));
-  const atLevel = (level: LodLevel) =>
-    renderable.filter((m) => (lodOf(nodeNameOf(m)) ?? 0) === level);
-  const shown = atLevel(wanted).length ? atLevel(wanted) : atLevel(0);
+  return meshes;
+}
+
+/** The meshes a file draws at one LOD level: never collision proxies, and LOD0 is the unsuffixed mesh. */
+function renderableAt(meshes: THREE.Mesh[], level: LodLevel) {
+  return meshes.filter((m) => !isCollisionNode(nodeNameOf(m)) && (lodOf(nodeNameOf(m)) ?? 0) === level);
+}
+
+/** Show the requested LOD, or the base mesh when the file has no LOD chain (Godot builds its own). */
+function selectLod(root: THREE.Object3D, wanted: LodLevel) {
+  const meshes = meshesIn(root);
+  const atWanted = renderableAt(meshes, wanted);
+  const shown = atWanted.length ? atWanted : renderableAt(meshes, 0);
   const set = new Set(shown);
   for (const mesh of meshes) mesh.visible = set.has(mesh);
-  return { shown, missingLod: wanted !== 0 && !atLevel(wanted).length };
+  return { shown, missingLod: wanted !== 0 && !atWanted.length };
+}
+
+/** Triangles per LOD as the file carries them, counted the way selectLod picks meshes; null where the file has no such level. */
+function lodTriangles(root: THREE.Object3D) {
+  const meshes = meshesIn(root);
+  return ([0, 1, 2] as LodLevel[]).map((level) => {
+    const at = renderableAt(meshes, level);
+    return at.length ? at.reduce((n, m) => n + countTriangles(m), 0) : null;
+  });
 }
 
 function disposeLoaded(root: THREE.Object3D) {
@@ -152,6 +169,7 @@ function ForgedMesh({
   onTriangles,
   onStatus,
   onBounds,
+  onLods,
 }: {
   asset: ForgedAsset;
   lod: LodLevel;
@@ -159,6 +177,7 @@ function ForgedMesh({
   onTriangles: (count: number) => void;
   onStatus: (status: { loading: boolean; error: string | null; missingLod: boolean }) => void;
   onBounds: (bounds: { span: number; height: number } | null) => void;
+  onLods: (lods: ForgedLods | null) => void;
 }) {
   const invalidate = useThree((state) => state.invalidate);
   const [scene, setScene] = useState<THREE.Group | null>(null);
@@ -167,6 +186,7 @@ function ForgedMesh({
     let cancelled = false;
     let loaded: THREE.Group | null = null;
     setScene(null);
+    onLods(null);
     onStatus({ loading: true, error: null, missingLod: false });
     new GLTFLoader().load(
       forgedUrl(asset),
@@ -177,6 +197,7 @@ function ForgedMesh({
         }
         loaded = gltf.scene;
         setScene(gltf.scene);
+        onLods({ file: asset.file, triangles: lodTriangles(gltf.scene) });
       },
       undefined,
       (err) => {
@@ -186,8 +207,10 @@ function ForgedMesh({
     return () => {
       cancelled = true;
       if (loaded) disposeLoaded(loaded);
+      // Once this file leaves the screen its counts must not linger in the inspector.
+      onLods(null);
     };
-  }, [asset, onStatus]);
+  }, [asset, onStatus, onLods]);
 
   useEffect(() => {
     if (!scene) return;
@@ -272,6 +295,7 @@ function Scene({
   onTriangles,
   onStatus,
   onBounds,
+  onLods,
 }: {
   spec: AssetSpec;
   lod: LodLevel;
@@ -281,6 +305,7 @@ function Scene({
   onTriangles: (count: number) => void;
   onStatus: (status: { loading: boolean; error: string | null; missingLod: boolean }) => void;
   onBounds: (bounds: { span: number; height: number } | null) => void;
+  onLods: (lods: ForgedLods | null) => void;
 }) {
   // Frame what is on screen: a hand-picked forged file need not be the size the spec describes.
   const span = bounds ? bounds.span : spanOf(spec);
@@ -299,7 +324,15 @@ function Scene({
       />
       <directionalLight position={[-span * 1.4, span, -span]} intensity={0.8} />
       {forged ? (
-        <ForgedMesh asset={forged} lod={lod} viewMode={viewMode} onTriangles={onTriangles} onStatus={onStatus} onBounds={onBounds} />
+        <ForgedMesh
+          asset={forged}
+          lod={lod}
+          viewMode={viewMode}
+          onTriangles={onTriangles}
+          onStatus={onStatus}
+          onBounds={onBounds}
+          onLods={onLods}
+        />
       ) : (
         <AssetMesh spec={spec} lod={lod} viewMode={viewMode} onTriangles={onTriangles} />
       )}
@@ -346,10 +379,13 @@ export function Viewport({
   spec,
   lod,
   viewMode,
+  onForgedLods,
 }: {
   spec: AssetSpec;
   lod: LodLevel;
   viewMode: ViewMode;
+  /** Receives the forged file's per-LOD triangles while one is on screen, and null otherwise. */
+  onForgedLods: (lods: ForgedLods | null) => void;
 }) {
   const [ready, setReady] = useState(false);
   const [tris, setTris] = useState(0);
@@ -426,6 +462,7 @@ export function Viewport({
           onTriangles={onTriangles}
           onStatus={onStatus}
           onBounds={onBounds}
+          onLods={onForgedLods}
         />
       </Canvas>
       <div className="pointer-events-none absolute left-3 top-3 flex flex-col gap-1 font-mono text-[11px] tabular-nums text-muted">

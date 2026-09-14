@@ -39,6 +39,7 @@ export function Studio() {
       panel: state.panel,
       forging: state.forging,
       origin: state.origin,
+      forgedLods: state.forgedLods,
       setEngine: state.setEngine,
       setBrief: state.setBrief,
       setPanel: state.setPanel,
@@ -50,6 +51,7 @@ export function Studio() {
       removeFromLibrary: state.removeFromLibrary,
       pushLog: state.pushLog,
       setForging: state.setForging,
+      setForgedLods: state.setForgedLods,
     })),
   );
   const [category, setCategory] = useState<Category | "all">("all");
@@ -145,6 +147,7 @@ export function Studio() {
                 spec={spec}
                 lod={store.lod}
                 viewMode={store.viewMode}
+                forgedLods={store.forgedLods}
                 onLod={store.setLod}
                 onView={store.setViewMode}
               />
@@ -201,7 +204,7 @@ export function Studio() {
                   </div>
                 }
               >
-                <Viewport spec={spec} lod={store.lod} viewMode={store.viewMode} />
+                <Viewport spec={spec} lod={store.lod} viewMode={store.viewMode} onForgedLods={store.setForgedLods} />
               </Suspense>
             ) : null}
           </div>
@@ -216,6 +219,7 @@ export function Studio() {
               spec={spec}
               lod={store.lod}
               viewMode={store.viewMode}
+              forgedLods={store.forgedLods}
               onLod={store.setLod}
               onView={store.setViewMode}
             />
@@ -269,6 +273,7 @@ export function Studio() {
                 spec={spec}
                 lod={store.lod}
                 viewMode={store.viewMode}
+                forgedLods={store.forgedLods}
                 onLod={store.setLod}
                 onView={store.setViewMode}
               />
