@@ -362,11 +362,11 @@ export const CATALOG: CatalogItem[] = [
     name: "shrub_a",
     category: "environments",
     blurb: "Low shrub clump.",
-    brief: "Jungle shrub A, stem + foliage clumps for understory scatter.",
+    brief: "Jungle shrub A, stem + foliage clumps for understory scatter. Convex hull (not capsule) so col matches clump footprint.",
     style: "realistic",
     triangleBudget: { lod0: 900, lod1: 300, lod2: 90 },
     texelDensity: 256,
-    collision: "capsule",
+    collision: "convex",
     dimensions: { x: 1.4, y: 1.1, z: 1.4 },
   },
   {
